@@ -70,11 +70,19 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname === "/kirjaudu" && user) {
-    const homeUrl = request.nextUrl.clone();
-    homeUrl.pathname = "/";
-    homeUrl.search = "";
+    const next = request.nextUrl.searchParams.get("next");
 
-    return NextResponse.redirect(homeUrl);
+    const redirectUrl = request.nextUrl.clone();
+
+    if (next && next.startsWith("/")) {
+      redirectUrl.pathname = next;
+    } else {
+      redirectUrl.pathname = "/";
+    }
+
+    redirectUrl.search = "";
+
+    return NextResponse.redirect(redirectUrl);
   }
 
   return response;
