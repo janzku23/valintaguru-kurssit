@@ -2,12 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient, User } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+import type { User } from '@supabase/supabase-js'
+import { createClient } from '@/utils/supabase/client'
 
 const feedbackEmail = 'info@valintaguru.fi'
 
@@ -61,8 +57,10 @@ type Stats = {
 
 export default function ProfilePage() {
   const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
 
   const [loading, setLoading] = useState(true)
+  const [pageError, setPageError] = useState('')
   const [savingPassword, setSavingPassword] = useState(false)
   const [user, setUser] = useState<User | null>(null)
 
@@ -77,52 +75,66 @@ export default function ProfilePage() {
 
   useEffect(() => {
     loadProfile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function loadProfile() {
     setLoading(true)
+    setPageError('')
 
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser()
+    try {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser()
 
-    if (error || !user) {
-      router.replace('/kirjaudu?next=/profiili')
-      return
+      if (error || !user) {
+        router.replace('/kirjaudu?next=/profiili')
+        return
+      }
+
+      setUser(user)
+
+      const [profileData, courseData, progressData] = await Promise.all([
+        fetchProfile(user),
+        fetchCourseAccess(user),
+        fetchProgress(user),
+      ])
+
+      setProfile(profileData)
+      setCourses(courseData)
+      setProgress(progressData)
+    } catch (error) {
+      console.error('Profile loading failed:', error)
+      setPageError('Profiilin lataaminen epäonnistui. Yritä päivittää sivu.')
+    } finally {
+      setLoading(false)
     }
-
-    setUser(user)
-
-    const profileData = await fetchProfile(user)
-    const courseData = await fetchCourseAccess(user)
-    const progressData = await fetchProgress(user)
-
-    setProfile(profileData)
-    setCourses(courseData)
-    setProgress(progressData)
-    setLoading(false)
   }
 
   async function fetchProfile(user: User): Promise<ProfileRow | null> {
-    const byId = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle()
+    try {
+      const byId = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle()
 
-    if (!byId.error && byId.data) {
-      return byId.data
-    }
+      if (!byId.error && byId.data) {
+        return byId.data
+      }
 
-    const byUserId = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle()
+      const byUserId = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle()
 
-    if (!byUserId.error && byUserId.data) {
-      return byUserId.data
+      if (!byUserId.error && byUserId.data) {
+        return byUserId.data
+      }
+    } catch (error) {
+      console.warn('Profile table fetch failed:', error)
     }
 
     return {
@@ -139,23 +151,31 @@ export default function ProfilePage() {
   async function fetchCourseAccess(user: User): Promise<CourseAccess[]> {
     const found: CourseAccess[] = []
 
-    const byUserId = await supabase
-      .from('student_courses')
-      .select('*')
-      .eq('user_id', user.id)
+    try {
+      const byUserId = await supabase
+        .from('student_courses')
+        .select('*')
+        .eq('user_id', user.id)
 
-    if (!byUserId.error && byUserId.data) {
-      found.push(...byUserId.data)
+      if (!byUserId.error && byUserId.data) {
+        found.push(...byUserId.data)
+      }
+    } catch (error) {
+      console.warn('Course access by user_id failed:', error)
     }
 
     if (user.email) {
-      const byEmail = await supabase
-        .from('student_courses')
-        .select('*')
-        .eq('email', user.email.toLowerCase())
+      try {
+        const byEmail = await supabase
+          .from('student_courses')
+          .select('*')
+          .eq('email', user.email.toLowerCase())
 
-      if (!byEmail.error && byEmail.data) {
-        found.push(...byEmail.data)
+        if (!byEmail.error && byEmail.data) {
+          found.push(...byEmail.data)
+        }
+      } catch (error) {
+        console.warn('Course access by email failed:', error)
       }
     }
 
@@ -173,17 +193,17 @@ export default function ProfilePage() {
 
     const unique = new Map<string, CourseAccess>()
 
-    for (const item of visibleCourses) {
+    visibleCourses.forEach((item, index) => {
       const key =
         item.id ??
         item.course_id ??
         item.course_slug ??
         item.course_title ??
         item.title ??
-        crypto.randomUUID()
+        `${item.email ?? 'course'}-${index}`
 
       unique.set(key, item)
-    }
+    })
 
     return Array.from(unique.values())
   }
@@ -200,18 +220,26 @@ export default function ProfilePage() {
     const rows: ProgressRow[] = []
 
     for (const table of progressTables) {
-      const result = await supabase
-        .from(table)
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+      try {
+        const result = await supabase
+          .from(table)
+          .select('*')
+          .eq('user_id', user.id)
 
-      if (!result.error && result.data) {
-        rows.push(...result.data)
+        if (!result.error && result.data) {
+          rows.push(...result.data)
+        }
+      } catch (error) {
+        console.warn(`Progress fetch failed from ${table}:`, error)
       }
     }
 
-    return rows
+    return rows.sort((a, b) => {
+      const dateA = new Date(a.created_at || a.updated_at || 0).getTime()
+      const dateB = new Date(b.created_at || b.updated_at || 0).getTime()
+
+      return dateB - dateA
+    })
   }
 
   async function handlePasswordChange(event: React.FormEvent<HTMLFormElement>) {
@@ -232,25 +260,30 @@ export default function ProfilePage() {
 
     setSavingPassword(true)
 
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword,
-    })
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      })
 
-    setSavingPassword(false)
+      if (error) {
+        setPasswordError(error.message)
+        return
+      }
 
-    if (error) {
-      setPasswordError(error.message)
-      return
+      setNewPassword('')
+      setNewPasswordAgain('')
+      setPasswordMessage('Salasana vaihdettu onnistuneesti.')
+    } catch {
+      setPasswordError('Salasanan vaihto epäonnistui.')
+    } finally {
+      setSavingPassword(false)
     }
-
-    setNewPassword('')
-    setNewPasswordAgain('')
-    setPasswordMessage('Salasana vaihdettu onnistuneesti.')
   }
 
   async function handleSignOut() {
     await supabase.auth.signOut()
     router.replace('/kirjaudu')
+    router.refresh()
   }
 
   function formatCourseStatus(status?: string) {
@@ -325,6 +358,33 @@ export default function ProfilePage() {
         <section style={styles.loadingCard}>
           <div style={styles.spinner} />
           <p style={styles.loadingText}>Ladataan profiilia...</p>
+        </section>
+      </main>
+    )
+  }
+
+  if (pageError) {
+    return (
+      <main style={styles.page}>
+        <section style={styles.loadingCard}>
+          <p style={styles.error}>{pageError}</p>
+
+          <button onClick={loadProfile} style={styles.primaryButton}>
+            Yritä uudelleen
+          </button>
+
+          <button
+            onClick={() => router.push('/')}
+            style={{
+              ...styles.secondaryButton,
+              marginTop: 12,
+              color: '#0A46D9',
+              border: '1px solid rgba(36,107,255,0.25)',
+              background: '#EEF4FF',
+            }}
+          >
+            Etusivulle
+          </button>
         </section>
       </main>
     )
@@ -485,11 +545,12 @@ export default function ProfilePage() {
                     item.task_id ||
                     'Suoritus'
 
-                  const date = item.created_at || item.updated_at
-                    ? new Date(item.created_at || item.updated_at || '').toLocaleDateString(
-                        'fi-FI',
-                      )
-                    : '-'
+                  const date =
+                    item.created_at || item.updated_at
+                      ? new Date(item.created_at || item.updated_at || '').toLocaleDateString(
+                          'fi-FI',
+                        )
+                      : '-'
 
                   const score =
                     typeof item.score === 'number'
