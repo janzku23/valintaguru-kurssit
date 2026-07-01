@@ -43,19 +43,23 @@ export default function KirjauduClient() {
     }
   }, []);
 
-  async function checkExistingSession() {
+async function checkExistingSession() {
+  try {
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (session?.user) {
+    if (user) {
       router.replace(nextUrl);
       router.refresh();
       return;
     }
-
+  } catch {
+    // Ei tehdä mitään. Käyttäjä saa jäädä kirjautumissivulle.
+  } finally {
     setCheckingSession(false);
   }
+}
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
