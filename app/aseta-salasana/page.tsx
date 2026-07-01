@@ -6,7 +6,6 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function AsetaSalasanaPage() {
   const router = useRouter();
-  const supabase = createClient();
 
   const [password, setPassword] = useState("");
   const [passwordAgain, setPasswordAgain] = useState("");
@@ -30,17 +29,25 @@ export default function AsetaSalasanaPage() {
         return;
       }
 
+      const supabase = createClient();
+
       const { error } = await supabase.auth.updateUser({
         password,
       });
 
       if (error) {
-        setError("Salasanan asetus epäonnistui. Avaa sähköpostilinkki uudelleen.");
+        setError(
+          "Salasanan asetus epäonnistui. Avaa sähköpostilinkki uudelleen."
+        );
         return;
       }
 
       router.replace("/kurssit");
       router.refresh();
+    } catch {
+      setError(
+        "Salasanan asetus epäonnistui. Tarkista linkki tai yritä uudelleen."
+      );
     } finally {
       setLoading(false);
     }
@@ -76,6 +83,7 @@ export default function AsetaSalasanaPage() {
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Vähintään 8 merkkiä"
                 className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                required
               />
             </div>
 
@@ -89,6 +97,7 @@ export default function AsetaSalasanaPage() {
                 onChange={(event) => setPasswordAgain(event.target.value)}
                 placeholder="Toista salasana"
                 className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                required
               />
             </div>
 
