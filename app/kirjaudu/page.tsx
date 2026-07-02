@@ -18,7 +18,7 @@ export default function KirjauduPage() {
                 </p>
 
                 <h1 className="mt-3 text-3xl font-black text-slate-950">
-                  Ladataan kirjautumista
+                  Ladataan kirjautumista..
                 </h1>
 
                 <p className="mt-3 text-sm leading-6 text-slate-600">
