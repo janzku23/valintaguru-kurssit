@@ -1,9 +1,16 @@
 import { CourseId } from "./courses";
 
+export type TheoryEmbed = {
+  type: "canva";
+  title: string;
+  url: string;
+};
+
 export type TheorySection = {
   id: string;
   title: string;
   content: string;
+  embed?: TheoryEmbed;
 };
 
 export type QuizAnswer = {
@@ -50,6 +57,18 @@ export const courseContent: Record<CourseId, CourseContent> = {
 Oikeudellisessa ajattelussa tärkeää on tunnistaa ongelma, löytää siihen soveltuvat oikeuslähteet ja perustella ratkaisu johdonmukaisesti.
 
 Valintakokeessa korostuu erityisesti kyky lukea aineistoa tarkasti ja soveltaa annettua tietoa.`,
+      },
+      {
+        id: "oikis-canva-teoria",
+        title: "Oikiksen teoria visuaalisesti",
+        content: `Tässä osiossa voit käydä Oikiksen teoriaa läpi visuaalisessa muodossa.
+
+Upotus näkyy suoraan ValintaGurun teoriaosiossa, joten opiskelijan ei tarvitse siirtyä pois sivulta.`,
+        embed: {
+          type: "canva",
+          title: "Oikiksen teoria",
+          url: "https://www.canva.com/design/DAG_mgumrEg/nRDRle0lVglT1XzsMyxo3Q/view?embed",
+        },
       },
       {
         id: "oikis-sopimusoikeus",
@@ -162,8 +181,7 @@ Aineistosta ei pidä päätellä asioita, joita siinä ei oikeasti sanota.`,
     quizQuestions: [
       {
         id: "g-q1",
-        question:
-          "Mikä on yleensä turvallisin tapa vastata aineistotehtävään?",
+        question: "Mikä on yleensä turvallisin tapa vastata aineistotehtävään?",
         answers: [
           {
             id: "a",

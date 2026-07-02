@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { CourseId } from "../data/courses";
 
 type Props = {
@@ -19,6 +20,19 @@ type ProgressAttempt = {
   answeredAt: string;
 };
 
+type ProgressAttemptRow = {
+  id: string;
+  user_id: string;
+  course_id: string;
+  question_id: string;
+  question: string;
+  area: string;
+  selected_answer_ids: string[];
+  correct_answer_ids: string[];
+  is_correct: boolean;
+  answered_at: string;
+};
+
 type AreaStats = {
   area: string;
   attempts: number;
@@ -26,29 +40,136 @@ type AreaStats = {
   accuracy: number;
 };
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+
+function mapRowToAttempt(row: ProgressAttemptRow): ProgressAttempt {
+  return {
+    id: row.id,
+    courseId: row.course_id as CourseId,
+    questionId: row.question_id,
+    question: row.question,
+    area: row.area,
+    selectedAnswerIds: row.selected_answer_ids ?? [],
+    correctAnswerIds: row.correct_answer_ids ?? [],
+    isCorrect: row.is_correct,
+    answeredAt: row.answered_at,
+  };
+}
+
+function mapAttemptToRow(
+  attempt: ProgressAttempt,
+  userId: string
+): ProgressAttemptRow {
+  return {
+    id: attempt.id,
+    user_id: userId,
+    course_id: attempt.courseId,
+    question_id: attempt.questionId,
+    question: attempt.question,
+    area: attempt.area,
+    selected_answer_ids: attempt.selectedAnswerIds ?? [],
+    correct_answer_ids: attempt.correctAnswerIds ?? [],
+    is_correct: attempt.isCorrect,
+    answered_at: attempt.answeredAt,
+  };
+}
+
 export default function ProgressView({ courseId }: Props) {
   const storageKey = `valintaguru_progress_${courseId}`;
+  const migrationKey = `valintaguru_progress_migrated_${courseId}`;
+
+  const supabase = useMemo(() => {
+    return createClient(supabaseUrl, supabaseAnonKey);
+  }, []);
 
   const [attempts, setAttempts] = useState<ProgressAttempt[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const saved = window.localStorage.getItem(storageKey);
+  const loadProgress = useCallback(async () => {
+    setHasLoaded(false);
+    setErrorMessage(null);
 
-    if (!saved) {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      setErrorMessage(
+        "Supabase-asetukset puuttuvat. Tarkista NEXT_PUBLIC_SUPABASE_URL ja NEXT_PUBLIC_SUPABASE_ANON_KEY."
+      );
       setHasLoaded(true);
       return;
     }
 
-    try {
-      const parsed = JSON.parse(saved) as ProgressAttempt[];
-      setAttempts(parsed);
-    } catch {
-      window.localStorage.removeItem(storageKey);
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError) {
+      setErrorMessage("Käyttäjän kirjautumistietoja ei voitu hakea.");
+      setAttempts([]);
+      setHasLoaded(true);
+      return;
     }
 
+    if (!user) {
+      setErrorMessage("Kirjaudu sisään, jotta edistyminen voidaan hakea.");
+      setAttempts([]);
+      setHasLoaded(true);
+      return;
+    }
+
+    setUserId(user.id);
+
+    const localSaved = window.localStorage.getItem(storageKey);
+    const alreadyMigrated = window.localStorage.getItem(migrationKey);
+
+    if (localSaved && !alreadyMigrated) {
+      try {
+        const parsed = JSON.parse(localSaved) as ProgressAttempt[];
+
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const rows = parsed.map((attempt) => mapAttemptToRow(attempt, user.id));
+
+          const { error: migrateError } = await supabase
+            .from("student_progress_attempts")
+            .upsert(rows, {
+              onConflict: "id",
+            });
+
+          if (!migrateError) {
+            window.localStorage.setItem(migrationKey, "true");
+          }
+        }
+      } catch {
+        window.localStorage.removeItem(storageKey);
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("student_progress_attempts")
+      .select(
+        "id, user_id, course_id, question_id, question, area, selected_answer_ids, correct_answer_ids, is_correct, answered_at"
+      )
+      .eq("user_id", user.id)
+      .eq("course_id", courseId)
+      .order("answered_at", { ascending: true });
+
+    if (error) {
+      setErrorMessage("Edistymisen haku Supabasesta epäonnistui.");
+      setAttempts([]);
+      setHasLoaded(true);
+      return;
+    }
+
+    setAttempts((data ?? []).map((row) => mapRowToAttempt(row as ProgressAttemptRow)));
     setHasLoaded(true);
-  }, [storageKey]);
+  }, [courseId, migrationKey, storageKey, supabase]);
+
+  useEffect(() => {
+    void loadProgress();
+  }, [loadProgress]);
 
   const totalAttempts = attempts.length;
 
@@ -95,17 +216,35 @@ export default function ProgressView({ courseId }: Props) {
 
   const latestAttempts = [...attempts].reverse().slice(0, 8);
 
-  function resetProgress() {
+  async function resetProgress() {
     const confirmed = window.confirm(
       "Haluatko varmasti nollata tämän kurssin edistymisen?"
     );
 
-    if (!confirmed) {
+    if (!confirmed || !userId) {
+      return;
+    }
+
+    setIsResetting(true);
+    setErrorMessage(null);
+
+    const { error } = await supabase
+      .from("student_progress_attempts")
+      .delete()
+      .eq("user_id", userId)
+      .eq("course_id", courseId);
+
+    if (error) {
+      setErrorMessage("Edistymisen nollaus epäonnistui.");
+      setIsResetting(false);
       return;
     }
 
     window.localStorage.removeItem(storageKey);
+    window.localStorage.removeItem(migrationKey);
+
     setAttempts([]);
+    setIsResetting(false);
   }
 
   if (!hasLoaded) {
@@ -116,8 +255,41 @@ export default function ProgressView({ courseId }: Props) {
         </h2>
 
         <p className="mt-3 leading-8 text-slate-700">
-          Haetaan tallennettuja tehtävätuloksia.
+          Haetaan käyttäjän tallennettuja tehtävätuloksia Supabasesta.
         </p>
+      </div>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <div className="rounded-3xl border border-red-200 bg-red-50 p-8 shadow-sm">
+        <p className="text-sm font-bold uppercase tracking-wide text-red-700">
+          Edistymistä ei voitu näyttää
+        </p>
+
+        <h2 className="mt-2 text-3xl font-extrabold text-red-950">
+          Tallennuksen haku epäonnistui
+        </h2>
+
+        <p className="mt-4 leading-8 text-red-950">{errorMessage}</p>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => void loadProgress()}
+            className="rounded-full bg-red-600 px-6 py-3 font-bold text-white transition hover:bg-red-700"
+          >
+            Yritä uudelleen
+          </button>
+
+          <a
+            href="/kirjaudu"
+            className="rounded-full border border-red-200 bg-white px-6 py-3 font-bold text-red-700 transition hover:bg-red-100"
+          >
+            Kirjaudu sisään
+          </a>
+        </div>
       </div>
     );
   }
@@ -135,8 +307,8 @@ export default function ProgressView({ courseId }: Props) {
 
         <p className="mt-4 leading-8 text-slate-700">
           Kun teet monivalintatehtäviä, tulokset tallentuvat automaattisesti
-          tänne. Sen jälkeen näet onnistumisprosentin, heikoimman osa-alueen ja
-          viimeisimmät vastaukset.
+          Supabaseen. Sen jälkeen näet onnistumisprosentin, heikoimman
+          osa-alueen ja viimeisimmät vastaukset myös toisella laitteella.
         </p>
 
         <a
@@ -246,9 +418,7 @@ export default function ProgressView({ courseId }: Props) {
             <div key={area.area}>
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-extrabold text-slate-950">
-                    {area.area}
-                  </p>
+                  <p className="font-extrabold text-slate-950">{area.area}</p>
 
                   <p className="text-sm font-semibold text-slate-500">
                     {area.correct} / {area.attempts} oikein
@@ -295,6 +465,10 @@ export default function ProgressView({ courseId }: Props) {
                   <p className="mt-1 text-sm font-semibold text-slate-500">
                     {attempt.area}
                   </p>
+
+                  <p className="mt-1 text-xs font-semibold text-slate-400">
+                    {new Date(attempt.answeredAt).toLocaleString("fi-FI")}
+                  </p>
                 </div>
 
                 <span
@@ -322,16 +496,17 @@ export default function ProgressView({ courseId }: Props) {
         </h2>
 
         <p className="mt-3 leading-8 text-slate-700">
-          Nollaus poistaa vain tämän kurssin paikallisesti tallennetun
-          tehtäväedistymisen.
+          Nollaus poistaa tämän kurssin tehtäväedistymisen Supabasesta
+          kirjautuneelta käyttäjältä.
         </p>
 
         <button
           type="button"
           onClick={resetProgress}
-          className="mt-6 rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100"
+          disabled={isResetting}
+          className="mt-6 rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Nollaa edistyminen
+          {isResetting ? "Nollataan..." : "Nollaa edistyminen"}
         </button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { Flashcard } from "../data/courseContent";
 import { CourseId } from "../data/courses";
 
@@ -9,15 +10,20 @@ type Props = {
   flashcards: Flashcard[];
 };
 
-type SavedFlashcardState = {
-  knownIds: string[];
-  needsPracticeIds: string[];
-};
-
 type RoundMode = "all" | "practice";
 
+type FlashcardProgressRow = {
+  flashcard_id: string;
+  status: "known" | "needs_practice";
+};
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+
 export default function FlashcardView({ courseId, flashcards }: Props) {
-  const storageKey = `valintaguru_flashcards_${courseId}`;
+  const supabase = useMemo(() => {
+    return createClient(supabaseUrl, supabaseAnonKey);
+  }, []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -26,52 +32,77 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
   const [roundMode, setRoundMode] = useState<RoundMode>("all");
   const [hasLoadedSavedState, setHasLoadedSavedState] = useState(false);
   const [isRoundFinished, setIsRoundFinished] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const saved = window.localStorage.getItem(storageKey);
+  async function loadFlashcardProgress() {
+    setHasLoadedSavedState(false);
+    setErrorMessage(null);
 
-    if (!saved) {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      setErrorMessage(
+        "Supabase-asetukset puuttuvat. Tarkista .env.local-tiedoston NEXT_PUBLIC_SUPABASE_URL ja NEXT_PUBLIC_SUPABASE_ANON_KEY."
+      );
       setHasLoadedSavedState(true);
       return;
     }
 
-    try {
-      const parsed = JSON.parse(saved) as SavedFlashcardState;
-      const validFlashcardIds = flashcards.map((card) => card.id);
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-      const savedKnownIds = parsed.knownIds.filter((id) =>
-        validFlashcardIds.includes(id)
-      );
-
-      const savedNeedsPracticeIds = parsed.needsPracticeIds.filter((id) =>
-        validFlashcardIds.includes(id)
-      );
-
-      setKnownIds(savedKnownIds);
-      setNeedsPracticeIds(savedNeedsPracticeIds);
-
-      if (savedNeedsPracticeIds.length > 0) {
-        setRoundMode("practice");
-      }
-    } catch {
-      window.localStorage.removeItem(storageKey);
-    }
-
-    setHasLoadedSavedState(true);
-  }, [storageKey, flashcards]);
-
-  useEffect(() => {
-    if (!hasLoadedSavedState) {
+    if (userError || !user) {
+      setErrorMessage("Kirjaudu sisään, jotta flashcard-edistyminen voidaan hakea.");
+      setHasLoadedSavedState(true);
       return;
     }
 
-    const stateToSave: SavedFlashcardState = {
-      knownIds,
-      needsPracticeIds,
-    };
+    setUserId(user.id);
 
-    window.localStorage.setItem(storageKey, JSON.stringify(stateToSave));
-  }, [hasLoadedSavedState, knownIds, needsPracticeIds, storageKey]);
+    const validFlashcardIds = flashcards.map((card) => card.id);
+
+    const { data, error } = await supabase
+      .from("student_flashcard_progress")
+      .select("flashcard_id, status")
+      .eq("user_id", user.id)
+      .eq("course_id", courseId);
+
+    if (error) {
+      setErrorMessage("Flashcard-edistymisen haku Supabasesta epäonnistui.");
+      setHasLoadedSavedState(true);
+      return;
+    }
+
+    const rows = (data ?? []) as FlashcardProgressRow[];
+
+    const savedKnownIds = rows
+      .filter((row) => row.status === "known")
+      .map((row) => row.flashcard_id)
+      .filter((id) => validFlashcardIds.includes(id));
+
+    const savedNeedsPracticeIds = rows
+      .filter((row) => row.status === "needs_practice")
+      .map((row) => row.flashcard_id)
+      .filter((id) => validFlashcardIds.includes(id));
+
+    setKnownIds(savedKnownIds);
+    setNeedsPracticeIds(savedNeedsPracticeIds);
+
+    if (savedNeedsPracticeIds.length > 0) {
+      setRoundMode("practice");
+    } else {
+      setRoundMode("all");
+    }
+
+    setHasLoadedSavedState(true);
+  }
+
+  useEffect(() => {
+    void loadFlashcardProgress();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseId, flashcards]);
 
   const practiceFlashcards = useMemo(() => {
     return flashcards.filter((card) => needsPracticeIds.includes(card.id));
@@ -86,6 +117,41 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
   }, [flashcards, practiceFlashcards, roundMode]);
 
   const currentCard = visibleFlashcards[currentIndex];
+
+  async function saveFlashcardStatus(
+    flashcardId: string,
+    status: "known" | "needs_practice"
+  ) {
+    if (!userId) {
+      setErrorMessage("Kirjaudu sisään, jotta flashcard voidaan tallentaa.");
+      return false;
+    }
+
+    setIsSaving(true);
+    setErrorMessage(null);
+
+    const { error } = await supabase.from("student_flashcard_progress").upsert(
+      {
+        user_id: userId,
+        course_id: courseId,
+        flashcard_id: flashcardId,
+        status,
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "user_id,course_id,flashcard_id",
+      }
+    );
+
+    if (error) {
+      setErrorMessage("Flashcard-tilan tallennus Supabaseen epäonnistui.");
+      setIsSaving(false);
+      return false;
+    }
+
+    setIsSaving(false);
+    return true;
+  }
 
   function finishRound() {
     setIsFlipped(false);
@@ -103,8 +169,14 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     setCurrentIndex((current) => current + 1);
   }
 
-  function markNeedsPractice() {
-    if (!currentCard) {
+  async function markNeedsPractice() {
+    if (!currentCard || isSaving) {
+      return;
+    }
+
+    const saved = await saveFlashcardStatus(currentCard.id, "needs_practice");
+
+    if (!saved) {
       return;
     }
 
@@ -117,8 +189,14 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     moveToNextCard();
   }
 
-  function markKnown() {
-    if (!currentCard) {
+  async function markKnown() {
+    if (!currentCard || isSaving) {
+      return;
+    }
+
+    const saved = await saveFlashcardStatus(currentCard.id, "known");
+
+    if (!saved) {
       return;
     }
 
@@ -167,14 +245,42 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     setIsRoundFinished(false);
   }
 
-  function resetEverything() {
+  async function resetEverything() {
+    if (!userId) {
+      setErrorMessage("Kirjaudu sisään, jotta flashcard-edistyminen voidaan nollata.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Haluatko varmasti nollata tämän kurssin flashcard-edistymisen?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsSaving(true);
+    setErrorMessage(null);
+
+    const { error } = await supabase
+      .from("student_flashcard_progress")
+      .delete()
+      .eq("user_id", userId)
+      .eq("course_id", courseId);
+
+    if (error) {
+      setErrorMessage("Flashcard-edistymisen nollaus epäonnistui.");
+      setIsSaving(false);
+      return;
+    }
+
     setKnownIds([]);
     setNeedsPracticeIds([]);
     setRoundMode("all");
     setCurrentIndex(0);
     setIsFlipped(false);
     setIsRoundFinished(false);
-    window.localStorage.removeItem(storageKey);
+    setIsSaving(false);
   }
 
   if (!hasLoadedSavedState) {
@@ -185,8 +291,41 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
         </h2>
 
         <p className="mt-3 leading-8 text-slate-700">
-          Haetaan aiempi kertauslista.
+          Haetaan käyttäjän flashcard-edistymistä Supabasesta.
         </p>
+      </div>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <div className="rounded-3xl border border-red-200 bg-red-50 p-8 shadow-sm">
+        <p className="text-sm font-bold uppercase tracking-wide text-red-700">
+          Tallennusvirhe
+        </p>
+
+        <h2 className="mt-2 text-2xl font-extrabold text-red-950">
+          Flashcard-edistymistä ei voitu käsitellä
+        </h2>
+
+        <p className="mt-3 leading-8 text-red-950">{errorMessage}</p>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => void loadFlashcardProgress()}
+            className="rounded-full bg-red-600 px-6 py-3 font-bold text-white transition hover:bg-red-700"
+          >
+            Yritä uudelleen
+          </button>
+
+          <a
+            href="/kirjaudu"
+            className="rounded-full border border-red-200 bg-white px-6 py-3 font-bold text-red-700 transition hover:bg-red-100"
+          >
+            Kirjaudu sisään
+          </a>
+        </div>
       </div>
     );
   }
@@ -240,9 +379,9 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
           </div>
 
           <p className="mt-6 leading-8 text-slate-700">
-            Kun painat Aloita nykyinen kierros alusta, seuraava kierros näyttää
-            ensisijaisesti ne kortit, joihin painoit Kertaa vielä. Jos
-            kertauskortteja ei ole, kierros alkaa kaikista korteista.
+            Flashcard-edistyminen on tallennettu Supabaseen. Seuraavalla
+            kerralla kertauskortit haetaan automaattisesti kirjautuneelle
+            käyttäjälle.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -257,9 +396,10 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
             <button
               type="button"
               onClick={resetEverything}
-              className="rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100"
+              disabled={isSaving}
+              className="rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Nollaa
+              {isSaving ? "Nollataan..." : "Nollaa"}
             </button>
           </div>
         </div>
@@ -286,24 +426,24 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
           <button
             type="button"
             onClick={resetEverything}
-            className="rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100"
+            disabled={isSaving}
+            className="rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Nollaa
+            {isSaving ? "Nollataan..." : "Nollaa"}
           </button>
         </div>
       </div>
     );
   }
 
-  const isPracticeRound = roundMode === "practice" && practiceFlashcards.length > 0;
+  const isPracticeRound =
+    roundMode === "practice" && practiceFlashcards.length > 0;
 
   return (
     <div className="space-y-6">
       {isPracticeRound && (
         <div className="rounded-3xl border border-orange-200 bg-orange-50 p-5 shadow-sm">
-          <p className="font-extrabold text-orange-900">
-            Kertauskierros
-          </p>
+          <p className="font-extrabold text-orange-900">Kertauskierros</p>
 
           <p className="mt-2 leading-7 text-orange-900">
             Näet nyt ne kortit, joihin olet aiemmin painanut Kertaa vielä.
@@ -358,17 +498,19 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
           <button
             type="button"
             onClick={markNeedsPractice}
-            className="rounded-full bg-orange-100 px-6 py-4 font-bold text-orange-800 transition hover:bg-orange-200"
+            disabled={isSaving}
+            className="rounded-full bg-orange-100 px-6 py-4 font-bold text-orange-800 transition hover:bg-orange-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Kertaa vielä
+            {isSaving ? "Tallennetaan..." : "Kertaa vielä"}
           </button>
 
           <button
             type="button"
             onClick={markKnown}
-            className="rounded-full bg-emerald-100 px-6 py-4 font-bold text-emerald-800 transition hover:bg-emerald-200"
+            disabled={isSaving}
+            className="rounded-full bg-emerald-100 px-6 py-4 font-bold text-emerald-800 transition hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Osaan tämän
+            {isSaving ? "Tallennetaan..." : "Osaan tämän"}
           </button>
         </div>
       </div>
@@ -384,7 +526,8 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
 
         <p className="mt-3 leading-8 text-slate-700">
           Aloita nykyinen kierros alusta näyttää kertauskortit, jos niitä on.
-          Nollaa poistaa kaiken tallennetun flashcard-tilan tältä kurssilta.
+          Nollaa poistaa tämän kurssin flashcard-tilan Supabasesta kirjautuneelta
+          käyttäjältä.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -399,9 +542,10 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
           <button
             type="button"
             onClick={resetEverything}
-            className="rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100"
+            disabled={isSaving}
+            className="rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Nollaa
+            {isSaving ? "Nollataan..." : "Nollaa"}
           </button>
         </div>
       </div>

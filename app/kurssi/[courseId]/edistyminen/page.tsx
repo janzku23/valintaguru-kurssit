@@ -70,7 +70,8 @@ export default async function CourseProgressPage({ params }: Props) {
 
           <p className="mt-4 max-w-3xl text-lg leading-8 text-blue-50">
             Näet tästä kurssin tehtävistä kertyneen edistymisen ja osa-alueet,
-            joita kannattaa harjoitella lisää.
+            joita kannattaa harjoitella lisää. Tulokset tallentuvat
+            kirjautuneelle käyttäjälle Supabaseen.
           </p>
         </header>
 
@@ -89,7 +90,7 @@ export default async function CourseProgressPage({ params }: Props) {
 
               <p className="mt-3 text-lg leading-8 text-slate-700">
                 Edistyminen perustuu tämän kurssin harjoituksissa annettuihin
-                vastauksiin.
+                vastauksiin. Tallennus tapahtuu käyttäjäkohtaisesti Supabaseen.
               </p>
             </div>
 
