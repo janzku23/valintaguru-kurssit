@@ -41,20 +41,20 @@ function normalizeSiteUrl(value: string) {
   return value.trim().replace(/\/$/, "");
 }
 
-async function findUserByEmail(email: string): Promise<User | null> {
+async function findUserByEmail(
+  email: string
+): Promise<User | null> {
   const adminClient = createAdminClient();
 
   let page = 1;
   const perPage = 1000;
 
   while (true) {
-    const {
-      data,
-      error,
-    } = await adminClient.auth.admin.listUsers({
-      page,
-      perPage,
-    });
+    const { data, error } =
+      await adminClient.auth.admin.listUsers({
+        page,
+        perPage,
+      });
 
     if (error) {
       throw new Error(
@@ -63,7 +63,8 @@ async function findUserByEmail(email: string): Promise<User | null> {
     }
 
     const matchingUser = data.users.find(
-      (user) => normalizeEmail(user.email ?? "") === email
+      (user) =>
+        normalizeEmail(user.email ?? "") === email
     );
 
     if (matchingUser) {
@@ -79,7 +80,10 @@ async function findUserByEmail(email: string): Promise<User | null> {
 }
 
 function resolveCourses(courseIds: string[]) {
-  const availableCourses = new Map<string, AvailableCourse>(
+  const availableCourses = new Map<
+    string,
+    AvailableCourse
+  >(
     courses.map((course) => [
       course.id.toLowerCase(),
       course,
@@ -89,26 +93,30 @@ function resolveCourses(courseIds: string[]) {
   const normalizedCourseIds = Array.from(
     new Set(
       courseIds
-        .filter((courseId): courseId is string => {
-          return (
+        .filter(
+          (courseId): courseId is string =>
             typeof courseId === "string" &&
             courseId.trim().length > 0
-          );
-        })
-        .map((courseId) => courseId.trim().toLowerCase())
+        )
+        .map((courseId) =>
+          courseId.trim().toLowerCase()
+        )
     )
   );
 
   const selectedCourses: AvailableCourse[] =
     normalizedCourseIds.flatMap((courseId) => {
-      const course = availableCourses.get(courseId);
+      const course =
+        availableCourses.get(courseId);
 
       return course ? [course] : [];
     });
 
-  const invalidCourseIds = normalizedCourseIds.filter(
-    (courseId) => !availableCourses.has(courseId)
-  );
+  const invalidCourseIds =
+    normalizedCourseIds.filter(
+      (courseId) =>
+        !availableCourses.has(courseId)
+    );
 
   if (invalidCourseIds.length > 0) {
     throw new Error(
@@ -117,7 +125,9 @@ function resolveCourses(courseIds: string[]) {
   }
 
   if (selectedCourses.length === 0) {
-    throw new Error("Vähintään yksi kurssi pitää valita.");
+    throw new Error(
+      "Vähintään yksi kurssi pitää valita."
+    );
   }
 
   return selectedCourses;
@@ -141,9 +151,7 @@ async function saveCourseAccess(
       status: "käytössä",
     }));
 
-  const {
-    error,
-  } = await adminClient
+  const { error } = await adminClient
     .from("student_courses")
     .upsert(courseRows, {
       onConflict: "user_id,course_id",
@@ -156,7 +164,9 @@ async function saveCourseAccess(
         error.message,
         error.details,
         error.hint,
-        error.code ? `Virhekoodi: ${error.code}` : null,
+        error.code
+          ? `Virhekoodi: ${error.code}`
+          : null,
       ]
         .filter(Boolean)
         .join(" ")
@@ -170,41 +180,58 @@ export async function provisionStudent(
   const adminClient = createAdminClient();
 
   const email = normalizeEmail(input.email);
-  const siteUrl = normalizeSiteUrl(input.siteUrl);
-  const selectedCourses = resolveCourses(input.courseIds);
+  const siteUrl = normalizeSiteUrl(
+    input.siteUrl
+  );
+
+  const selectedCourses = resolveCourses(
+    input.courseIds
+  );
 
   if (!email) {
-    throw new Error("Käyttäjän sähköposti puuttuu.");
+    throw new Error(
+      "Käyttäjän sähköposti puuttuu."
+    );
   }
 
   if (!siteUrl) {
-    throw new Error("Sivuston osoite puuttuu.");
+    throw new Error(
+      "Sivuston osoite puuttuu."
+    );
   }
 
   let user = await findUserByEmail(email);
   let invited = false;
 
   /*
-   * Jos käyttäjää ei ole, Supabase luo Auth-käyttäjän ja lähettää
-   * kutsusähköpostin.
+   * Uuden käyttäjän kutsu ohjataan suoraan
+   * selaimessa toimivalle salasanan asetussivulle.
+   *
+   * Invite-linkki käyttää Supabasen implicit-flow'ta,
+   * jolloin istuntotunnukset tulevat URL:n hash-osassa.
+   * Client-puolen Supabase käsittelee ne automaattisesti.
+   *
+   * Älä ohjaa tätä palvelinpuolen /auth/callback-reitille.
    */
   if (!user) {
     const redirectTo =
-      `${siteUrl}/auth/callback?next=/aseta-salasana`;
+      `${siteUrl}/aseta-salasana`;
 
-    const {
-      data,
-      error,
-    } = await adminClient.auth.admin.inviteUserByEmail(email, {
-      redirectTo,
-      data: {
-        created_by: input.createdBy,
-        account_type: "student",
-        selected_courses: selectedCourses.map(
-          (course) => course.id
-        ),
-      },
-    });
+    const { data, error } =
+      await adminClient.auth.admin.inviteUserByEmail(
+        email,
+        {
+          redirectTo,
+          data: {
+            created_by: input.createdBy,
+            account_type: "student",
+            selected_courses:
+              selectedCourses.map(
+                (course) => course.id
+              ),
+          },
+        }
+      );
 
     if (error || !data.user) {
       throw new Error(
@@ -218,18 +245,25 @@ export async function provisionStudent(
   }
 
   /*
-   * Kurssit tallennetaan aina samaan student_courses-tauluun.
-   * Tämä toimii sekä uudelle että olemassa olevalle käyttäjälle.
+   * Kurssioikeudet tallennetaan aina.
+   * Tämä toimii sekä uudelle että olemassa
+   * olevalle käyttäjälle.
    */
-  await saveCourseAccess(user, email, selectedCourses);
+  await saveCourseAccess(
+    user,
+    email,
+    selectedCourses
+  );
 
   return {
     user,
     email,
     invited,
-    courses: selectedCourses.map((course) => ({
-      id: course.id,
-      title: course.title,
-    })),
+    courses: selectedCourses.map(
+      (course) => ({
+        id: course.id,
+        title: course.title,
+      })
+    ),
   };
 }

@@ -46,6 +46,23 @@ export type TheoryCourse = {
 };
 
 export const courseContent: Record<CourseId, CourseContent> = {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   oikis: {
     courseId: "oikis",
     theorySections: [
@@ -241,6 +258,17 @@ Aineistosta ei pidä päätellä asioita, joita siinä ei oikeasti sanota.`,
     ],
   },
 
+
+
+
+
+
+
+
+
+
+
+
   yo: {
     courseId: "yo",
     theorySections: [
@@ -339,6 +367,27 @@ Kiihtyvässä liikkeessä nopeus muuttuu ajan kuluessa.`,
   },
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const theoryCourses: TheoryCourse[] = [
   {
     id: "oikis",
@@ -356,6 +405,20 @@ export const theoryCourses: TheoryCourse[] = [
     sections: courseContent.yo.theorySections,
   },
 ];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export function getCourseContent(courseId: CourseId) {
   return courseContent[courseId];
