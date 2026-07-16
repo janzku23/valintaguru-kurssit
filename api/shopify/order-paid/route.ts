@@ -1,170 +1,311 @@
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseAdminClient } from "@/utils/supabase/admin";
+import { provisionStudent } from "@/utils/supabase/provisionStudent";
 
 export const runtime = "nodejs";
 
-const SHOPIFY_COURSE_MAP: Record<string, string> = {
-  // Vaihda nämä Shopify-tuotteiden variant ID -arvoihin
-  // Esimerkki:
-  // "1234567890": "yo-biologia",
-  // "2345678901": "yo-kemia",
-  // "3456789012": "yo-fysiikka",
-  // "4567890123": "oikis",
-  // "5678901234": "laakis",
 /*
-  Oikeustiede kyssäripankki	10586592149768
-Oikis Teho – valmennuskurssi	10586685997320
-Oikis Super – valmennuskurssi	10586651754760
-Oikis Tiivis – Ennakkomateriaalin hallintaan	10586610565384
-Valintakoe G tehokurssi	10586546864392
-Materiaalipankki + harjoituskokeet 4 kpl	10586517176584
-Materiaalipankki	10586421657864
-Terveystiedon yo-valmennus	10616174313736
-*/
-  "SHOPIFY_VARIANT_ID_BIOLOGIA": "yo-biologia",
-  "SHOPIFY_VARIANT_ID_KEMIA": "yo-kemia",
-  "SHOPIFY_VARIANT_ID_FYSIIKKA": "yo-fysiikka",
-  "SHOPIFY_VARIANT_ID_OIKIS": "oikis",
-  "SHOPIFY_VARIANT_ID_LAAKIS": "laakis",
+ * Avaimena on Shopifyn variant_id.
+ * Arvona on data/courses.ts-tiedoston course.id.
+ *
+ * Tarkista, että oikealla puolella olevat arvot vastaavat
+ * täsmälleen courses.ts-tiedoston kurssitunnuksia.
+ */
+const SHOPIFY_COURSE_MAP: Record<string, string> = {
+  /*
+   * Oikeustiede kyssäripankki
+   */
+  "10586592149768": "oikis",
+
+  /*
+   * Oikis Teho – valmennuskurssi
+   */
+  "10586685997320": "oikis",
+
+  /*
+   * Oikis Super – valmennuskurssi
+   */
+  "10586651754760": "oikis",
+
+  /*
+   * Oikis Tiivis – Ennakkomateriaalin hallintaan
+   */
+  "10586610565384": "oikis",
+
+  /*
+   * Valintakoe G tehokurssi
+   *
+   * Vaihda "laakis" oikeaksi course.id-arvoksi,
+   * jos data/courses.ts käyttää muuta tunnusta.
+   */
+  "10586546864392": "laakis",
+
+  /*
+   * Materiaalipankki + harjoituskokeet 4 kpl
+   */
+  "10586517176584": "laakis",
+
+  /*
+   * Materiaalipankki
+   */
+  "10586421657864": "laakis",
+
+  /*
+   * Terveystiedon yo-valmennus
+   *
+   * Vaihda tämä tarvittaessa data/courses.ts-tiedoston
+   * oikeaksi tunnukseksi.
+   */
+  "10616174313736": "terveystieto",
 };
 
-function verifyShopifyWebhook(rawBody: string, hmacHeader: string | null) {
-  const secret = process.env.SHOPIFY_WEBHOOK_SECRET;
+type ShopifyLineItem = {
+  product_id?: string | number | null;
+  variant_id?: string | number | null;
+  title?: string | null;
+  name?: string | null;
+};
 
-  if (!secret || !hmacHeader) {
+type ShopifyOrder = {
+  id?: string | number;
+  email?: string | null;
+  contact_email?: string | null;
+  customer?: {
+    email?: string | null;
+  } | null;
+  billing_address?: {
+    email?: string | null;
+  } | null;
+  line_items?: ShopifyLineItem[];
+};
+
+function normalizeEmail(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function getSiteUrl(request: NextRequest) {
+  const configuredSiteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL?.trim();
+
+  if (configuredSiteUrl) {
+    return configuredSiteUrl.replace(/\/$/, "");
+  }
+
+  return request.nextUrl.origin;
+}
+
+function verifyShopifyWebhook(
+  rawBody: string,
+  hmacHeader: string | null
+) {
+  const webhookSecret =
+    process.env.SHOPIFY_WEBHOOK_SECRET;
+
+  if (!webhookSecret || !hmacHeader) {
     return false;
   }
 
   const generatedHash = crypto
-    .createHmac("sha256", secret)
+    .createHmac("sha256", webhookSecret)
     .update(rawBody, "utf8")
     .digest("base64");
 
+  const generatedBuffer =
+    Buffer.from(generatedHash, "utf8");
+
+  const receivedBuffer =
+    Buffer.from(hmacHeader, "utf8");
+
+  if (
+    generatedBuffer.length !==
+    receivedBuffer.length
+  ) {
+    return false;
+  }
+
   return crypto.timingSafeEqual(
-    Buffer.from(generatedHash, "utf8"),
-    Buffer.from(hmacHeader, "utf8")
+    generatedBuffer,
+    receivedBuffer
   );
 }
 
-function normalizeEmail(email: string) {
-  return email.trim().toLowerCase();
-}
-
-export async function POST(request: NextRequest) {
-  const rawBody = await request.text();
-
-  const hmacHeader = request.headers.get("x-shopify-hmac-sha256");
-  const isValidWebhook = verifyShopifyWebhook(rawBody, hmacHeader);
-
-  if (!isValidWebhook) {
-    return NextResponse.json(
-      { error: "Invalid Shopify webhook signature" },
-      { status: 401 }
-    );
-  }
-
-  const order = JSON.parse(rawBody);
-
-  const email =
+function findOrderEmail(order: ShopifyOrder) {
+  const possibleEmail =
     order.email ||
     order.contact_email ||
     order.customer?.email ||
     order.billing_address?.email;
 
-  if (!email) {
-    return NextResponse.json(
-      { error: "Order email missing" },
-      { status: 400 }
-    );
-  }
+  return typeof possibleEmail === "string"
+    ? normalizeEmail(possibleEmail)
+    : "";
+}
 
-  const normalizedEmail = normalizeEmail(email);
+function resolvePurchasedCourseIds(
+  lineItems: ShopifyLineItem[]
+) {
+  return Array.from(
+    new Set(
+      lineItems
+        .map((item) => {
+          if (
+            item.variant_id === null ||
+            item.variant_id === undefined
+          ) {
+            return null;
+          }
 
-  const lineItems = order.line_items || [];
+          const variantId =
+            String(item.variant_id);
 
-  const purchasedCourseSlugs = lineItems
-    .map((item: any) => {
-      const variantId = String(item.variant_id);
-      return SHOPIFY_COURSE_MAP[variantId];
-    })
-    .filter(Boolean);
+          return (
+            SHOPIFY_COURSE_MAP[variantId] ??
+            null
+          );
+        })
+        .filter(
+          (courseId): courseId is string =>
+            Boolean(courseId)
+        )
+    )
+  );
+}
 
-  if (purchasedCourseSlugs.length === 0) {
-    return NextResponse.json({
-      ok: true,
-      message: "No matching course products in this order",
-    });
-  }
+export async function POST(
+  request: NextRequest
+) {
+  try {
+    const rawBody = await request.text();
 
-  const supabase = createSupabaseAdminClient();
+    const hmacHeader =
+      request.headers.get(
+        "x-shopify-hmac-sha256"
+      );
 
-  for (const courseSlug of purchasedCourseSlugs) {
-    const lineItem = lineItems.find((item: any) => {
-      const variantId = String(item.variant_id);
-      return SHOPIFY_COURSE_MAP[variantId] === courseSlug;
-    });
+    const validWebhook =
+      verifyShopifyWebhook(
+        rawBody,
+        hmacHeader
+      );
 
-    const { error: entitlementError } = await supabase
-      .from("course_entitlements")
-      .upsert(
+    if (!validWebhook) {
+      return NextResponse.json(
         {
-          email: normalizedEmail,
-          course_slug: courseSlug,
-          shopify_order_id: String(order.id),
-          shopify_product_id: lineItem?.product_id
-            ? String(lineItem.product_id)
-            : null,
-          shopify_variant_id: lineItem?.variant_id
-            ? String(lineItem.variant_id)
-            : null,
-          status: "active",
+          error:
+            "Invalid Shopify webhook signature",
         },
         {
-          onConflict: "email,course_slug",
+          status: 401,
         }
       );
+    }
 
-    if (entitlementError) {
+    let order: ShopifyOrder;
+
+    try {
+      order =
+        JSON.parse(rawBody) as ShopifyOrder;
+    } catch {
       return NextResponse.json(
-        { error: entitlementError.message },
-        { status: 500 }
+        {
+          error:
+            "Shopify webhook body is not valid JSON",
+        },
+        {
+          status: 400,
+        }
       );
     }
-  }
 
-  const { data: existingUsers, error: listUsersError } =
-    await supabase.auth.admin.listUsers();
+    const email = findOrderEmail(order);
 
-  if (listUsersError) {
+    if (!email) {
+      return NextResponse.json(
+        {
+          error:
+            "Order email missing",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const lineItems =
+      Array.isArray(order.line_items)
+        ? order.line_items
+        : [];
+
+    const purchasedCourseIds =
+      resolvePurchasedCourseIds(lineItems);
+
+    if (purchasedCourseIds.length === 0) {
+      return NextResponse.json({
+        ok: true,
+        message:
+          "No matching course products in this order",
+        email,
+        orderId:
+          order.id !== undefined
+            ? String(order.id)
+            : null,
+      });
+    }
+
+    /*
+     * Käytetään täsmälleen samaa käyttäjänluontipalvelua
+     * kuin admin-paneelissa.
+     */
+    const result = await provisionStudent({
+      email,
+      courseIds: purchasedCourseIds,
+      siteUrl: getSiteUrl(request),
+      createdBy: "shopify",
+    });
+
+    return NextResponse.json({
+      ok: true,
+      email: result.email,
+      orderId:
+        order.id !== undefined
+          ? String(order.id)
+          : null,
+      invited: result.invited,
+      user: {
+        id: result.user.id,
+        email: result.email,
+      },
+      courses: result.courses,
+    });
+  } catch (error) {
+    console.error(
+      "Shopify order-paid webhook epäonnistui:",
+      error
+    );
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Tuntematon palvelinvirhe.";
+
+    /*
+     * 429 tai 500 aiheuttaa sen, että Shopify voi yrittää
+     * webhookia myöhemmin uudelleen.
+     */
+    const status =
+      message
+        .toLowerCase()
+        .includes("email rate limit exceeded")
+        ? 429
+        : 500;
+
     return NextResponse.json(
-      { error: listUsersError.message },
-      { status: 500 }
+      {
+        error: message,
+      },
+      {
+        status,
+      }
     );
   }
-
-  const userAlreadyExists = existingUsers.users.some(
-    (user) => user.email?.toLowerCase() === normalizedEmail
-  );
-
-  if (!userAlreadyExists) {
-    const { error: inviteError } =
-      await supabase.auth.admin.inviteUserByEmail(normalizedEmail, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/aseta-salasana`,
-      });
-
-    if (inviteError) {
-      return NextResponse.json(
-        { error: inviteError.message },
-        { status: 500 }
-      );
-    }
-  }
-
-  return NextResponse.json({
-    ok: true,
-    email: normalizedEmail,
-    courses: purchasedCourseSlugs,
-    invited: !userAlreadyExists,
-  });
 }

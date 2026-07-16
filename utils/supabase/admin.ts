@@ -3,28 +3,39 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
 export function createAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  const serviceRoleKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl) {
-    throw new Error("NEXT_PUBLIC_SUPABASE_URL puuttuu.");
+    throw new Error(
+      "NEXT_PUBLIC_SUPABASE_URL puuttuu."
+    );
   }
 
   if (!serviceRoleKey) {
-    throw new Error("SUPABASE_SERVICE_ROLE_KEY puuttuu.");
+    throw new Error(
+      "SUPABASE_SERVICE_ROLE_KEY puuttuu."
+    );
   }
 
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-      detectSessionInUrl: false,
-    },
-  });
+  return createClient(
+    supabaseUrl,
+    serviceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false,
+      },
+    }
+  );
 }
 
 /*
- * Vanhojen tiedostojen yhteensopivuus.
- * Molemmat nimet käyttävät samaa turvallista palvelinclienttiä.
+ * Yhteensopivuus mahdollisille vanhoille importeille.
  */
-export const createSupabaseAdminClient = createAdminClient;
+export const createSupabaseAdminClient =
+  createAdminClient;
