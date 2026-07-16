@@ -22,3 +22,9 @@ export function createAdminClient() {
     },
   });
 }
+
+/*
+ * Vanhojen tiedostojen yhteensopivuus.
+ * Molemmat nimet käyttävät samaa turvallista palvelinclienttiä.
+ */
+export const createSupabaseAdminClient = createAdminClient;
