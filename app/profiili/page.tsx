@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
+import AdminUserPanel from "@/components/AdminUserPanel";
 
 const feedbackEmail = "info@valintaguru.fi";
 
@@ -476,6 +477,9 @@ export default function ProfilePage() {
     user?.email ||
     "Opiskelija";
 
+    const isAdmin =
+  user?.email?.trim().toLowerCase() === "admin@valintaguru.fi";
+
   const joinedDate = user?.created_at
     ? new Date(user.created_at).toLocaleDateString("fi-FI")
     : "-";
@@ -547,9 +551,11 @@ export default function ProfilePage() {
               Kirjaudu ulos
             </button>
           </div>
-        </div>
+      </div>
 
-        <section style={styles.grid}>
+{isAdmin && <AdminUserPanel />}
+
+<section style={styles.grid}>
           <article style={styles.card}>
             <h2 style={styles.cardTitle}>Omat tiedot</h2>
 

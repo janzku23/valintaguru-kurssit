@@ -1,16 +1,47 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 export default function AsetaSalasanaPage() {
   const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
 
+  const [checkingSession, setCheckingSession] = useState(true);
   const [password, setPassword] = useState("");
   const [passwordAgain, setPasswordAgain] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function checkSession() {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (!active) {
+        return;
+      }
+
+      if (sessionError || !session) {
+        setError(
+          "Kutsulinkki ei ole voimassa. Avaa sähköpostissa oleva linkki uudelleen."
+        );
+      }
+
+      setCheckingSession(false);
+    }
+
+    void checkSession();
+
+    return () => {
+      active = false;
+    };
+  }, [supabase]);
 
   async function handleSetPassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,22 +60,38 @@ export default function AsetaSalasanaPage() {
         return;
       }
 
-      const supabase = createClient();
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
 
-      const { error } = await supabase.auth.updateUser({
-        password,
-      });
-
-      if (error) {
+      if (sessionError || !session) {
         setError(
-          "Salasanan asetus epäonnistui. Avaa sähköpostilinkki uudelleen."
+          "Kutsulinkki ei ole enää voimassa. Avaa sähköpostilinkki uudelleen."
         );
         return;
       }
 
-      router.replace("/kurssit");
+      const { error: updateError } = await supabase.auth.updateUser({
+        password,
+      });
+
+      if (updateError) {
+        console.error("Salasanan asetus epäonnistui:", updateError);
+
+        setError(
+          updateError.message ||
+            "Salasanan asetus epäonnistui. Avaa sähköpostilinkki uudelleen."
+        );
+
+        return;
+      }
+
+      router.replace("/");
       router.refresh();
-    } catch {
+    } catch (updateError) {
+      console.error("Salasanan asetus epäonnistui:", updateError);
+
       setError(
         "Salasanan asetus epäonnistui. Tarkista linkki tai yritä uudelleen."
       );
@@ -68,53 +115,63 @@ export default function AsetaSalasanaPage() {
 
             <p className="mt-3 text-sm leading-6 text-slate-600">
               Luo salasana ValintaGuru-käyttäjällesi. Tämän jälkeen pääset
-              kirjautumaan ostamallasi sähköpostilla.
+              kirjautumaan sähköpostiosoitteellasi.
             </p>
           </div>
 
-          <form onSubmit={handleSetPassword} className="mt-8 space-y-4">
-            <div>
-              <label className="text-sm font-bold text-slate-800">
-                Uusi salasana
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Vähintään 8 merkkiä"
-                className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                required
-              />
+          {checkingSession ? (
+            <div className="mt-8 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-4 text-center text-sm font-bold text-blue-700">
+              Tarkistetaan kutsulinkkiä...
             </div>
+          ) : (
+            <form onSubmit={handleSetPassword} className="mt-8 space-y-4">
+              <div>
+                <label className="text-sm font-bold text-slate-800">
+                  Uusi salasana
+                </label>
 
-            <div>
-              <label className="text-sm font-bold text-slate-800">
-                Toista salasana
-              </label>
-              <input
-                type="password"
-                value={passwordAgain}
-                onChange={(event) => setPasswordAgain(event.target.value)}
-                placeholder="Toista salasana"
-                className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                required
-              />
-            </div>
-
-            {error && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-                {error}
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Vähintään 8 merkkiä"
+                  autoComplete="new-password"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  required
+                />
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-full bg-blue-600 px-6 py-3.5 font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? "Tallennetaan..." : "Tallenna salasana"}
-            </button>
-          </form>
+              <div>
+                <label className="text-sm font-bold text-slate-800">
+                  Toista salasana
+                </label>
+
+                <input
+                  type="password"
+                  value={passwordAgain}
+                  onChange={(event) => setPasswordAgain(event.target.value)}
+                  placeholder="Toista salasana"
+                  autoComplete="new-password"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-full bg-blue-600 px-6 py-3.5 font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? "Tallennetaan..." : "Tallenna salasana"}
+              </button>
+            </form>
+          )}
         </div>
       </section>
     </main>

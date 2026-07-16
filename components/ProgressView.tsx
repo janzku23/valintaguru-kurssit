@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 import { CourseId } from "../data/courses";
 
 type Props = {
@@ -40,16 +41,13 @@ type AreaStats = {
   accuracy: number;
 };
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-
 function mapRowToAttempt(row: ProgressAttemptRow): ProgressAttempt {
   return {
     id: row.id,
     courseId: row.course_id as CourseId,
     questionId: row.question_id,
     question: row.question,
-    area: row.area,
+    area: row.area || "Yleinen",
     selectedAnswerIds: row.selected_answer_ids ?? [],
     correctAnswerIds: row.correct_answer_ids ?? [],
     isCorrect: row.is_correct,
@@ -57,30 +55,11 @@ function mapRowToAttempt(row: ProgressAttemptRow): ProgressAttempt {
   };
 }
 
-function mapAttemptToRow(
-  attempt: ProgressAttempt,
-  userId: string
-): ProgressAttemptRow {
-  return {
-    id: attempt.id,
-    user_id: userId,
-    course_id: attempt.courseId,
-    question_id: attempt.questionId,
-    question: attempt.question,
-    area: attempt.area,
-    selected_answer_ids: attempt.selectedAnswerIds ?? [],
-    correct_answer_ids: attempt.correctAnswerIds ?? [],
-    is_correct: attempt.isCorrect,
-    answered_at: attempt.answeredAt,
-  };
-}
-
 export default function ProgressView({ courseId }: Props) {
-  const storageKey = `valintaguru_progress_${courseId}`;
-  const migrationKey = `valintaguru_progress_migrated_${courseId}`;
+  const router = useRouter();
 
   const supabase = useMemo(() => {
-    return createClient(supabaseUrl, supabaseAnonKey);
+    return createClient();
   }, []);
 
   const [attempts, setAttempts] = useState<ProgressAttempt[]>([]);
@@ -93,59 +72,22 @@ export default function ProgressView({ courseId }: Props) {
     setHasLoaded(false);
     setErrorMessage(null);
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-      setErrorMessage(
-        "Supabase-asetukset puuttuvat. Tarkista NEXT_PUBLIC_SUPABASE_URL ja NEXT_PUBLIC_SUPABASE_ANON_KEY."
-      );
-      setHasLoaded(true);
-      return;
-    }
-
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
 
-    if (userError) {
-      setErrorMessage("Käyttäjän kirjautumistietoja ei voitu hakea.");
+    if (userError || !user) {
+      setUserId(null);
       setAttempts([]);
-      setHasLoaded(true);
-      return;
-    }
-
-    if (!user) {
-      setErrorMessage("Kirjaudu sisään, jotta edistyminen voidaan hakea.");
-      setAttempts([]);
+      setErrorMessage(
+        "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta edistyminen voidaan hakea ja tallentaa."
+      );
       setHasLoaded(true);
       return;
     }
 
     setUserId(user.id);
-
-    const localSaved = window.localStorage.getItem(storageKey);
-    const alreadyMigrated = window.localStorage.getItem(migrationKey);
-
-    if (localSaved && !alreadyMigrated) {
-      try {
-        const parsed = JSON.parse(localSaved) as ProgressAttempt[];
-
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const rows = parsed.map((attempt) => mapAttemptToRow(attempt, user.id));
-
-          const { error: migrateError } = await supabase
-            .from("student_progress_attempts")
-            .upsert(rows, {
-              onConflict: "id",
-            });
-
-          if (!migrateError) {
-            window.localStorage.setItem(migrationKey, "true");
-          }
-        }
-      } catch {
-        window.localStorage.removeItem(storageKey);
-      }
-    }
 
     const { data, error } = await supabase
       .from("student_progress_attempts")
@@ -157,7 +99,10 @@ export default function ProgressView({ courseId }: Props) {
       .order("answered_at", { ascending: true });
 
     if (error) {
-      setErrorMessage("Edistymisen haku Supabasesta epäonnistui.");
+      console.error("Progress fetch failed:", error);
+      setErrorMessage(
+        "Edistymisen haku Supabasesta epäonnistui. Tarkista, että student_progress_attempts-taulu ja RLS-politiikat on luotu."
+      );
       setAttempts([]);
       setHasLoaded(true);
       return;
@@ -165,7 +110,7 @@ export default function ProgressView({ courseId }: Props) {
 
     setAttempts((data ?? []).map((row) => mapRowToAttempt(row as ProgressAttemptRow)));
     setHasLoaded(true);
-  }, [courseId, migrationKey, storageKey, supabase]);
+  }, [courseId, supabase]);
 
   useEffect(() => {
     void loadProgress();
@@ -186,12 +131,14 @@ export default function ProgressView({ courseId }: Props) {
     const grouped = new Map<string, { attempts: number; correct: number }>();
 
     attempts.forEach((attempt) => {
-      const current = grouped.get(attempt.area) ?? {
+      const area = attempt.area || "Yleinen";
+
+      const current = grouped.get(area) ?? {
         attempts: 0,
         correct: 0,
       };
 
-      grouped.set(attempt.area, {
+      grouped.set(area, {
         attempts: current.attempts + 1,
         correct: current.correct + (attempt.isCorrect ? 1 : 0),
       });
@@ -221,30 +168,47 @@ export default function ProgressView({ courseId }: Props) {
       "Haluatko varmasti nollata tämän kurssin edistymisen?"
     );
 
-    if (!confirmed || !userId) {
+    if (!confirmed) {
       return;
     }
 
-    setIsResetting(true);
     setErrorMessage(null);
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setUserId(null);
+      setErrorMessage(
+        "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta edistyminen voidaan nollata."
+      );
+      return;
+    }
+
+    setUserId(user.id);
+    setIsResetting(true);
 
     const { error } = await supabase
       .from("student_progress_attempts")
       .delete()
-      .eq("user_id", userId)
+      .eq("user_id", user.id)
       .eq("course_id", courseId);
 
     if (error) {
+      console.error("Progress reset failed:", error);
       setErrorMessage("Edistymisen nollaus epäonnistui.");
       setIsResetting(false);
       return;
     }
 
-    window.localStorage.removeItem(storageKey);
-    window.localStorage.removeItem(migrationKey);
-
     setAttempts([]);
     setIsResetting(false);
+  }
+
+  function goToLogin() {
+    router.push(`/kirjaudu?next=/kurssi/${courseId}/edistyminen`);
   }
 
   if (!hasLoaded) {
@@ -283,12 +247,13 @@ export default function ProgressView({ courseId }: Props) {
             Yritä uudelleen
           </button>
 
-          <a
-            href="/kirjaudu"
+          <button
+            type="button"
+            onClick={goToLogin}
             className="rounded-full border border-red-200 bg-white px-6 py-3 font-bold text-red-700 transition hover:bg-red-100"
           >
             Kirjaudu sisään
-          </a>
+          </button>
         </div>
       </div>
     );
@@ -302,7 +267,7 @@ export default function ProgressView({ courseId }: Props) {
         </p>
 
         <h2 className="mt-2 text-3xl font-extrabold text-slate-950">
-          Et ole tehnyt vielä tehtäviä tällä kurssilla.
+          Et ole tehnyt vielä monivalintatehtäviä tällä kurssilla.
         </h2>
 
         <p className="mt-4 leading-8 text-slate-700">
@@ -496,14 +461,14 @@ export default function ProgressView({ courseId }: Props) {
         </h2>
 
         <p className="mt-3 leading-8 text-slate-700">
-          Nollaus poistaa tämän kurssin tehtäväedistymisen Supabasesta
+          Nollaus poistaa tämän kurssin monivalintaedistymisen Supabasesta
           kirjautuneelta käyttäjältä.
         </p>
 
         <button
           type="button"
           onClick={resetProgress}
-          disabled={isResetting}
+          disabled={isResetting || !userId}
           className="mt-6 rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isResetting ? "Nollataan..." : "Nollaa edistyminen"}

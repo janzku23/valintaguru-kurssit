@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 import { Flashcard } from "../data/courseContent";
 import { CourseId } from "../data/courses";
 
@@ -17,12 +18,11 @@ type FlashcardProgressRow = {
   status: "known" | "needs_practice";
 };
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-
 export default function FlashcardView({ courseId, flashcards }: Props) {
+  const router = useRouter();
+
   const supabase = useMemo(() => {
-    return createClient(supabaseUrl, supabaseAnonKey);
+    return createClient();
   }, []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -40,21 +40,16 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     setHasLoadedSavedState(false);
     setErrorMessage(null);
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-      setErrorMessage(
-        "Supabase-asetukset puuttuvat. Tarkista .env.local-tiedoston NEXT_PUBLIC_SUPABASE_URL ja NEXT_PUBLIC_SUPABASE_ANON_KEY."
-      );
-      setHasLoadedSavedState(true);
-      return;
-    }
-
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      setErrorMessage("Kirjaudu sisään, jotta flashcard-edistyminen voidaan hakea.");
+      setUserId(null);
+      setErrorMessage(
+        "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta flashcard-edistyminen voidaan hakea ja tallentaa."
+      );
       setHasLoadedSavedState(true);
       return;
     }
@@ -70,7 +65,10 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
       .eq("course_id", courseId);
 
     if (error) {
-      setErrorMessage("Flashcard-edistymisen haku Supabasesta epäonnistui.");
+      console.error("Flashcard progress fetch failed:", error);
+      setErrorMessage(
+        "Flashcard-edistymisen haku Supabasesta epäonnistui. Tarkista, että student_flashcard_progress-taulu ja RLS-politiikat on luotu."
+      );
       setHasLoadedSavedState(true);
       return;
     }
@@ -96,13 +94,16 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
       setRoundMode("all");
     }
 
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setIsRoundFinished(false);
     setHasLoadedSavedState(true);
   }
 
   useEffect(() => {
     void loadFlashcardProgress();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [courseId, flashcards]);
+  }, [courseId]);
 
   const practiceFlashcards = useMemo(() => {
     return flashcards.filter((card) => needsPracticeIds.includes(card.id));
@@ -122,17 +123,27 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     flashcardId: string,
     status: "known" | "needs_practice"
   ) {
-    if (!userId) {
-      setErrorMessage("Kirjaudu sisään, jotta flashcard voidaan tallentaa.");
+    setErrorMessage(null);
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setUserId(null);
+      setErrorMessage(
+        "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta flashcard voidaan tallentaa."
+      );
       return false;
     }
 
+    setUserId(user.id);
     setIsSaving(true);
-    setErrorMessage(null);
 
     const { error } = await supabase.from("student_flashcard_progress").upsert(
       {
-        user_id: userId,
+        user_id: user.id,
         course_id: courseId,
         flashcard_id: flashcardId,
         status,
@@ -144,7 +155,10 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     );
 
     if (error) {
-      setErrorMessage("Flashcard-tilan tallennus Supabaseen epäonnistui.");
+      console.error("Flashcard status save failed:", error);
+      setErrorMessage(
+        "Flashcard-tilan tallennus Supabaseen epäonnistui. Tarkista taulu ja RLS-politiikat."
+      );
       setIsSaving(false);
       return false;
     }
@@ -243,11 +257,22 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     setCurrentIndex(0);
     setIsFlipped(false);
     setIsRoundFinished(false);
+    setErrorMessage(null);
   }
 
   async function resetEverything() {
-    if (!userId) {
-      setErrorMessage("Kirjaudu sisään, jotta flashcard-edistyminen voidaan nollata.");
+    setErrorMessage(null);
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setUserId(null);
+      setErrorMessage(
+        "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta flashcard-edistyminen voidaan nollata."
+      );
       return;
     }
 
@@ -260,15 +285,15 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     }
 
     setIsSaving(true);
-    setErrorMessage(null);
 
     const { error } = await supabase
       .from("student_flashcard_progress")
       .delete()
-      .eq("user_id", userId)
+      .eq("user_id", user.id)
       .eq("course_id", courseId);
 
     if (error) {
+      console.error("Flashcard progress reset failed:", error);
       setErrorMessage("Flashcard-edistymisen nollaus epäonnistui.");
       setIsSaving(false);
       return;
@@ -281,6 +306,10 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     setIsFlipped(false);
     setIsRoundFinished(false);
     setIsSaving(false);
+  }
+
+  function goToLogin() {
+    router.push(`/kirjaudu?next=/kurssi/${courseId}/flashcardit`);
   }
 
   if (!hasLoadedSavedState) {
@@ -319,12 +348,13 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
             Yritä uudelleen
           </button>
 
-          <a
-            href="/kirjaudu"
+          <button
+            type="button"
+            onClick={goToLogin}
             className="rounded-full border border-red-200 bg-white px-6 py-3 font-bold text-red-700 transition hover:bg-red-100"
           >
             Kirjaudu sisään
-          </a>
+          </button>
         </div>
       </div>
     );
