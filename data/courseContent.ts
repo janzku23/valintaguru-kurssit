@@ -62,7 +62,7 @@ export const courseContent: Record<CourseId, CourseContent> = {
 
 
 
-  
+
   oikis: {
     courseId: "oikis",
     theorySections: [
@@ -173,6 +173,26 @@ Keskeisiä käsitteitä ovat tunnusmerkistö, tahallisuus, tuottamus ja syy-yhte
     ],
   },
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   "valintakoe-g": {
     courseId: "valintakoe-g",
     theorySections: [
@@ -258,6 +278,11 @@ Aineistosta ei pidä päätellä asioita, joita siinä ei oikeasti sanota.`,
     ],
   },
 
+
+
+
+
+  
 
 
 

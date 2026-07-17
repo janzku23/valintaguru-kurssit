@@ -1,5 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
-import { CourseId } from "../data/courses";
+"use client";
+
+import { createClient } from "@/utils/supabase/client";
+import type { CourseId } from "@/data/courses";
 
 type SaveProgressAttemptInput = {
   courseId: CourseId;
@@ -11,46 +13,61 @@ type SaveProgressAttemptInput = {
   isCorrect: boolean;
 };
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+export async function saveProgressAttempt(
+  input: SaveProgressAttemptInput
+) {
+  const supabase = createClient();
 
-export async function saveProgressAttempt(input: SaveProgressAttemptInput) {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError) {
+    console.error(
+      "Istunnon hakeminen epäonnistui:",
+      sessionError
+    );
+
     throw new Error(
-      "Supabase-asetukset puuttuvat. Tarkista NEXT_PUBLIC_SUPABASE_URL ja NEXT_PUBLIC_SUPABASE_ANON_KEY."
+      "Kirjautumistietoja ei voitu tarkistaa."
     );
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError) {
-    throw new Error("Käyttäjän tietoja ei voitu hakea.");
-  }
+  const user = session?.user;
 
   if (!user) {
-    throw new Error("Käyttäjä ei ole kirjautunut sisään.");
+    throw new Error(
+      "Kirjaudu sisään, jotta vastaus voidaan tallentaa."
+    );
   }
 
   const answeredAt = new Date().toISOString();
 
-  const { error } = await supabase.from("student_progress_attempts").insert({
-    user_id: user.id,
-    course_id: input.courseId,
-    question_id: input.questionId,
-    question: input.question,
-    area: input.area,
-    selected_answer_ids: input.selectedAnswerIds,
-    correct_answer_ids: input.correctAnswerIds,
-    is_correct: input.isCorrect,
-    answered_at: answeredAt,
-  });
+  const { error } = await supabase
+    .from("student_progress_attempts")
+    .insert({
+      user_id: user.id,
+      course_id: input.courseId,
+      question_id: input.questionId,
+      question: input.question,
+      area: input.area,
+      selected_answer_ids:
+        input.selectedAnswerIds,
+      correct_answer_ids:
+        input.correctAnswerIds,
+      is_correct: input.isCorrect,
+      answered_at: answeredAt,
+    });
 
   if (error) {
-    throw new Error("Tehtäväyrityksen tallennus epäonnistui.");
+    console.error(
+      "Tehtäväyrityksen tallennus epäonnistui:",
+      error
+    );
+
+    throw new Error(
+      `Tehtäväyrityksen tallennus epäonnistui: ${error.message}`
+    );
   }
 }
