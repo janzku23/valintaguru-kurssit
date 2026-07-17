@@ -9,7 +9,10 @@ import {
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
-type PageMode = "checking" | "setPassword" | "requestLink";
+type PageMode =
+  | "checking"
+  | "setPassword"
+  | "requestLink";
 
 export default function AsetaSalasanaPage() {
   const router = useRouter();
@@ -23,83 +26,218 @@ export default function AsetaSalasanaPage() {
     useState<PageMode>("checking");
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] =
+    useState("");
   const [passwordAgain, setPasswordAgain] =
     useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [loading, setLoading] =
+    useState(false);
+
+  const [message, setMessage] =
+    useState("");
+
+  const [error, setError] =
+    useState("");
 
   useEffect(() => {
     let active = true;
 
-    async function checkSession() {
-      try {
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (!active) {
-          return;
-        }
-
-        if (userError || !user) {
-          setMode("requestLink");
-
-          setError(
-            "Salasanan asetuslinkki ei ole enää voimassa tai se on jo käytetty. Syötä sähköpostiosoitteesi, niin saat uuden linkin."
-          );
-
-          return;
-        }
-
-        if (user.email) {
-          setEmail(user.email);
-        }
-
-        setMode("setPassword");
-      } catch (sessionError) {
-        console.error(
-          "Käyttäjäsession tarkistus epäonnistui:",
-          sessionError
-        );
-
-        if (active) {
-          setMode("requestLink");
-
-          setError(
-            "Salasanan asetuslinkkiä ei voitu vahvistaa. Pyydä uusi linkki."
-          );
-        }
+    function showInvalidLinkError() {
+      if (!active) {
+        return;
       }
+
+      setMode("requestLink");
+
+      setError(
+        "Salasanan asetuslinkki ei ole enää voimassa tai se on jo käytetty. Syötä sähköpostiosoitteesi, niin saat uuden linkin."
+      );
     }
 
-    void checkSession();
+    async function initializeSession() {
+      try {
+        /*
+         * Supabasen invite-linkki palauttaa istunnon
+         * URL:n hash-osassa:
+         *
+         * #access_token=...
+         * &refresh_token=...
+         * &type=invite
+         *
+         * Hash-osaa ei lähetetä palvelimelle, joten
+         * se käsitellään tässä client-komponentissa.
+         */
+        const hashParameters =
+          typeof window !== "undefined"
+            ? new URLSearchParams(
+                window.location.hash.replace(
+                  /^#/,
+                  ""
+                )
+              )
+            : new URLSearchParams();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (!active) {
+        const accessToken =
+          hashParameters.get("access_token");
+
+        const refreshToken =
+          hashParameters.get("refresh_token");
+
+        const authError =
+          hashParameters.get(
+            "error_description"
+          ) ??
+          hashParameters.get("error");
+
+        if (authError) {
+          console.error(
+            "Supabase-linkin virhe:",
+            authError
+          );
+
+          showInvalidLinkError();
           return;
         }
 
-        if (
-          event === "PASSWORD_RECOVERY" ||
-          event === "SIGNED_IN"
-        ) {
-          if (session?.user.email) {
-            setEmail(session.user.email);
+        /*
+         * Jos kutsulinkissä on tokenit,
+         * asetetaan session tiedot manuaalisesti.
+         */
+        if (accessToken && refreshToken) {
+          const {
+            data: sessionData,
+            error: sessionError,
+          } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (sessionError) {
+            console.error(
+              "Kutsulinkin session asettaminen epäonnistui:",
+              sessionError
+            );
+
+            showInvalidLinkError();
+            return;
+          }
+
+          if (!active) {
+            return;
+          }
+
+          const user =
+            sessionData.session?.user;
+
+          if (!user) {
+            showInvalidLinkError();
+            return;
+          }
+
+          if (user.email) {
+            setEmail(user.email);
           }
 
           setError("");
           setMessage("");
           setMode("setPassword");
+
+          /*
+           * Poistetaan tokenit näkyvästä URL:stä
+           * ilman sivun uudelleenlatausta.
+           */
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname +
+              window.location.search
+          );
+
+          return;
         }
+
+        /*
+         * Jos hashissa ei ole tokeneita,
+         * tarkistetaan mahdollinen jo olemassa
+         * oleva Supabase-session tila.
+         */
+        const {
+          data: { session },
+          error: sessionError,
+        } =
+          await supabase.auth.getSession();
+
+        if (sessionError) {
+          console.error(
+            "Supabase-session hakeminen epäonnistui:",
+            sessionError
+          );
+
+          showInvalidLinkError();
+          return;
+        }
+
+        if (!active) {
+          return;
+        }
+
+        if (!session?.user) {
+          showInvalidLinkError();
+          return;
+        }
+
+        if (session.user.email) {
+          setEmail(session.user.email);
+        }
+
+        setError("");
+        setMessage("");
+        setMode("setPassword");
+      } catch (sessionError) {
+        console.error(
+          "Käyttäjäsession alustaminen epäonnistui:",
+          sessionError
+        );
+
+        showInvalidLinkError();
       }
-    );
+    }
+
+    const {
+      data: { subscription },
+    } =
+      supabase.auth.onAuthStateChange(
+        (event, session) => {
+          if (!active) {
+            return;
+          }
+
+          if (
+            event === "SIGNED_IN" ||
+            event === "PASSWORD_RECOVERY"
+          ) {
+            if (session?.user.email) {
+              setEmail(
+                session.user.email
+              );
+            }
+
+            setError("");
+            setMessage("");
+            setMode("setPassword");
+          }
+
+          if (
+            event === "SIGNED_OUT" &&
+            mode !== "checking"
+          ) {
+            setMode("requestLink");
+          }
+        }
+      );
+
+    void initializeSession();
 
     return () => {
       active = false;
@@ -136,16 +274,27 @@ export default function AsetaSalasanaPage() {
       }
 
       if (password !== passwordAgain) {
-        setError("Salasanat eivät täsmää.");
+        setError(
+          "Salasanat eivät täsmää."
+        );
         return;
       }
 
       const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
+        data: { session },
+        error: sessionError,
+      } =
+        await supabase.auth.getSession();
 
-      if (userError || !user) {
+      if (
+        sessionError ||
+        !session?.user
+      ) {
+        console.error(
+          "Salasanan asetuksessa ei löytynyt voimassa olevaa sessiota:",
+          sessionError
+        );
+
         setMode("requestLink");
 
         setError(
@@ -181,6 +330,10 @@ export default function AsetaSalasanaPage() {
         "Salasana asetettiin onnistuneesti. Siirrytään ValintaGuruun."
       );
 
+      /*
+       * Session jää voimaan, joten käyttäjä
+       * siirtyy suoraan kirjautuneena etusivulle.
+       */
       router.replace("/");
       router.refresh();
     } catch (updateError) {
@@ -211,13 +364,22 @@ export default function AsetaSalasanaPage() {
         .toLowerCase();
 
       if (!cleanEmail) {
-        setError("Kirjoita sähköpostiosoitteesi.");
+        setError(
+          "Kirjoita sähköpostiosoitteesi."
+        );
         return;
       }
 
+      /*
+       * Salasanan palautuslinkki voidaan ohjata
+       * suoraan samalle client-sivulle.
+       *
+       * Tällöin myös recovery-linkin hash-tokenit
+       * käsitellään initializeSession-funktiossa.
+       */
       const redirectTo =
         typeof window !== "undefined"
-          ? `${window.location.origin}/auth/callback?next=/aseta-salasana`
+          ? `${window.location.origin}/aseta-salasana`
           : undefined;
 
       const { error: resetError } =
@@ -325,7 +487,9 @@ export default function AsetaSalasanaPage() {
 
           {mode === "setPassword" && (
             <form
-              onSubmit={handleSetPassword}
+              onSubmit={
+                handleSetPassword
+              }
               className="mt-8 space-y-4"
             >
               {email && (
@@ -353,7 +517,9 @@ export default function AsetaSalasanaPage() {
                   type="password"
                   value={password}
                   onChange={(event) =>
-                    setPassword(event.target.value)
+                    setPassword(
+                      event.target.value
+                    )
                   }
                   placeholder="Vähintään 8 merkkiä"
                   autoComplete="new-password"
@@ -374,7 +540,9 @@ export default function AsetaSalasanaPage() {
                 <input
                   id="new-password-again"
                   type="password"
-                  value={passwordAgain}
+                  value={
+                    passwordAgain
+                  }
                   onChange={(event) =>
                     setPasswordAgain(
                       event.target.value
@@ -414,18 +582,23 @@ export default function AsetaSalasanaPage() {
                 type="button"
                 onClick={() => {
                   resetAlerts();
-                  setMode("requestLink");
+                  setMode(
+                    "requestLink"
+                  );
                 }}
                 className="w-full text-sm font-bold text-blue-700 hover:text-blue-800"
               >
-                Linkki ei toimi – pyydä uusi
+                Linkki ei toimi – pyydä
+                uusi
               </button>
             </form>
           )}
 
           {mode === "requestLink" && (
             <form
-              onSubmit={handleRequestNewLink}
+              onSubmit={
+                handleRequestNewLink
+              }
               className="mt-8 space-y-4"
             >
               <div>
@@ -441,7 +614,9 @@ export default function AsetaSalasanaPage() {
                   type="email"
                   value={email}
                   onChange={(event) =>
-                    setEmail(event.target.value)
+                    setEmail(
+                      event.target.value
+                    )
                   }
                   placeholder="oma@sahkoposti.fi"
                   autoComplete="email"
@@ -475,7 +650,9 @@ export default function AsetaSalasanaPage() {
               <button
                 type="button"
                 onClick={() =>
-                  router.push("/kirjaudu")
+                  router.push(
+                    "/kirjaudu"
+                  )
                 }
                 className="w-full text-sm font-bold text-blue-700 hover:text-blue-800"
               >
