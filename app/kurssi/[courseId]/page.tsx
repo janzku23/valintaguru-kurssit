@@ -21,13 +21,15 @@ export default async function CoursePage({ params }: Props) {
     notFound();
   }
 
-  const allowed = hasCourseAccess(courseId);
+  const allowed = await hasCourseAccess(courseId);
 
   if (!allowed) {
     return (
       <main className="min-h-screen bg-[#f5f8ff] px-6 py-16 text-slate-950">
         <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm">
-          <p className="font-bold text-blue-700">Ei käyttöoikeutta</p>
+          <p className="font-bold text-blue-700">
+            Ei käyttöoikeutta
+          </p>
 
           <h1 className="mt-3 text-3xl font-extrabold">
             Sinulla ei ole pääsyä kurssiin {course.title}
@@ -61,7 +63,10 @@ export default async function CoursePage({ params }: Props) {
     <main className="min-h-screen bg-[#f5f8ff] text-slate-950">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <a href="/" className="text-2xl font-extrabold text-blue-700">
+          <a
+            href="/"
+            className="text-2xl font-extrabold text-blue-700"
+          >
             ValintaGuru
           </a>
 

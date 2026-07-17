@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import CourseMaterialSidebar from "../../../../components/CourseMaterialSidebar";
 import TheoryCard from "../../../../components/TheoryCard";
-import { getCourseById, isCourseId } from "../../../../data/courses";
+import {
+  getCourseById,
+  isCourseId,
+} from "../../../../data/courses";
 import { getCourseContent } from "../../../../data/courseContent";
 import { hasCourseAccess } from "../../../../lib/courseAccess";
 
@@ -24,20 +27,23 @@ export default async function CourseTheoryPage({ params }: Props) {
     notFound();
   }
 
-  const allowed = hasCourseAccess(courseId);
+  const allowed = await hasCourseAccess(courseId);
 
   if (!allowed) {
     return (
       <main className="min-h-screen bg-[#f5f8ff] px-6 py-16 text-slate-950">
         <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm">
-          <p className="font-bold text-blue-700">Ei käyttöoikeutta</p>
+          <p className="font-bold text-blue-700">
+            Ei käyttöoikeutta
+          </p>
 
           <h1 className="mt-3 text-3xl font-extrabold">
             Sinulla ei ole pääsyä kurssin {course.title} teoriaan
           </h1>
 
           <p className="mt-4 leading-8 text-slate-700">
-            Tämä teoria kuuluu kurssiin, joka ei ole tällä käyttäjällä käytössä.
+            Tämä teoria kuuluu kurssiin, joka ei ole tällä käyttäjällä
+            käytössä.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-4">
@@ -80,7 +86,10 @@ export default async function CourseTheoryPage({ params }: Props) {
         </header>
 
         <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-          <CourseMaterialSidebar course={course} activePage="theory" />
+          <CourseMaterialSidebar
+            course={course}
+            activePage="theory"
+          />
 
           <section className="space-y-6">
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -98,7 +107,10 @@ export default async function CourseTheoryPage({ params }: Props) {
             </div>
 
             {content.theorySections.map((section) => (
-              <TheoryCard key={section.id} section={section} />
+              <TheoryCard
+                key={section.id}
+                section={section}
+              />
             ))}
           </section>
         </div>
