@@ -1,26 +1,20 @@
-import { createClient } from "@/utils/supabase/client";
+import "server-only";
+
+import { createClient } from "@/utils/supabase/server";
 import type { CourseId } from "@/data/courses";
 
 type AccessRow = {
   id: string;
 };
 
-type CourseEntitlementRow = AccessRow & {
-  status?: string | null;
-};
-
-function normalizeEmail(email: string) {
-  return email.trim().toLowerCase();
-}
-
-function normalizeCourseId(courseId: string) {
-  return courseId.trim().toLowerCase();
+function normalizeEmail(value: string) {
+  return value.trim().toLowerCase();
 }
 
 export async function hasCourseAccess(
-  courseId: CourseId | string
+  courseId: CourseId
 ): Promise<boolean> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },
@@ -28,135 +22,133 @@ export async function hasCourseAccess(
   } = await supabase.auth.getUser();
 
   if (userError) {
-    console.error("Käyttäjän hakeminen epäonnistui:", userError);
-    return false;
-  }
-
-  if (!user?.id || !user.email) {
-    return false;
-  }
-
-  const normalizedEmail = normalizeEmail(user.email);
-  const normalizedCourseId = normalizeCourseId(courseId);
-
-  const entitlementAccess = await checkCourseEntitlements(
-    normalizedEmail,
-    normalizedCourseId
-  );
-
-  if (entitlementAccess) {
-    return true;
-  }
-
-  return checkStudentCourses(
-    user.id,
-    normalizedEmail,
-    normalizedCourseId
-  );
-}
-
-async function checkCourseEntitlements(
-  email: string,
-  courseId: string
-): Promise<boolean> {
-  const supabase = createClient();
-
-  const { data, error } = await supabase
-    .from("course_entitlements")
-    .select("id, status")
-    .eq("email", email)
-    .eq("course_slug", courseId)
-    .eq("status", "active")
-    .limit(1)
-    .maybeSingle<CourseEntitlementRow>();
-
-  if (error) {
     console.error(
-      `course_entitlements-tarkistus epäonnistui kurssille ${courseId}:`,
-      error
+      "Kirjautuneen käyttäjän hakeminen epäonnistui:",
+      userError
     );
 
     return false;
   }
 
-  return Boolean(data?.id);
-}
+  if (!user) {
+    console.error(
+      "Kurssioikeutta tarkistettaessa käyttäjä ei ollut kirjautunut."
+    );
 
-async function checkStudentCourses(
-  userId: string,
-  email: string,
-  courseId: string
-): Promise<boolean> {
-  const supabase = createClient();
+    return false;
+  }
 
-  const byUserIdAndCourseId = await supabase
-    .from("student_courses")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("course_id", courseId)
-    .eq("status", "active")
-    .limit(1)
-    .maybeSingle<AccessRow>();
+  const normalizedCourseId = courseId
+    .trim()
+    .toLowerCase();
 
-  if (!byUserIdAndCourseId.error && byUserIdAndCourseId.data?.id) {
+  const normalizedEmail = user.email
+    ? normalizeEmail(user.email)
+    : null;
+
+  /*
+   * Ensisijainen taulu.
+   *
+   * provisionStudent tallentaa student_courses-rivien
+   * status-arvoksi "käytössä", joten tarkistuksen pitää
+   * käyttää samaa arvoa eikä "active".
+   */
+  const { data: userCourseRows, error: userCourseError } =
+    await supabase
+      .from("student_courses")
+      .select("id")
+      .eq("user_id", user.id)
+      .or(
+        `course_id.eq.${normalizedCourseId},course_slug.eq.${normalizedCourseId}`
+      )
+      .eq("status", "käytössä")
+      .limit(1);
+
+  if (userCourseError) {
+    console.error(
+      "Kurssioikeuden tarkistus käyttäjätunnuksella epäonnistui:",
+      userCourseError
+    );
+  }
+
+  if (userCourseRows && userCourseRows.length > 0) {
     return true;
   }
 
-  const byUserIdAndCourseSlug = await supabase
-    .from("student_courses")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("course_slug", courseId)
-    .eq("status", "active")
-    .limit(1)
-    .maybeSingle<AccessRow>();
+  /*
+   * Varatarkistus sähköpostilla.
+   *
+   * Tämä kattaa myös tilanteen, jossa käyttöoikeusrivi
+   * on luotu sähköpostille ennen käyttäjän lopullista
+   * kirjautumista.
+   */
+  if (normalizedEmail) {
+    const {
+      data: emailCourseRows,
+      error: emailCourseError,
+    } = await supabase
+      .from("student_courses")
+      .select("id")
+      .ilike("email", normalizedEmail)
+      .or(
+        `course_id.eq.${normalizedCourseId},course_slug.eq.${normalizedCourseId}`
+      )
+      .eq("status", "käytössä")
+      .limit(1);
 
-  if (!byUserIdAndCourseSlug.error && byUserIdAndCourseSlug.data?.id) {
-    return true;
+    if (emailCourseError) {
+      console.error(
+        "Kurssioikeuden tarkistus sähköpostilla epäonnistui:",
+        emailCourseError
+      );
+    }
+
+    if (
+      emailCourseRows &&
+      emailCourseRows.length > 0
+    ) {
+      return true;
+    }
   }
 
-  const byEmailAndCourseId = await supabase
-    .from("student_courses")
-    .select("id")
-    .eq("email", email)
-    .eq("course_id", courseId)
-    .eq("status", "active")
-    .limit(1)
-    .maybeSingle<AccessRow>();
+  /*
+   * Mahdollinen vanha course_entitlements-taulu.
+   * Tässä voidaan edelleen käyttää active-arvoa,
+   * jos kyseinen taulu on rakennettu englanninkielisellä
+   * status-arvolla.
+   */
+  if (normalizedEmail) {
+    const {
+      data: entitlementRows,
+      error: entitlementError,
+    } = await supabase
+      .from("course_entitlements")
+      .select("id")
+      .ilike("email", normalizedEmail)
+      .eq("course_slug", normalizedCourseId)
+      .eq("status", "active")
+      .limit(1);
 
-  if (!byEmailAndCourseId.error && byEmailAndCourseId.data?.id) {
-    return true;
+    if (entitlementError) {
+      console.error(
+        "course_entitlements-tarkistus epäonnistui:",
+        entitlementError
+      );
+    }
+
+    if (
+      entitlementRows &&
+      entitlementRows.length > 0
+    ) {
+      return true;
+    }
   }
 
-  const byEmailAndCourseSlug = await supabase
-    .from("student_courses")
-    .select("id")
-    .eq("email", email)
-    .eq("course_slug", courseId)
-    .eq("status", "active")
-    .limit(1)
-    .maybeSingle<AccessRow>();
-
-  if (!byEmailAndCourseSlug.error && byEmailAndCourseSlug.data?.id) {
-    return true;
-  }
-
-  if (
-    byUserIdAndCourseId.error &&
-    byUserIdAndCourseSlug.error &&
-    byEmailAndCourseId.error &&
-    byEmailAndCourseSlug.error
-  ) {
-    console.error("student_courses-tarkistukset epäonnistuivat:", {
-      courseId,
-      userId,
-      email,
-      byUserIdAndCourseId: byUserIdAndCourseId.error,
-      byUserIdAndCourseSlug: byUserIdAndCourseSlug.error,
-      byEmailAndCourseId: byEmailAndCourseId.error,
-      byEmailAndCourseSlug: byEmailAndCourseSlug.error,
-    });
-  }
+  console.error("Kurssioikeutta ei löytynyt:", {
+    userId: user.id,
+    email: normalizedEmail,
+    courseId: normalizedCourseId,
+  });
 
   return false;
 }
