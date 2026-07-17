@@ -1,7 +1,8 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/client";
 import type { CourseId } from "@/data/courses";
+import { createClient } from "@/utils/supabase/client";
+import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 
 type SaveProgressAttemptInput = {
   courseId: CourseId;
@@ -18,31 +19,15 @@ export async function saveProgressAttempt(
 ) {
   const supabase = createClient();
 
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
+  const { user, error: authError } =
+    await getAuthenticatedUser();
 
-  if (sessionError) {
-    console.error(
-      "Istunnon hakeminen epäonnistui:",
-      sessionError
-    );
-
+  if (authError || !user) {
     throw new Error(
-      "Kirjautumistietoja ei voitu tarkistaa."
+      authError?.message ??
+        "Kirjaudu sisään, jotta vastaus voidaan tallentaa."
     );
   }
-
-  const user = session?.user;
-
-  if (!user) {
-    throw new Error(
-      "Kirjaudu sisään, jotta vastaus voidaan tallentaa."
-    );
-  }
-
-  const answeredAt = new Date().toISOString();
 
   const { error } = await supabase
     .from("student_progress_attempts")
@@ -52,12 +37,10 @@ export async function saveProgressAttempt(
       question_id: input.questionId,
       question: input.question,
       area: input.area,
-      selected_answer_ids:
-        input.selectedAnswerIds,
-      correct_answer_ids:
-        input.correctAnswerIds,
+      selected_answer_ids: input.selectedAnswerIds,
+      correct_answer_ids: input.correctAnswerIds,
       is_correct: input.isCorrect,
-      answered_at: answeredAt,
+      answered_at: new Date().toISOString(),
     });
 
   if (error) {

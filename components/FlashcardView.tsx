@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Flashcard } from "../data/courseContent";
-import { CourseId } from "../data/courses";
+import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
+import type { Flashcard } from "../data/courseContent";
+import type { CourseId } from "../data/courses";
 
 type Props = {
   courseId: CourseId;
@@ -18,12 +19,13 @@ type FlashcardProgressRow = {
   status: "known" | "needs_practice";
 };
 
-export default function FlashcardView({ courseId, flashcards }: Props) {
+export default function FlashcardView({
+  courseId,
+  flashcards,
+}: Props) {
   const router = useRouter();
 
-  const supabase = useMemo(() => {
-    return createClient();
-  }, []);
+  const supabase = useMemo(() => createClient(), []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -41,14 +43,15 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     setErrorMessage(null);
 
     const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+      user,
+      error: authError,
+    } = await getAuthenticatedUser();
 
-    if (userError || !user) {
+    if (authError || !user) {
       setUserId(null);
       setErrorMessage(
-        "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta flashcard-edistyminen voidaan hakea ja tallentaa."
+        authError?.message ??
+          "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta flashcard-edistyminen voidaan hakea ja tallentaa."
       );
       setHasLoadedSavedState(true);
       return;
@@ -66,9 +69,11 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
 
     if (error) {
       console.error("Flashcard progress fetch failed:", error);
+
       setErrorMessage(
-        "Flashcard-edistymisen haku Supabasesta epäonnistui. Tarkista, että student_flashcard_progress-taulu ja RLS-politiikat on luotu."
+        `Flashcard-edistymisen haku Supabasesta epäonnistui: ${error.message}`
       );
+
       setHasLoadedSavedState(true);
       return;
     }
@@ -106,11 +111,16 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
   }, [courseId]);
 
   const practiceFlashcards = useMemo(() => {
-    return flashcards.filter((card) => needsPracticeIds.includes(card.id));
+    return flashcards.filter((card) =>
+      needsPracticeIds.includes(card.id)
+    );
   }, [flashcards, needsPracticeIds]);
 
   const visibleFlashcards = useMemo(() => {
-    if (roundMode === "practice" && practiceFlashcards.length > 0) {
+    if (
+      roundMode === "practice" &&
+      practiceFlashcards.length > 0
+    ) {
       return practiceFlashcards;
     }
 
@@ -126,14 +136,15 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     setErrorMessage(null);
 
     const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+      user,
+      error: authError,
+    } = await getAuthenticatedUser();
 
-    if (userError || !user) {
+    if (authError || !user) {
       setUserId(null);
       setErrorMessage(
-        "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta flashcard voidaan tallentaa."
+        authError?.message ??
+          "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta flashcard voidaan tallentaa."
       );
       return false;
     }
@@ -141,24 +152,28 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     setUserId(user.id);
     setIsSaving(true);
 
-    const { error } = await supabase.from("student_flashcard_progress").upsert(
-      {
-        user_id: user.id,
-        course_id: courseId,
-        flashcard_id: flashcardId,
-        status,
-        updated_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "user_id,course_id,flashcard_id",
-      }
-    );
+    const { error } = await supabase
+      .from("student_flashcard_progress")
+      .upsert(
+        {
+          user_id: user.id,
+          course_id: courseId,
+          flashcard_id: flashcardId,
+          status,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "user_id,course_id,flashcard_id",
+        }
+      );
 
     if (error) {
       console.error("Flashcard status save failed:", error);
+
       setErrorMessage(
-        "Flashcard-tilan tallennus Supabaseen epäonnistui. Tarkista taulu ja RLS-politiikat."
+        `Flashcard-tilan tallennus Supabaseen epäonnistui: ${error.message}`
       );
+
       setIsSaving(false);
       return false;
     }
@@ -188,17 +203,24 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
       return;
     }
 
-    const saved = await saveFlashcardStatus(currentCard.id, "needs_practice");
+    const saved = await saveFlashcardStatus(
+      currentCard.id,
+      "needs_practice"
+    );
 
     if (!saved) {
       return;
     }
 
     setNeedsPracticeIds((current) =>
-      current.includes(currentCard.id) ? current : [...current, currentCard.id]
+      current.includes(currentCard.id)
+        ? current
+        : [...current, currentCard.id]
     );
 
-    setKnownIds((current) => current.filter((id) => id !== currentCard.id));
+    setKnownIds((current) =>
+      current.filter((id) => id !== currentCard.id)
+    );
 
     moveToNextCard();
   }
@@ -208,7 +230,10 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
       return;
     }
 
-    const saved = await saveFlashcardStatus(currentCard.id, "known");
+    const saved = await saveFlashcardStatus(
+      currentCard.id,
+      "known"
+    );
 
     if (!saved) {
       return;
@@ -219,11 +244,12 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     );
 
     setKnownIds((current) =>
-      current.includes(currentCard.id) ? current : [...current, currentCard.id]
+      current.includes(currentCard.id)
+        ? current
+        : [...current, currentCard.id]
     );
 
     setNeedsPracticeIds(nextNeedsPracticeIds);
-
     setIsFlipped(false);
 
     if (roundMode === "practice") {
@@ -238,7 +264,6 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
 
       if (currentIndex >= nextPracticeFlashcards.length) {
         setCurrentIndex(nextPracticeFlashcards.length - 1);
-        return;
       }
 
       return;
@@ -264,14 +289,15 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
     setErrorMessage(null);
 
     const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+      user,
+      error: authError,
+    } = await getAuthenticatedUser();
 
-    if (userError || !user) {
+    if (authError || !user) {
       setUserId(null);
       setErrorMessage(
-        "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta flashcard-edistyminen voidaan nollata."
+        authError?.message ??
+          "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta flashcard-edistyminen voidaan nollata."
       );
       return;
     }
@@ -294,7 +320,11 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
 
     if (error) {
       console.error("Flashcard progress reset failed:", error);
-      setErrorMessage("Flashcard-edistymisen nollaus epäonnistui.");
+
+      setErrorMessage(
+        `Flashcard-edistymisen nollaus epäonnistui: ${error.message}`
+      );
+
       setIsSaving(false);
       return;
     }
@@ -309,7 +339,9 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
   }
 
   function goToLogin() {
-    router.push(`/kirjaudu?next=/kurssi/${courseId}/flashcardit`);
+    router.push(
+      `/kirjaudu?next=/kurssi/${courseId}/flashcardit`
+    );
   }
 
   if (!hasLoadedSavedState) {
@@ -337,7 +369,9 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
           Flashcard-edistymistä ei voitu käsitellä
         </h2>
 
-        <p className="mt-3 leading-8 text-red-950">{errorMessage}</p>
+        <p className="mt-3 leading-8 text-red-950">
+          {errorMessage}
+        </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
           <button
@@ -348,13 +382,15 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
             Yritä uudelleen
           </button>
 
-          <button
-            type="button"
-            onClick={goToLogin}
-            className="rounded-full border border-red-200 bg-white px-6 py-3 font-bold text-red-700 transition hover:bg-red-100"
-          >
-            Kirjaudu sisään
-          </button>
+          {errorMessage.toLowerCase().includes("kirjaut") && (
+            <button
+              type="button"
+              onClick={goToLogin}
+              className="rounded-full border border-red-200 bg-white px-6 py-3 font-bold text-red-700 transition hover:bg-red-100"
+            >
+              Kirjaudu sisään
+            </button>
+          )}
         </div>
       </div>
     );
@@ -409,9 +445,7 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
           </div>
 
           <p className="mt-6 leading-8 text-slate-700">
-            Flashcard-edistyminen on tallennettu Supabaseen. Seuraavalla
-            kerralla kertauskortit haetaan automaattisesti kirjautuneelle
-            käyttäjälle.
+            Flashcard-edistyminen on tallennettu Supabaseen.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -425,7 +459,7 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
 
             <button
               type="button"
-              onClick={resetEverything}
+              onClick={() => void resetEverything()}
               disabled={isSaving}
               className="rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -455,7 +489,7 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
 
           <button
             type="button"
-            onClick={resetEverything}
+            onClick={() => void resetEverything()}
             disabled={isSaving}
             className="rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -467,16 +501,20 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
   }
 
   const isPracticeRound =
-    roundMode === "practice" && practiceFlashcards.length > 0;
+    roundMode === "practice" &&
+    practiceFlashcards.length > 0;
 
   return (
     <div className="space-y-6">
       {isPracticeRound && (
         <div className="rounded-3xl border border-orange-200 bg-orange-50 p-5 shadow-sm">
-          <p className="font-extrabold text-orange-900">Kertauskierros</p>
+          <p className="font-extrabold text-orange-900">
+            Kertauskierros
+          </p>
 
           <p className="mt-2 leading-7 text-orange-900">
-            Näet nyt ne kortit, joihin olet aiemmin painanut Kertaa vielä.
+            Näet nyt ne kortit, joihin olet aiemmin painanut
+            Kertaa vielä.
           </p>
         </div>
       )}
@@ -527,7 +565,7 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
         <div className="mt-6 grid gap-3 md:grid-cols-2">
           <button
             type="button"
-            onClick={markNeedsPractice}
+            onClick={() => void markNeedsPractice()}
             disabled={isSaving}
             className="rounded-full bg-orange-100 px-6 py-4 font-bold text-orange-800 transition hover:bg-orange-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -536,7 +574,7 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
 
           <button
             type="button"
-            onClick={markKnown}
+            onClick={() => void markKnown()}
             disabled={isSaving}
             className="rounded-full bg-emerald-100 px-6 py-4 font-bold text-emerald-800 transition hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -555,9 +593,9 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
         </h3>
 
         <p className="mt-3 leading-8 text-slate-700">
-          Aloita nykyinen kierros alusta näyttää kertauskortit, jos niitä on.
-          Nollaa poistaa tämän kurssin flashcard-tilan Supabasesta kirjautuneelta
-          käyttäjältä.
+          Aloita nykyinen kierros alusta näyttää kertauskortit,
+          jos niitä on. Nollaa poistaa tämän kurssin
+          flashcard-tilan Supabasesta.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -571,8 +609,8 @@ export default function FlashcardView({ courseId, flashcards }: Props) {
 
           <button
             type="button"
-            onClick={resetEverything}
-            disabled={isSaving}
+            onClick={() => void resetEverything()}
+            disabled={isSaving || !userId}
             className="rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSaving ? "Nollataan..." : "Nollaa"}

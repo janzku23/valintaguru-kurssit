@@ -1,42 +1,50 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { QuizQuestion } from "../data/courseContent";
-import { CourseId } from "../data/courses";
+import type { QuizQuestion } from "../data/courseContent";
+import type { CourseId } from "../data/courses";
+import { saveProgressAttempt } from "../lib/saveProgressAttempt";
 
 type Props = {
   courseId: CourseId;
   questions: QuizQuestion[];
 };
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-
 function getQuestionArea(question: QuizQuestion): string {
-  const questionWithArea = question as QuizQuestion & { area?: string };
+  const questionWithArea = question as QuizQuestion & {
+    area?: string;
+  };
 
-  if (questionWithArea.area && questionWithArea.area.trim().length > 0) {
+  if (
+    questionWithArea.area &&
+    questionWithArea.area.trim().length > 0
+  ) {
     return questionWithArea.area;
   }
 
   return "Yleinen";
 }
 
-export default function QuizView({ courseId, questions }: Props) {
-  const supabase = useMemo(() => {
-    return createClient(supabaseUrl, supabaseAnonKey);
-  }, []);
-
+export default function QuizView({
+  courseId,
+  questions,
+}: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
+
   const [selectedAnswerIds, setSelectedAnswerIds] = useState<string[]>([]);
+
   const [hasChecked, setHasChecked] = useState(false);
+
   const [correctCount, setCorrectCount] = useState(0);
+
   const [isSaving, setIsSaving] = useState(false);
+
   const [saveError, setSaveError] = useState<string | null>(null);
+
   const [savedCurrentAnswer, setSavedCurrentAnswer] = useState(false);
 
   const currentQuestion = questions[currentIndex];
+
   const isLastQuestion = currentIndex === questions.length - 1;
 
   const isCorrect = useMemo(() => {
@@ -45,6 +53,7 @@ export default function QuizView({ courseId, questions }: Props) {
     }
 
     const selected = [...selectedAnswerIds].sort();
+
     const correct = [...currentQuestion.correctAnswerIds].sort();
 
     return (
@@ -58,52 +67,40 @@ export default function QuizView({ courseId, questions }: Props) {
       return false;
     }
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-      setSaveError(
-        "Supabase-asetukset puuttuvat. Tarkista .env.local-tiedoston NEXT_PUBLIC_SUPABASE_URL ja NEXT_PUBLIC_SUPABASE_ANON_KEY."
-      );
-      return false;
-    }
-
     setIsSaving(true);
     setSaveError(null);
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+    try {
+      await saveProgressAttempt({
+        courseId,
+        questionId: currentQuestion.id,
+        question: currentQuestion.question,
+        area: getQuestionArea(currentQuestion),
+        selectedAnswerIds,
+        correctAnswerIds: currentQuestion.correctAnswerIds,
+        isCorrect,
+      });
 
-    if (userError || !user) {
-      setSaveError("Kirjaudu sisään, jotta vastaus voidaan tallentaa.");
-      setIsSaving(false);
+      setSavedCurrentAnswer(true);
+
+      return true;
+    } catch (error) {
+      console.error("Vastauksen tallennus epäonnistui:", error);
+
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Vastauksen tallennus epäonnistui."
+      );
+
       return false;
-    }
-
-    const { error } = await supabase.from("student_progress_attempts").insert({
-      user_id: user.id,
-      course_id: courseId,
-      question_id: currentQuestion.id,
-      question: currentQuestion.question,
-      area: getQuestionArea(currentQuestion),
-      selected_answer_ids: selectedAnswerIds,
-      correct_answer_ids: currentQuestion.correctAnswerIds,
-      is_correct: isCorrect,
-      answered_at: new Date().toISOString(),
-    });
-
-    if (error) {
-      setSaveError("Vastauksen tallennus Supabaseen epäonnistui.");
+    } finally {
       setIsSaving(false);
-      return false;
     }
-
-    setIsSaving(false);
-    setSavedCurrentAnswer(true);
-    return true;
   }
 
   function toggleAnswer(answerId: string) {
-    if (hasChecked || isSaving) {
+    if (!currentQuestion || hasChecked || isSaving) {
       return;
     }
 
@@ -122,7 +119,11 @@ export default function QuizView({ courseId, questions }: Props) {
   }
 
   async function checkAnswer() {
-    if (selectedAnswerIds.length === 0 || isSaving) {
+    if (
+      !currentQuestion ||
+      selectedAnswerIds.length === 0 ||
+      isSaving
+    ) {
       return;
     }
 
@@ -243,6 +244,7 @@ export default function QuizView({ courseId, questions }: Props) {
       <div className="mt-6 space-y-3">
         {currentQuestion.answers.map((answer) => {
           const isSelected = selectedAnswerIds.includes(answer.id);
+
           const isRightAnswer = currentQuestion.correctAnswerIds.includes(
             answer.id
           );
@@ -255,7 +257,8 @@ export default function QuizView({ courseId, questions }: Props) {
           }
 
           if (hasChecked && isRightAnswer) {
-            answerClass = "border-emerald-300 bg-emerald-50 text-emerald-800";
+            answerClass =
+              "border-emerald-300 bg-emerald-50 text-emerald-800";
           }
 
           if (hasChecked && isSelected && !isRightAnswer) {
@@ -267,7 +270,7 @@ export default function QuizView({ courseId, questions }: Props) {
               key={answer.id}
               type="button"
               onClick={() => toggleAnswer(answer.id)}
-              disabled={isSaving}
+              disabled={isSaving || hasChecked}
               className={`w-full rounded-2xl border px-4 py-4 text-left font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${answerClass}`}
             >
               {answer.text}
@@ -282,12 +285,14 @@ export default function QuizView({ courseId, questions }: Props) {
 
           <p className="mt-2 leading-7">{saveError}</p>
 
-          <a
-            href="/kirjaudu"
-            className="mt-4 inline-flex rounded-full bg-red-600 px-5 py-2 font-bold text-white transition hover:bg-red-700"
-          >
-            Kirjaudu sisään
-          </a>
+          {saveError.toLowerCase().includes("kirjaudu") && (
+            <a
+              href={`/kirjaudu?next=/kurssi/${courseId}/harjoitukset`}
+              className="mt-4 inline-flex rounded-full bg-red-600 px-5 py-2 font-bold text-white transition hover:bg-red-700"
+            >
+              Kirjaudu sisään
+            </a>
+          )}
         </div>
       )}
 
@@ -303,7 +308,9 @@ export default function QuizView({ courseId, questions }: Props) {
             {isCorrect ? "Oikein" : "Ei aivan oikein"}
           </h3>
 
-          <p className="mt-2 leading-7">{currentQuestion.explanation}</p>
+          <p className="mt-2 leading-7">
+            {currentQuestion.explanation}
+          </p>
 
           {savedCurrentAnswer && (
             <p className="mt-3 text-sm font-bold">
@@ -317,7 +324,7 @@ export default function QuizView({ courseId, questions }: Props) {
         {!hasChecked ? (
           <button
             type="button"
-            onClick={checkAnswer}
+            onClick={() => void checkAnswer()}
             disabled={selectedAnswerIds.length === 0 || isSaving}
             className="rounded-full bg-blue-600 px-6 py-3 font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
