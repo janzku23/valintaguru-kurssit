@@ -523,10 +523,10 @@ export default function ProfilePage() {
   }
 
   return (
-    <main style={styles.page}>
-      <section style={styles.container}>
-        <div style={styles.hero}>
-          <div>
+    <main className="profile-page" style={styles.page}>
+      <section className="profile-container" style={styles.container}>
+        <div className="profile-hero" style={styles.hero}>
+          <div className="profile-hero-content">
             <p style={styles.eyebrow}>Oma profiili</p>
             <h1 style={styles.title}>{displayName}</h1>
             <p style={styles.subtitle}>
@@ -535,7 +535,7 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          <div style={styles.heroActions}>
+          <div className="profile-hero-actions" style={styles.heroActions}>
             <button onClick={() => router.push("/")} style={styles.secondaryButton}>
               Etusivulle
             </button>
@@ -555,8 +555,8 @@ export default function ProfilePage() {
 
 {isAdmin && <AdminUserPanel />}
 
-<section style={styles.grid}>
-          <article style={styles.card}>
+<section className="profile-grid" style={styles.grid}>
+          <article className="profile-card" style={styles.card}>
             <h2 style={styles.cardTitle}>Omat tiedot</h2>
 
             <div style={styles.infoList}>
@@ -570,7 +570,7 @@ export default function ProfilePage() {
             </div>
           </article>
 
-          <article style={styles.card}>
+          <article className="profile-card" style={styles.card}>
             <h2 style={styles.cardTitle}>Salasanan vaihto</h2>
 
             <form onSubmit={handlePasswordChange} style={styles.form}>
@@ -613,7 +613,7 @@ export default function ProfilePage() {
           </article>
         </section>
 
-        <section style={styles.statsGrid}>
+        <section className="profile-stats-grid" style={styles.statsGrid}>
           <StatCard label="Kurssioikeudet" value={stats.activeCourses.toString()} />
           <StatCard label="Monivalintoja" value={stats.quizAttempts.toString()} />
           <StatCard label="Oikein" value={stats.correctAnswers.toString()} />
@@ -622,8 +622,8 @@ export default function ProfilePage() {
           <StatCard label="Kerrattavaa" value={stats.practiceFlashcards.toString()} />
         </section>
 
-        <section style={styles.grid}>
-          <article style={styles.card}>
+        <section className="profile-grid" style={styles.grid}>
+          <article className="profile-card" style={styles.card}>
             <div style={styles.sectionHeader}>
               <div>
                 <h2 style={styles.cardTitle}>Kurssit</h2>
@@ -648,7 +648,7 @@ export default function ProfilePage() {
                   const courseId = getCourseKey(course);
 
                   return (
-                    <div key={`${title}-${index}`} style={styles.listItem}>
+                    <div className="profile-list-item" key={`${title}-${index}`} style={styles.listItem}>
                       <div>
                         <h3 style={styles.itemTitle}>{title}</h3>
                         <p style={styles.itemMeta}>
@@ -676,7 +676,7 @@ export default function ProfilePage() {
             )}
           </article>
 
-          <article style={styles.card}>
+          <article className="profile-card" style={styles.card}>
             <div style={styles.sectionHeader}>
               <div>
                 <h2 style={styles.cardTitle}>Kurssikohtainen edistyminen</h2>
@@ -691,8 +691,8 @@ export default function ProfilePage() {
             ) : (
               <div style={styles.list}>
                 {courseSummaries.map((summary) => (
-                  <div key={summary.courseId} style={styles.progressItem}>
-                    <div style={styles.progressHeader}>
+                  <div className="profile-progress-item" key={summary.courseId} style={styles.progressItem}>
+                    <div className="profile-progress-header" style={styles.progressHeader}>
                       <div>
                         <h3 style={styles.itemTitle}>{summary.title}</h3>
                         <p style={styles.itemMeta}>
@@ -743,7 +743,7 @@ export default function ProfilePage() {
           </article>
         </section>
 
-        <section style={styles.card}>
+        <section className="profile-card" style={styles.card}>
           <div style={styles.sectionHeader}>
             <div>
               <h2 style={styles.cardTitle}>Viimeisin eteneminen</h2>
@@ -762,7 +762,7 @@ export default function ProfilePage() {
           ) : (
             <div style={styles.list}>
               {latestActivity.map((item) => (
-                <div key={`${item.type}-${item.id}`} style={styles.listItem}>
+                <div className="profile-list-item" key={`${item.type}-${item.id}`} style={styles.listItem}>
                   <div>
                     <p style={styles.activityType}>{item.type}</p>
                     <h3 style={styles.itemTitle}>{item.title}</h3>
@@ -789,15 +789,111 @@ export default function ProfilePage() {
           )}
         </section>
       </section>
+      <style jsx>{`
+        .profile-page,
+        .profile-container,
+        .profile-hero,
+        .profile-hero-content,
+        .profile-card,
+        .profile-grid,
+        .profile-stats-grid,
+        .profile-list-item,
+        .profile-progress-item {
+          min-width: 0;
+          box-sizing: border-box;
+        }
+
+        .profile-container {
+          overflow-x: hidden;
+        }
+
+        .profile-hero-content {
+          flex: 1 1 420px;
+          min-width: 0;
+        }
+
+        @media (max-width: 640px) {
+          .profile-page {
+            padding: 16px 10px 48px !important;
+            overflow-x: hidden;
+          }
+
+          .profile-hero {
+            padding: 20px 16px !important;
+            border-radius: 22px !important;
+            align-items: stretch !important;
+          }
+
+          .profile-hero-actions {
+            width: 100%;
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+          }
+
+          .profile-hero-actions > :global(*) {
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+          }
+
+          .profile-grid {
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 12px !important;
+          }
+
+          .profile-stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 10px !important;
+          }
+
+          .profile-card {
+            padding: 16px !important;
+            border-radius: 20px !important;
+          }
+
+          .profile-info-row {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 5px !important;
+          }
+
+          .profile-info-value {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            text-align: left !important;
+            overflow-wrap: anywhere;
+            word-break: break-word !important;
+          }
+
+          .profile-list-item,
+          .profile-progress-header {
+            align-items: stretch !important;
+            flex-direction: column !important;
+          }
+
+          .profile-list-item > :global(div),
+          .profile-progress-header > :global(div) {
+            min-width: 0;
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .profile-stats-grid {
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+        }
+      `}</style>
     </main>
   );
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div style={styles.infoRow}>
+    <div className="profile-info-row" style={styles.infoRow}>
       <span style={styles.infoLabel}>{label}</span>
-      <span style={styles.infoValue}>{value}</span>
+      <span className="profile-info-value" style={styles.infoValue}>{value}</span>
     </div>
   );
 }
@@ -835,11 +931,15 @@ const styles: Record<string, React.CSSProperties> = {
       "radial-gradient(circle at top left, rgba(44, 110, 255, 0.18), transparent 34%), linear-gradient(180deg, #F6F9FF 0%, #EEF4FF 100%)",
     padding: "32px 18px 70px",
     color: "#0B1633",
+    overflowX: "hidden",
+    boxSizing: "border-box",
   },
   container: {
     width: "100%",
     maxWidth: 1180,
     margin: "0 auto",
+    minWidth: 0,
+    boxSizing: "border-box",
   },
   hero: {
     display: "flex",
@@ -917,9 +1017,10 @@ const styles: Record<string, React.CSSProperties> = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(310px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 310px), 1fr))",
     gap: 18,
     marginBottom: 18,
+    minWidth: 0,
   },
   card: {
     background: "rgba(255,255,255,0.92)",
@@ -928,6 +1029,10 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 22,
     boxShadow: "0 16px 45px rgba(25, 70, 150, 0.10)",
     marginBottom: 18,
+    minWidth: 0,
+    maxWidth: "100%",
+    boxSizing: "border-box",
+    overflow: "hidden",
   },
   cardTitle: {
     margin: 0,
@@ -958,6 +1063,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 800,
     textAlign: "right",
     wordBreak: "break-word",
+    overflowWrap: "anywhere",
+    minWidth: 0,
+    maxWidth: "100%",
   },
   form: {
     marginTop: 18,

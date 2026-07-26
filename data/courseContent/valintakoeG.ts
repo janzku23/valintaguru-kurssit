@@ -51,6 +51,33 @@ Laskutoimitukset kannattaa tehdä vain niillä tiedoilla, jotka aineistossa anne
     },
   ],
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   quizQuestions: [
     {
       id: "g-q1",
@@ -145,6 +172,26 @@ Laskutoimitukset kannattaa tehdä vain niillä tiedoilla, jotka aineistossa anne
         "Pääajatus tarkoittaa tekstin keskeisintä viestiä tai väitettä. Se ei välttämättä sijaitse yhdessä yksittäisessä virkkeessä.",
     },
   ],
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   flashcards: [
     {
