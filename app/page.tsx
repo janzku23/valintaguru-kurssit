@@ -8,6 +8,8 @@ import CourseAccessCard from "../components/CourseAccessCard";
 import LockedCourseCard from "../components/LockedCourseCard";
 import { CourseId, courses } from "../data/courses";
 import testiImage from "../assets/testi.jpg";
+import frontLogo from "../assets/frontlogo.png";
+import logo from "../assets/logo.png";
 
 type StudentCourseRow = {
   id?: string;
@@ -157,7 +159,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 md:px-8">
           <a href="/" className="flex items-center gap-3">
             <span className="flex h-11 w-11 overflow-hidden rounded-full border border-slate-950 bg-white">
-              <img src={testiImage.src} alt="ValintaGuru" className="h-full w-full object-cover" />
+              <img src={logo.src} alt="ValintaGuru" className="h-full w-full object-cover" />
             </span>
             <span className="font-serif text-2xl font-semibold tracking-tight">ValintaGuru</span>
           </a>
@@ -214,7 +216,7 @@ export default function Home() {
           <div className="relative mx-auto w-full max-w-xl">
             <div className="absolute -inset-4 rotate-3 rounded-[2.25rem] bg-[#f3a31b]" />
             <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-900/15">
-              <img src={testiImage.src} alt="ValintaGurun kurssialusta" className="aspect-[4/3] w-full rounded-[1.4rem] object-cover" />
+              <img src={frontLogo.src} alt="ValintaGurun kurssialusta" className="aspect-[4/2] w-full rounded-[1.4rem] object-cover" /> 
               <div className="absolute bottom-7 left-7 right-7 rounded-2xl bg-white/95 p-4 shadow-lg backdrop-blur">
                 <p className="text-sm font-bold text-[#3f51e7]">Uudistunut kurssialusta</p>
                 <p className="mt-1 font-semibold">Teoria, harjoitukset ja oma edistyminen yhdessä paikassa.</p>
@@ -458,7 +460,7 @@ export default function Home() {
       <div className="flex items-center gap-3">
         <span className="flex h-10 w-10 overflow-hidden rounded-full border border-slate-950 bg-white">
           <img
-            src={testiImage.src}
+            src={logo.src}
             alt="ValintaGuru"
             className="h-full w-full object-cover"
           />
