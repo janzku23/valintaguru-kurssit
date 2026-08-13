@@ -10,6 +10,7 @@ import { CourseId, courses } from "../data/courses";
 import testiImage from "../assets/testi.jpg";
 import frontLogo from "../assets/frontlogo.png";
 import logo from "../assets/logo.png";
+import Etusivulogo from "../assets/Etusivulogo.png";
 
 type StudentCourseRow = {
   id?: string;
@@ -29,6 +30,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [ownedCourseIds, setOwnedCourseIds] = useState<CourseId[]>([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const loadUserAndCourses = useCallback(async () => {
     setLoading(true);
@@ -126,8 +128,8 @@ export default function Home() {
     { image: testiImage.src, alt: "ValintaGurun Instagram-julkaisu 1" },
     { image: testiImage.src, alt: "ValintaGurun Instagram-julkaisu 2" },
     { image: testiImage.src, alt: "ValintaGurun Instagram-julkaisu 3" },
-    { image: testiImage.src, alt: "ValintaGurun Instagram-julkaisu 4" },
-    { image: testiImage.src, alt: "ValintaGurun Instagram-julkaisu 5" },
+    { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 4" },
+    { image: frontLogo.src, alt: "ValintaGurun Instagram-julkaisu 5" },
   ];
 
   const previousInstagramSlide = () => {
@@ -154,107 +156,326 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[#fffdf8] text-slate-950">
-      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-[#fffdf8]/95 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 md:px-8">
-          <a href="/" className="flex items-center gap-3">
-            <span className="flex h-11 w-11 overflow-hidden rounded-full border border-slate-950 bg-white">
-              <img src={logo.src} alt="ValintaGuru" className="h-full w-full object-cover" />
+    <main className="min-h-screen overflow-x-hidden bg-[#fffdf8] text-slate-950">
+      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-5 sm:py-4 md:px-8">
+          <a
+            href="/"
+            className="flex min-w-0 items-center gap-2 sm:gap-3"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <span className="flex h-9 w-9 shrink-0 overflow-hidden rounded-full border border-slate-950 bg-white sm:h-11 sm:w-11">
+              <img
+                src={logo.src}
+                alt="ValintaGuru"
+                className="h-full w-full object-cover"
+              />
             </span>
-            <span className="font-serif text-2xl font-semibold tracking-tight">ValintaGuru</span>
+
+            <span className="truncate font-serif text-lg font-semibold tracking-tight min-[390px]:text-xl sm:text-2xl">
+              ValintaGuru
+            </span>
           </a>
 
           <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-700 lg:flex">
-            <a href="#omat-kurssit" className="transition hover:text-[#3f51e7]">Omat kurssit</a>
-            <a href="#kurssit" className="transition hover:text-[#3f51e7]">Valmennuskurssit</a>
-            <a href="#miksi" className="transition hover:text-[#3f51e7]">Miksi ValintaGuru?</a>
-            <a href="#ajankohtaista" className="transition hover:text-[#3f51e7]">Ajankohtaista</a>
-            {isLoggedIn && <a href="/profiili" className="transition hover:text-[#3f51e7]">Profiili</a>}
+            <a href="#omat-kurssit" className="transition hover:text-[#3f51e7]">
+              Omat kurssit
+            </a>
+            <a href="#kurssit" className="transition hover:text-[#3f51e7]">
+              Valmennuskurssit
+            </a>
+            <a href="#miksi" className="transition hover:text-[#3f51e7]">
+              Miksi ValintaGuru?
+            </a>
+            <a href="#ajankohtaista" className="transition hover:text-[#3f51e7]">
+              Ajankohtaista
+            </a>
+            {isLoggedIn && (
+              <a href="/profiili" className="transition hover:text-[#3f51e7]">
+                Profiili
+              </a>
+            )}
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <a href="/kauppa" className="hidden rounded-full border border-slate-300 px-5 py-2.5 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7] sm:inline-flex">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <a
+              href="/kauppa"
+              className="hidden rounded-full border border-slate-300 px-5 py-2.5 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7] lg:inline-flex"
+            >
               Tutustu kursseihin
             </a>
-            <a href={isLoggedIn ? "/profiili" : "/kirjaudu"} className="rounded-full bg-[#3f51e7] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:-translate-y-0.5 hover:bg-[#3142d6]">
-              {loading ? "Tarkistetaan..." : isLoggedIn ? "Oma profiili" : "Kirjaudu"}
+
+            <a
+              href={isLoggedIn ? "/profiili" : "/kirjaudu"}
+              className="hidden whitespace-nowrap rounded-full bg-[#3f51e7] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:-translate-y-0.5 hover:bg-[#3142d6] sm:inline-flex"
+            >
+              {loading
+                ? "Tarkistetaan..."
+                : isLoggedIn
+                  ? "Oma profiili"
+                  : "Kirjaudu"}
             </a>
+
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((current) => !current)}
+              aria-label={
+                mobileMenuOpen
+                  ? "Sulje navigointivalikko"
+                  : "Avaa navigointivalikko"
+              }
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-950 shadow-sm transition hover:border-[#3f51e7] hover:text-[#3f51e7] lg:hidden"
+            >
+              {mobileMenuOpen ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+                </svg>
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  className="h-6 w-6"
+                  aria-hidden="true"
+                >
+                  <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
-      </header>
 
-      <section className="relative overflow-hidden border-b border-slate-200">
-        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#3f51e7] opacity-95" />
-        <div className="absolute -bottom-20 left-8 h-40 w-40 rounded-[2.5rem] border-[10px] border-[#f3a31b] opacity-90" />
+        {mobileMenuOpen && (
+          <div
+            id="mobile-navigation"
+            className="border-t border-slate-200 bg-white shadow-xl shadow-slate-900/5 lg:hidden"
+          >
+            <div className="mx-auto max-w-7xl px-4 py-4 sm:px-5 md:px-8">
+              <nav className="flex flex-col gap-2">
+                <a
+                  href="#omat-kurssit"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
+                >
+                  <span>Omat kurssit</span>
+                  <span className="text-xl text-slate-400">›</span>
+                </a>
 
-        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-5 py-14 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-bold text-[#3f51e7]">
-              Verkossa · omaan tahtiin · tavoitteellisesti
-            </div>
-            <h1 className="mt-7 max-w-3xl font-serif text-5xl font-semibold leading-[1.02] tracking-tight md:text-7xl">
-              Valmistaudu valintakokeeseen fiksummin.
-            </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-700 md:text-xl">
-              ValintaGurun valmennuskurssit auttavat sinua ymmärtämään kokeen rakennetta, kehittämään päättelyä, analysoimaan tekstejä huolellisesti ja hallitsemaan ajankäyttöä koetilanteessa.
-            </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <a href={isLoggedIn ? "#omat-kurssit" : "/kirjaudu"} className="rounded-full bg-[#3f51e7] px-7 py-3.5 font-bold text-white shadow-xl shadow-indigo-600/20 transition hover:-translate-y-0.5 hover:bg-[#3142d6]">
-                {isLoggedIn ? "Jatka opiskelua" : "Kirjaudu kurssialustalle"}
-              </a>
-              <a href="/kauppa" className="rounded-full border border-slate-300 bg-white px-7 py-3.5 font-bold text-slate-900 transition hover:border-[#3f51e7] hover:text-[#3f51e7]">
-                Tutustu kursseihin
-              </a>
-            </div>
-            <div className="mt-9 grid max-w-xl grid-cols-3 gap-3 text-center text-sm">
-              <div className="rounded-2xl border border-slate-200 bg-white p-4"><strong className="block text-xl text-[#3f51e7]">100 %</strong><span className="text-slate-600">verkossa</span></div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-4"><strong className="block text-xl text-[#3f51e7]">24/7</strong><span className="text-slate-600">käytettävissä</span></div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-4"><strong className="block text-xl text-[#3f51e7]">Oma</strong><span className="text-slate-600">opiskelutahti</span></div>
-            </div>
-          </div>
+                <a
+                  href="#kurssit"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
+                >
+                  <span>Valmennuskurssit</span>
+                  <span className="text-xl text-slate-400">›</span>
+                </a>
 
-          <div className="relative mx-auto w-full max-w-xl">
-            <div className="absolute -inset-4 rotate-3 rounded-[2.25rem] bg-[#f3a31b]" />
-            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-900/15">
-              <img src={frontLogo.src} alt="ValintaGurun kurssialusta" className="aspect-[4/2] w-full rounded-[1.4rem] object-cover" /> 
-              <div className="absolute bottom-7 left-7 right-7 rounded-2xl bg-white/95 p-4 shadow-lg backdrop-blur">
-                <p className="text-sm font-bold text-[#3f51e7]">Uudistunut kurssialusta</p>
-                <p className="mt-1 font-semibold">Teoria, harjoitukset ja oma edistyminen yhdessä paikassa.</p>
+                <a
+                  href="#miksi"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
+                >
+                  <span>Miksi ValintaGuru?</span>
+                  <span className="text-xl text-slate-400">›</span>
+                </a>
+
+                <a
+                  href="#ajankohtaista"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
+                >
+                  <span>Ajankohtaista</span>
+                  <span className="text-xl text-slate-400">›</span>
+                </a>
+
+                {isLoggedIn && (
+                  <a
+                    href="/profiili"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
+                  >
+                    <span>Profiili</span>
+                    <span className="text-xl text-slate-400">›</span>
+                  </a>
+                )}
+              </nav>
+
+              <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
+                <a
+                  href="/kauppa"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3.5 text-center font-bold text-slate-900 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
+                >
+                  Tutustu kursseihin
+                </a>
+
+                <a
+                  href={isLoggedIn ? "/profiili" : "/kirjaudu"}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="inline-flex items-center justify-center rounded-full bg-[#3f51e7] px-5 py-3.5 text-center font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-[#3142d6]"
+                >
+                  {loading
+                    ? "Tarkistetaan..."
+                    : isLoggedIn
+                      ? "Oma profiili"
+                      : "Kirjaudu"}
+                </a>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        )}
+      </header>
 
-      <section id="omat-kurssit" className="mx-auto max-w-7xl px-5 py-16 md:px-8 lg:py-20">
+
+
+
+<section className="relative h-[260px] w-full overflow-hidden border-b border-slate-200 bg-[#fffdf8] sm:h-[360px] lg:h-[460px]">
+  <img
+    src={Etusivulogo.src}
+    alt="ValintaGuru"
+    className="h-full w-full object-cover object-center"
+  />
+</section>
+
+{/* HERO SECTION */}
+<section className="relative overflow-hidden border-b border-slate-200 bg-[#fffdf8]">
+  <div className="absolute -right-28 -top-28 h-56 w-56 rounded-full bg-[#3f51e7] opacity-90 sm:h-72 sm:w-72" />
+
+  <div className="absolute -bottom-20 -left-12 h-32 w-32 rounded-[2.5rem] border-[8px] border-[#f3a31b] opacity-80 sm:left-8 sm:h-40 sm:w-40 sm:border-[10px]" />
+
+  <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-5 sm:py-16 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:py-24">
+
+    {/* VASEN PUOLI */}
+    <div>
+      <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-bold leading-5 text-[#3f51e7] sm:px-4 sm:text-sm">
+        Verkossa · omaan tahtiin · tavoitteellisesti
+      </div>
+
+      <h1 className="mt-5 max-w-3xl break-words font-serif text-[2.55rem] font-semibold leading-[1.02] tracking-tight sm:mt-7 sm:text-5xl md:text-7xl">
+        Valmistaudu valintakokeeseen fiksummin.
+      </h1>
+
+      <p className="mt-5 max-w-2xl text-base leading-7 text-slate-700 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl">
+        ValintaGurun valmennuskurssit auttavat sinua ymmärtämään kokeen
+        rakennetta, kehittämään päättelyä, analysoimaan tekstejä
+        huolellisesti ja hallitsemaan ajankäyttöä koetilanteessa.
+      </p>
+
+      <div className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap">
+        <a
+          href={isLoggedIn ? "#omat-kurssit" : "/kirjaudu"}
+          className="inline-flex w-full items-center justify-center rounded-full bg-[#3f51e7] px-5 py-3.5 text-center font-bold text-white shadow-xl shadow-indigo-600/20 transition hover:-translate-y-0.5 hover:bg-[#3142d6] sm:w-auto sm:px-7"
+        >
+          {isLoggedIn ? "Jatka opiskelua" : "Kirjaudu kurssialustalle"}
+        </a>
+
+        <a
+          href="/kauppa"
+          className="inline-flex w-full items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3.5 text-center font-bold text-slate-900 transition hover:border-[#3f51e7] hover:text-[#3f51e7] sm:w-auto sm:px-7"
+        >
+          Tutustu kursseihin
+        </a>
+      </div>
+
+      <div className="mt-7 grid max-w-xl grid-cols-1 gap-3 text-center text-sm min-[390px]:grid-cols-3 sm:mt-9">
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+          <strong className="block text-lg text-[#3f51e7] sm:text-xl">
+            100 %
+          </strong>
+
+          <span className="text-xs text-slate-600 sm:text-sm">
+            verkossa
+          </span>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+          <strong className="block text-lg text-[#3f51e7] sm:text-xl">
+            24/7
+          </strong>
+
+          <span className="text-xs text-slate-600 sm:text-sm">
+            käytettävissä
+          </span>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+          <strong className="block text-lg text-[#3f51e7] sm:text-xl">
+            Oma
+          </strong>
+
+          <span className="text-xs text-slate-600 sm:text-sm">
+            opiskelutahti
+          </span>
+        </div>
+      </div>
+    </div>
+
+    {/* OIKEA PUOLI */}
+    <div className="relative mx-auto w-full max-w-xl px-1 sm:px-0">
+      <div className="absolute -inset-2 rotate-2 rounded-[1.75rem] bg-[#f3a31b] sm:-inset-4 sm:rotate-3 sm:rounded-[2.25rem]" />
+
+      <div className="relative overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/15 sm:rounded-[2rem] sm:p-3">
+        <img
+          src={frontLogo.src}
+          alt="ValintaGurun kurssialusta"
+          className="aspect-[16/10] w-full rounded-[1.1rem] object-cover sm:aspect-[4/2] sm:rounded-[1.4rem]"
+        />
+
+        <div className="absolute bottom-4 left-4 right-4 rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:bottom-7 sm:left-7 sm:right-7 sm:rounded-2xl sm:p-4">
+          <p className="text-sm font-bold text-[#3f51e7]">
+            Uudistunut kurssialusta
+          </p>
+
+          <p className="mt-1 text-sm font-semibold leading-5 sm:text-base sm:leading-normal">
+            Teoria, harjoitukset ja oma edistyminen yhdessä paikassa.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+      <section id="omat-kurssit" className="scroll-mt-20 mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16 md:px-8 lg:py-20">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="font-bold uppercase tracking-[0.18em] text-[#3f51e7]">Kurssialusta</p>
-            <h2 className="mt-3 font-serif text-4xl font-semibold md:text-5xl">Omat kurssisi</h2>
+            <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl md:text-5xl">Omat kurssisi</h2>
             <p className="mt-4 max-w-2xl leading-8 text-slate-700">Näet tässä ne kurssit, joihin sinulla on aktiivinen käyttöoikeus.</p>
           </div>
-          <a href="/kauppa" className="inline-flex w-fit rounded-full bg-slate-950 px-6 py-3 font-bold text-white transition hover:bg-[#3f51e7]">Hanki uusi kurssi</a>
+          <a href="/kauppa" className="inline-flex w-full items-center justify-center rounded-full bg-slate-950 px-6 py-3 text-center font-bold text-white transition hover:bg-[#3f51e7] sm:w-fit">Hanki uusi kurssi</a>
         </div>
 
         {loading ? (
-          <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm"><h3 className="text-2xl font-extrabold">Tarkistetaan kirjautumista...</h3><p className="mt-3 text-slate-700">Haetaan käyttäjää ja kurssioikeuksia.</p></div>
+          <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8"><h3 className="text-2xl font-extrabold">Tarkistetaan kirjautumista...</h3><p className="mt-3 text-slate-700">Haetaan käyttäjää ja kurssioikeuksia.</p></div>
         ) : !isLoggedIn ? (
-          <div className="mt-8 grid gap-6 rounded-[2rem] border border-indigo-100 bg-indigo-50 p-8 md:grid-cols-[1fr_auto] md:items-center">
+          <div className="mt-8 grid gap-6 rounded-[2rem] border border-indigo-100 bg-indigo-50 p-5 sm:p-8 md:grid-cols-[1fr_auto] md:items-center">
             <div><h3 className="text-2xl font-extrabold">Kirjaudu nähdäksesi omat kurssisi</h3><p className="mt-3 leading-8 text-slate-700">Kirjaudu samalla sähköpostiosoitteella, jolla kurssi on hankittu.</p></div>
-            <a href="/kirjaudu" className="inline-flex rounded-full bg-[#3f51e7] px-6 py-3 font-bold text-white">Kirjaudu sisään</a>
+            <a href="/kirjaudu" className="inline-flex w-full items-center justify-center rounded-full bg-[#3f51e7] px-6 py-3 text-center font-bold text-white sm:w-fit">Kirjaudu sisään</a>
           </div>
         ) : ownedCourses.length > 0 ? (
           <div className="mt-8 grid gap-6 md:grid-cols-3">{ownedCourses.map((course) => <CourseAccessCard key={course.id} course={course} />)}</div>
         ) : (
-          <div className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm"><h3 className="text-2xl font-extrabold">Sinulla ei ole vielä aktiivisia kursseja</h3><p className="mt-3 leading-8 text-slate-700">Kun hankit kurssin, se ilmestyy tähän samalla sähköpostiosoitteella kirjautumisen jälkeen.</p><a href="/kauppa" className="mt-6 inline-flex rounded-full bg-[#3f51e7] px-6 py-3 font-bold text-white">Tutustu kursseihin</a></div>
+          <div className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-8"><h3 className="text-2xl font-extrabold">Sinulla ei ole vielä aktiivisia kursseja</h3><p className="mt-3 leading-8 text-slate-700">Kun hankit kurssin, se ilmestyy tähän samalla sähköpostiosoitteella kirjautumisen jälkeen.</p><a href="/kauppa" className="mt-6 inline-flex rounded-full bg-[#3f51e7] px-6 py-3 font-bold text-white">Tutustu kursseihin</a></div>
         )}
       </section>
 
-      <section id="kurssit" className="border-y border-slate-200 bg-white py-16 lg:py-20">
-        <div className="mx-auto max-w-7xl px-5 md:px-8">
+      <section id="kurssit" className="scroll-mt-20 border-y border-slate-200 bg-white py-12 sm:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8">
           <div className="max-w-3xl">
             <p className="font-bold uppercase tracking-[0.18em] text-[#3f51e7]">Valmennuskurssit</p>
-            <h2 className="mt-3 font-serif text-4xl font-semibold md:text-5xl">Valitse tavoitteeseesi sopiva kokonaisuus</h2>
+            <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl md:text-5xl">Valitse tavoitteeseesi sopiva kokonaisuus</h2>
             <p className="mt-5 text-lg leading-8 text-slate-700">Opiskele joustavasti missä tahansa. Kurssit keskittyvät valintakokeessa tarvittaviin taitoihin ja auttavat tunnistamaan omat vahvuutesi sekä kehityskohteesi.</p>
           </div>
           <div id="muut-kurssit" className="mt-10 grid gap-6 md:grid-cols-3">{lockedCourses.map((course) => <LockedCourseCard key={course.id} course={course} />)}</div>
@@ -262,14 +483,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="miksi" className="mx-auto max-w-7xl px-5 py-16 md:px-8 lg:py-24">
+      <section id="miksi" className="scroll-mt-20 mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16 md:px-8 lg:py-24">
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="overflow-hidden rounded-[2rem] bg-[#eee9df] p-3 shadow-xl shadow-slate-900/10">
             <img src={testiImage.src} alt="Opiskelua ValintaGurun avulla" className="aspect-square w-full rounded-[1.4rem] object-cover" />
           </div>
           <div>
             <p className="font-bold uppercase tracking-[0.18em] text-[#3f51e7]">Miksi ValintaGuru?</p>
-            <h2 className="mt-3 font-serif text-4xl font-semibold md:text-5xl">Tavoitteellista opiskelua ilman turhaa säätöä</h2>
+            <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl md:text-5xl">Tavoitteellista opiskelua ilman turhaa säätöä</h2>
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {[
                 ["Selkeä kokonaisuus", "Teoriat, harjoitukset ja materiaalit löytyvät samalta alustalta."],
@@ -288,23 +509,23 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="ajankohtaista" className="bg-[#3f51e7] py-16 text-white lg:py-20">
-        <div className="mx-auto max-w-7xl px-5 md:px-8">
+      <section id="ajankohtaista" className="scroll-mt-20 bg-[#3f51e7] py-12 text-white sm:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8">
           <div className="grid items-stretch gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
             <div className="flex flex-col justify-center text-center lg:text-left">
               <p className="font-bold uppercase tracking-[0.18em] text-indigo-100">Ajankohtaista</p>
-              <h2 className="mt-3 font-serif text-4xl font-semibold md:text-5xl">
+              <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl md:text-5xl">
                 Seuraa ValintaGurun uusimpia vinkkejä
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-indigo-100 lg:mx-0">
                 Katso uusimmat sisällöt Instagramista ja TikTokista.
               </p>
-              <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
+              <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap lg:justify-start">
                 <a
                   href={instagramProfileUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex rounded-full bg-white px-7 py-3.5 font-bold text-[#3f51e7]"
+                  className="inline-flex w-full items-center justify-center rounded-full bg-white px-7 py-3.5 text-center font-bold text-[#3f51e7] sm:w-auto"
                 >
                   Avaa Instagram
                 </a>
@@ -312,7 +533,7 @@ export default function Home() {
                   href={tiktokProfileUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex rounded-full border border-white/30 bg-white/10 px-7 py-3.5 font-bold text-white backdrop-blur transition hover:bg-white/20"
+                  className="inline-flex w-full items-center justify-center rounded-full border border-white/30 bg-white/10 px-7 py-3.5 text-center font-bold text-white backdrop-blur transition hover:bg-white/20 sm:w-auto"
                 >
                   Avaa TikTok
                 </a>
@@ -320,7 +541,7 @@ export default function Home() {
             </div>
 
             <div className="flex min-w-0 items-center justify-center lg:justify-end">
-              <div className="w-full max-w-[560px] rounded-[2rem] bg-white p-4 text-slate-950 shadow-2xl shadow-indigo-950/20 sm:p-5">
+              <div className="w-full min-w-0 max-w-[560px] rounded-[1.5rem] bg-white p-3 text-slate-950 shadow-2xl shadow-indigo-950/20 sm:rounded-[2rem] sm:p-5">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-bold text-[#3f51e7]">Instagram</p>
@@ -336,7 +557,7 @@ export default function Home() {
                   </a>
                 </div>
 
-                <div className="relative mt-4 h-[240px] overflow-hidden rounded-2xl bg-gradient-to-b from-slate-50 to-slate-100 sm:h-[270px]">
+                <div className="relative mt-4 h-[210px] overflow-hidden rounded-2xl bg-gradient-to-b from-slate-50 to-slate-100 min-[390px]:h-[230px] sm:h-[270px]">
                   <div className="absolute inset-0 flex items-center justify-center [perspective:1200px]">
                     {instagramPosts.map((post, index) => {
                       const position = getInstagramPosition(index);
@@ -361,7 +582,7 @@ export default function Home() {
                           onClick={() => setInstagramSlide(index)}
                           aria-label={`Näytä Instagram-kuva ${index + 1}`}
                           aria-current={isActive ? "true" : undefined}
-                          className={`absolute aspect-[4/3] w-[220px] overflow-hidden rounded-2xl border-4 border-white bg-white shadow-2xl transition-all duration-500 ease-out sm:w-[285px] ${
+                          className={`absolute aspect-[4/3] w-[180px] overflow-hidden rounded-2xl border-4 border-white bg-white shadow-2xl transition-all duration-500 ease-out min-[390px]:w-[205px] sm:w-[285px] ${
                             isVisible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
                           } ${isActive ? "z-30" : Math.abs(position) === 1 ? "z-20" : "z-10"}`}
                           style={{
@@ -423,7 +644,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-[2rem] bg-white p-4 text-slate-950 shadow-2xl shadow-indigo-950/20 md:p-5">
+          <div className="mt-6 min-w-0 overflow-hidden rounded-[1.5rem] bg-white p-2 text-slate-950 shadow-2xl shadow-indigo-950/20 sm:rounded-[2rem] sm:p-4 md:p-5">
             <blockquote
               className="tiktok-embed"
               cite={tiktokProfileUrl}
@@ -432,11 +653,11 @@ export default function Home() {
               style={{
                 margin: "0 auto",
                 maxWidth: "100%",
-                minWidth: "288px",
+                minWidth: "0",
                 width: "100%",
               }}
             >
-              <section className="flex min-h-[420px] items-center justify-center p-8 text-center">
+              <section className="flex min-h-[360px] items-center justify-center p-5 text-center sm:min-h-[420px] sm:p-8">
                 <div>
                   <p className="text-lg font-extrabold">Ladataan TikTok-profiilia…</p>
                   <a
@@ -455,7 +676,7 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-slate-200 bg-[#fffdf8]">
-  <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 md:grid-cols-2 md:px-8 lg:grid-cols-4">
+  <div className="mx-auto grid max-w-7xl gap-9 px-4 py-10 sm:px-5 sm:py-12 md:grid-cols-2 md:px-8 lg:grid-cols-4">
     <div>
       <div className="flex items-center gap-3">
         <span className="flex h-10 w-10 overflow-hidden rounded-full border border-slate-950 bg-white">
@@ -570,7 +791,7 @@ export default function Home() {
     </div>
   </div>
 
-  <div className="border-t border-slate-200 px-5 py-5">
+  <div className="border-t border-slate-200 px-4 py-5 sm:px-5">
     <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-center text-sm text-slate-500 sm:flex-row">
       <p>© 2026 ValintaGuru Oy</p>
 
