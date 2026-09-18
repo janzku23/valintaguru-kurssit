@@ -1,4 +1,10 @@
-export type CourseId = "oikis" | "valintakoe-g" | "yo";
+export type CourseId =
+  | "oikis"
+  | "oikis-tiivis"
+  | "oikis-teho"
+  | "valintakoe-g"
+  | "valintakoe-g-etaope"
+  | "yo";
 
 export type CourseModule = {
   id: string;
@@ -13,4 +19,5 @@ export type Course = {
   label: string;
   description: string;
   modules: CourseModule[];
+  purchaseUrl: string;
 };

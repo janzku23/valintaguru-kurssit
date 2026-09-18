@@ -194,17 +194,23 @@ export default function Home() {
             <a href="#kurssit" className="transition hover:text-[#3f51e7]">
               Valmennuskurssit
             </a>
+            {/*
             <a href="#miksi" className="transition hover:text-[#3f51e7]">
               Miksi ValintaGuru?
             </a>
+            */}
             <a href="#ajankohtaista" className="transition hover:text-[#3f51e7]">
               Ajankohtaista
             </a>
+
+            {/*
             {isLoggedIn && (
               <a href="/profiili" className="transition hover:text-[#3f51e7]">
                 Profiili
               </a>
+              
             )}
+              */}
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -307,7 +313,7 @@ export default function Home() {
                       <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-base shadow-sm">
                         ◈
                       </span>
-                      <span>GuruPath</span>
+                      <span>GuruPeli</span>
                     </span>
                     <span className="text-xl text-violet-300">›</span>
                   </a>
@@ -400,17 +406,17 @@ export default function Home() {
     {/* VASEN PUOLI */}
     <div>
       <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-bold leading-5 text-[#3f51e7] sm:px-4 sm:text-sm">
-        Verkossa · omaan tahtiin · tavoitteellisesti
+        Verkossa · Omaan tahtiin · Tavoitteellisesti
       </div>
 
       <h1 className="mt-5 max-w-3xl break-words font-serif text-[2.55rem] font-semibold leading-[1.02] tracking-tight sm:mt-7 sm:text-5xl md:text-7xl">
-        Valmistaudu valintakokeeseen fiksummin.
+        Valmistaudu fiksummin
       </h1>
 
       <p className="mt-5 max-w-2xl text-base leading-7 text-slate-700 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl">
         ValintaGurun valmennuskurssit auttavat sinua ymmärtämään kokeen
         rakennetta, kehittämään päättelyä, analysoimaan tekstejä
-        huolellisesti ja hallitsemaan ajankäyttöä koetilanteessa.
+        huolellisesti ja hallitsemaan ajankäyttöä koetilanteessa
       </p>
 
       <div className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap">
@@ -520,7 +526,7 @@ export default function Home() {
                   Kurssin lisätyökalut
                 </p>
                 <h3 className="mt-2 font-serif text-2xl font-semibold sm:text-3xl">
-                  Kalenteri ja GuruPath
+                  Kalenteri ja GuruPeli
                 </h3>
                 <p className="mt-3 max-w-2xl leading-7 text-slate-600">
                   Nämä työkalut avautuvat käyttöön, kun käyttäjätililläsi on vähintään yksi aktiivinen kurssi.
@@ -604,7 +610,7 @@ export default function Home() {
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="font-bold uppercase tracking-[0.16em] text-violet-700">
-                              GuruPath
+                              GuruPeli
                             </p>
 
                             <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-black text-violet-700">
@@ -613,32 +619,31 @@ export default function Home() {
                           </div>
 
                           <h3 className="mt-2 font-serif text-2xl font-semibold leading-tight sm:text-3xl">
-                            Etene polulla, kerää XP:tä ja nouse rankingissa
+                            Etene polulla, kerää pisteitä ja nouse rankingissa
                           </h3>
 
                           <p className="mt-3 leading-7 text-slate-600">
-                            Kaikkien kurssiesi opiskelusta kertyy yhteistä Guru-XP:tä.
-                            Ratkaise polun haasteita, avaa uusia solmuja ja tavoittele
-                            ennätystaulukon kärkisijaa omalla nimimerkilläsi.
+                            Ratkaise polun haasteita, avaa uusia polkuja ja tavoittele
+                            kärkisijaa !
                           </p>
                         </div>
                       </div>
 
                       <div className="mt-6 flex flex-wrap gap-2 text-sm font-semibold text-slate-600">
                         <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
-                          Guru Level
+                          Taso
                         </span>
                         <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
                           Kurssipolut
                         </span>
                         <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
-                          Ranking
+                          Sijoitus
                         </span>
                       </div>
 
                       <div className="mt-auto pt-6">
                         <span className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-950 px-6 py-3.5 font-bold text-white shadow-lg shadow-slate-900/15 transition group-hover:bg-violet-700">
-                          Avaa GuruPath
+                          Avaa GuruPeli
                           <span aria-hidden="true">→</span>
                         </span>
                       </div>
@@ -904,7 +909,7 @@ export default function Home() {
               href="/gurupath"
               className="transition hover:text-[#3f51e7]"
             >
-              GuruPath
+              GuruPeli
             </a>
           </>
         )}

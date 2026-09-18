@@ -1,135 +1,117 @@
-const HOLVI_EMBED_URL =
-  "https://holvi.com/shop/ValintaGuru/product/70897e512ad411304a55fb73963baf02/embedded/";
+import { courses, isCourseId } from "@/data/courses";
 
-const HOLVI_PRODUCT_URL =
-  "https://holvi.com/shop/ValintaGuru/product/70897e512ad411304a55fb73963baf02/";
+export default async function KauppaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ course?: string }>;
+}) {
+  const { course: requestedCourse } = await searchParams;
+  const selectedCourseId =
+    requestedCourse && isCourseId(requestedCourse) ? requestedCourse : null;
 
-export default function KauppaPage() {
   return (
     <main className="min-h-screen bg-[#f5f8ff] text-slate-950">
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-4">
-            <a
-              href="/"
-              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-            >
-              <span aria-hidden="true">←</span>
-              Takaisin
-            </a>
-
-            <div>
-              <a
-                href="/"
-                className="text-xl font-extrabold text-blue-700 sm:text-2xl"
-              >
-                ValintaGuru
-              </a>
-
-              <p className="hidden text-xs font-semibold text-slate-500 sm:block">
-                Holvi-kurssikauppa
-              </p>
-            </div>
-          </div>
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+          >
+            <span aria-hidden="true">←</span>
+            Takaisin
+          </a>
 
           <a
-            href={HOLVI_PRODUCT_URL}
+            href="https://holvi.com/shop/ValintaGuru/"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
+            className="rounded-full bg-[#3f51e7] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-[#3142d6]"
           >
-            Avaa Holvissa
+            Avaa Holvi-kauppa
           </a>
         </div>
       </header>
 
-      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-        <div className="mb-6 rounded-3xl bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 p-6 text-white shadow-xl shadow-blue-900/15 sm:p-8">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-100">
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
+        <div className="rounded-[2rem] bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 p-6 text-white shadow-xl shadow-blue-900/15 sm:p-8 lg:p-10">
+          <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-100">
             Kurssikauppa
           </p>
 
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Osta ValintaGurun kursseja
+          <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
+            Valitse oma kurssisi
           </h1>
 
           <p className="mt-4 max-w-3xl leading-7 text-blue-50">
-            Valitse haluamasi kurssi ja suorita maksu Holvin turvallisessa
-            verkkokaupassa. Käytä ostossa samaa sähköpostiosoitetta, jolla
-            kirjaudut ValintaGurun kurssialustalle.
+            Jokainen kokonaisuus on nyt kurssialustalla oma erillinen kurssinsa,
+            jolla on oma teoria, harjoitukset, edistyminen ja GuruPath.
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5">
-          <div className="border-b border-slate-200 px-6 py-5 sm:px-8">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="font-bold text-blue-700">
-                  ValintaGurun kurssi
-                </p>
+        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {courses.map((course) => {
+            const selected = course.id === selectedCourseId;
 
-                <h2 className="mt-1 text-2xl font-extrabold text-slate-950">
-                  Kurssin ostaminen
+            return (
+              <article
+                key={course.id}
+                className={`flex min-h-[330px] flex-col rounded-[2rem] border bg-white p-6 shadow-sm transition sm:p-7 ${
+                  selected
+                    ? "border-[#3f51e7] ring-4 ring-indigo-100"
+                    : "border-slate-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em] text-[#3f51e7]">
+                    {course.label}
+                  </span>
+
+                  {selected && (
+                    <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700">
+                      Valittu
+                    </span>
+                  )}
+                </div>
+
+                <h2 className="mt-5 text-2xl font-black leading-tight">
+                  {course.title}
                 </h2>
 
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Tuotteen tiedot ja ostopainike näkyvät alla Holvin
-                  kauppanäkymässä.
+                <p className="mt-4 flex-1 leading-7 text-slate-600">
+                  {course.description}
                 </p>
-              </div>
 
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
-                <span
-                  className="h-2.5 w-2.5 rounded-full bg-emerald-500"
-                  aria-hidden="true"
-                />
+                <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold text-slate-600">
+                  {course.modules.slice(0, 5).map((module) => (
+                    <span
+                      key={module.id}
+                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5"
+                    >
+                      {module.title}
+                    </span>
+                  ))}
+                </div>
 
-                Holvi
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-center px-4 py-8 sm:px-8">
-            <div className="w-full max-w-[300px] overflow-hidden bg-white">
-              <iframe
-                src={HOLVI_EMBED_URL}
-                title="ValintaGurun Holvi-tuote"
-                className="block h-[360px] w-full border-0 bg-white"
-                loading="eager"
-                allow="payment"
-                referrerPolicy="strict-origin-when-cross-origin"
-              />
-            </div>
-          </div>
-
-          <div className="border-t border-slate-200 bg-slate-50 px-6 py-5 sm:px-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm leading-6 text-slate-600">
-                Mikäli upotettu kauppanäkymä ei toimi, voit avata tuotteen
-                suoraan Holvin verkkokaupassa.
-              </p>
-
-              <a
-                href={HOLVI_PRODUCT_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex shrink-0 items-center justify-center rounded-full border border-blue-200 bg-blue-50 px-6 py-3 font-bold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
-              >
-                Avaa tuote Holvissa
-              </a>
-            </div>
-          </div>
+                <a
+                  href={course.purchaseUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-7 inline-flex items-center justify-center rounded-full bg-[#3f51e7] px-6 py-3.5 font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-[#3142d6]"
+                >
+                  Osta Holvista
+                  <span className="ml-2" aria-hidden="true">→</span>
+                </a>
+              </article>
+            );
+          })}
         </div>
 
-        <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-5">
-          <p className="font-bold text-blue-900">
-            Käytä samaa sähköpostiosoitetta
-          </p>
-
-          <p className="mt-2 text-sm leading-6 text-blue-900/80">
-            Käytä ostossa samaa sähköpostiosoitetta, jolla haluat kirjautua
-            ValintaGurun kurssialustalle. Kurssin käyttöoikeus yhdistetään tähän
-            sähköpostiosoitteeseen.
+        <div className="mt-7 rounded-2xl border border-indigo-100 bg-indigo-50 p-5 sm:p-6">
+          <p className="font-black text-indigo-950">Holvi-linkit yhdessä paikassa</p>
+          <p className="mt-2 leading-7 text-indigo-950/80">
+            Kun jokaiselle tuotteelle on oma Holvi-tuotelinkki, vaihda linkit vain
+            tiedostosta <code>data/courses/purchase.ts</code>. Muu sivusto ei vaadi
+            sen jälkeen muutoksia.
           </p>
         </div>
       </section>

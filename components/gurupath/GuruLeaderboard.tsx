@@ -113,8 +113,7 @@ export default function GuruLeaderboard() {
               Ranking
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Etene millä tahansa ValintaGuru-kurssilla. Rankingissa näkyy vain
-              itse valitsemasi nimimerkki – ei sähköpostia tai oikeaa nimeäsi.
+              Rankingissa näkyy vain itse valitsemasi nimimerkki.
             </p>
 
             {profile && (
@@ -129,8 +128,8 @@ export default function GuruLeaderboard() {
                     </div>
                   </div>
                   <div className="text-right text-sm text-slate-600">
-                    <div>{profile.xp.toLocaleString("fi-FI")} XP tällä tasolla</div>
-                    <div>{profile.lifetime_xp.toLocaleString("fi-FI")} XP yhteensä</div>
+                    <div>{profile.xp.toLocaleString("fi-FI")} Pisteitä tällä tasolla</div>
+                    <div>{profile.lifetime_xp.toLocaleString("fi-FI")} Pisteitä yhteensä</div>
                   </div>
                 </div>
 
@@ -146,7 +145,7 @@ export default function GuruLeaderboard() {
 
                 <div className="mt-2 flex justify-between text-xs font-semibold text-slate-500">
                   <span>Taso {profile.level}</span>
-                  <span>{nextLevelXp.toLocaleString("fi-FI")} XP → seuraava taso</span>
+                  <span>{nextLevelXp.toLocaleString("fi-FI")} Pisteitä seuraavaan tasoon</span>
                 </div>
               </div>
             )}
@@ -212,7 +211,7 @@ export default function GuruLeaderboard() {
               Ennätystaulukko
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Suurin saavutettu taso ratkaisee. XP toimii tasatilanteen ratkaisijana.
+              Suurin saavutettu taso ratkaisee. Pisteet toimivat tasatilanteen ratkaisijana.
             </p>
           </div>
 
@@ -230,7 +229,7 @@ export default function GuruLeaderboard() {
                 <th className="px-5 py-3 md:px-7">Sija</th>
                 <th className="px-5 py-3">Pelaaja</th>
                 <th className="px-5 py-3 text-right">Ennätystaso</th>
-                <th className="px-5 py-3 text-right md:px-7">XP</th>
+                <th className="px-5 py-3 text-right md:px-7">Piste</th>
               </tr>
             </thead>
             <tbody>

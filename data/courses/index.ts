@@ -1,14 +1,21 @@
 import type { Course } from "./types";
 
 import { oikisCourse } from "./oikis";
+import { oikisTiivisCourse } from "./oikisTiivis";
+import { oikisTehoCourse } from "./oikisTeho";
 import { valintakoeGCourse } from "./valintakoeG";
+import { valintakoeGEtaopetusCourse } from "./valintakoeGEtaopetus";
 import { yoCourse } from "./yo";
 
 export * from "./types";
+export * from "./purchase";
 
 export const courses: Course[] = [
   oikisCourse,
+  oikisTiivisCourse,
+  oikisTehoCourse,
   valintakoeGCourse,
+  valintakoeGEtaopetusCourse,
   yoCourse,
 ];
 

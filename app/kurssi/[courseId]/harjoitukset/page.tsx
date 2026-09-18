@@ -24,7 +24,7 @@ export default async function CourseTasksPage({ params }: Props) {
     notFound();
   }
 
-  const allowed = hasCourseAccess(courseId);
+  const allowed = await hasCourseAccess(courseId);
 
   if (!allowed) {
     return (

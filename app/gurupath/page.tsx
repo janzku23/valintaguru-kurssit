@@ -85,7 +85,7 @@ export default async function GuruPathPage() {
                     </h2>
 
                     <p className="mt-3 text-sm leading-6 text-slate-600">
-                      Ratkaise haasteita, avaa reittejä ja kerää Guru-XP:tä.
+                      Ratkaise haasteita, avaa reittejä ja kerää pisteitä
                     </p>
 
                     <span className="mt-5 inline-flex items-center gap-2 text-sm font-black text-violet-700">

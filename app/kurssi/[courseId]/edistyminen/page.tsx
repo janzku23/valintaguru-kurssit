@@ -23,7 +23,7 @@ export default async function CourseProgressPage({ params }: Props) {
     notFound();
   }
 
-  const allowed = hasCourseAccess(courseId);
+  const allowed = await hasCourseAccess(courseId);
 
   if (!allowed) {
     return (
