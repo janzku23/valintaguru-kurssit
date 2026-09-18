@@ -6,7 +6,7 @@ export const oikisCourse = {
   title: "Kyssäripankki (Oikis)",
   label: "Oikis · Kyssäripankki",
   description:
-    "Oikeustieteen valintakokeeseen liittyvä teoria, harjoitukset, flashcardit ja oma GuruPath-polku.",
+    "Oikeustieteen valintakokeeseen liittyvä teoria, harjoitukset, flashcardit ja oma GuruPeli",
   purchaseUrl: COURSE_PURCHASE_URLS.oikis,
   modules: [
     {

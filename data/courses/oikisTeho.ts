@@ -6,7 +6,7 @@ export const oikisTehoCourse = {
   title: "Oikis Teho + Etäopetus",
   label: "Oikis Teho",
   description:
-    "Oikis Teho + Etäopetus omana teknisenä kurssinaan, omilla teoria-, harjoitus- ja GuruPath-sisällöillään.",
+    "Oikis Teho + Etäopetus omana teknisenä kurssinaan, omilla teoria-, harjoitus- ja GuruPeli",
   purchaseUrl: COURSE_PURCHASE_URLS["oikis-teho"],
   modules: [
     {

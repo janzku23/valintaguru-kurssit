@@ -5,9 +5,9 @@ import type { User } from "@supabase/supabase-js";
 import Script from "next/script";
 import { createClient } from "@/utils/supabase/client";
 import CourseAccessCard from "../components/CourseAccessCard";
-import LockedCourseCard from "../components/LockedCourseCard";
+import CourseShowcase from "../components/CourseShowcase";
 import InquiryStatusLink from "../components/inquiries/InquiryStatusLink";
-import { CourseId, courses } from "../data/courses";
+import { CourseId, courses, HOLVI_STORE_URL } from "../data/courses";
 import testiImage from "../assets/testi.jpg";
 import frontLogo from "../assets/frontlogo.png";
 import logo from "../assets/logo.png";
@@ -117,10 +117,6 @@ export default function Home() {
     ownedCourseIds.includes(course.id.toLowerCase() as CourseId),
   );
 
-  const lockedCourses = courses.filter(
-    (course) =>
-      !ownedCourseIds.includes(course.id.toLowerCase() as CourseId),
-  );
 
   const instagramProfileUrl = "https://www.instagram.com/valintaguru/";
   const tiktokProfileUrl = "https://www.tiktok.com/@valintaguru";
@@ -224,7 +220,7 @@ export default function Home() {
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <a
-              href="/kauppa"
+              href="#kurssit"
               className="hidden rounded-full border border-slate-300 px-5 py-2.5 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7] lg:inline-flex"
             >
               Tutustu kursseihin
@@ -385,7 +381,7 @@ export default function Home() {
 
               <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
                 <a
-                  href="/kauppa"
+                  href="#kurssit"
                   onClick={() => setMobileMenuOpen(false)}
                   className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3.5 text-center font-bold text-slate-900 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
                 >
@@ -453,7 +449,7 @@ export default function Home() {
         </a>
 
         <a
-          href="/kauppa"
+          href="#kurssit"
           className="inline-flex w-full items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3.5 text-center font-bold text-slate-900 transition hover:border-[#3f51e7] hover:text-[#3f51e7] sm:w-auto sm:px-7"
         >
           Tutustu kursseihin
@@ -481,7 +477,15 @@ export default function Home() {
           </span>
         </div>
 
-      
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+          <strong className="block text-lg text-[#3f51e7] sm:text-xl">
+            Oma
+          </strong>
+
+          <span className="text-xs text-slate-600 sm:text-sm">
+            opiskelutahti
+          </span>
+        </div>
       </div>
     </div>
 
@@ -519,7 +523,7 @@ export default function Home() {
             <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl md:text-5xl">Omat kurssisi</h2>
             <p className="mt-4 max-w-2xl leading-8 text-slate-700">Näet tässä ne kurssit, joihin sinulla on aktiivinen käyttöoikeus.</p>
           </div>
-          <a href="/kauppa" className="inline-flex w-full items-center justify-center rounded-full bg-slate-950 px-6 py-3 text-center font-bold text-white transition hover:bg-[#3f51e7] sm:w-fit">Hanki uusi kurssi</a>
+          <a href="#kurssit" className="inline-flex w-full items-center justify-center rounded-full bg-slate-950 px-6 py-3 text-center font-bold text-white transition hover:bg-[#3f51e7] sm:w-fit">Hanki uusi kurssi</a>
         </div>
 
         {loading ? (
@@ -671,20 +675,15 @@ export default function Home() {
             </div>
           </>
         ) : (
-          <div className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-8"><h3 className="text-2xl font-extrabold">Sinulla ei ole vielä aktiivisia kursseja</h3><p className="mt-3 leading-8 text-slate-700">Kun hankit kurssin, se ilmestyy tähän samalla sähköpostiosoitteella kirjautumisen jälkeen.</p><a href="/kauppa" className="mt-6 inline-flex rounded-full bg-[#3f51e7] px-6 py-3 font-bold text-white">Tutustu kursseihin</a></div>
+          <div className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-8"><h3 className="text-2xl font-extrabold">Sinulla ei ole vielä aktiivisia kursseja</h3><p className="mt-3 leading-8 text-slate-700">Kun hankit kurssin, se ilmestyy tähän samalla sähköpostiosoitteella kirjautumisen jälkeen.</p><a href="#kurssit" className="mt-6 inline-flex rounded-full bg-[#3f51e7] px-6 py-3 font-bold text-white">Tutustu kursseihin</a></div>
         )}
       </section>
 
       <section id="kurssit" className="scroll-mt-20 border-y border-slate-200 bg-white py-12 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8">
-          <div className="max-w-3xl">
-            <p className="font-bold uppercase tracking-[0.18em] text-[#3f51e7]">Valmennuskurssit</p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl md:text-5xl">Valitse tavoitteeseesi sopiva kokonaisuus</h2>
-            <p className="mt-5 text-lg leading-8 text-slate-700">Opiskele joustavasti missä tahansa. Kurssit keskittyvät valintakokeessa tarvittaviin taitoihin ja auttavat tunnistamaan omat vahvuutesi sekä kehityskohteesi.</p>
-          </div>
-          <div id="muut-kurssit" className="mt-10 grid gap-6 md:grid-cols-3">{lockedCourses.map((course) => <LockedCourseCard key={course.id} course={course} />)}</div>
-          <a href="/kauppa" className="mt-8 inline-flex rounded-full bg-[#3f51e7] px-7 py-3.5 font-bold text-white shadow-lg shadow-indigo-600/20">Avaa kurssikauppa</a>
-        </div>
+        <CourseShowcase
+          courses={courses}
+          ownedCourseIds={ownedCourseIds}
+        />
       </section>
 
       <section id="miksi" className="scroll-mt-20 mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16 md:px-8 lg:py-24">
@@ -939,10 +938,12 @@ export default function Home() {
         </a>
 
         <a
-          href="/kauppa"
+          href={HOLVI_STORE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           className="transition hover:text-[#3f51e7]"
         >
-          Kurssikauppa
+          Verkkokauppa ↗
         </a>
 
         {isLoggedIn && (

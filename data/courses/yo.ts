@@ -6,7 +6,7 @@ export const yoCourse = {
   title: "YO-kokeet",
   label: "YO",
   description:
-    "Ylioppilaskokeisiin valmistava kurssikokonaisuus, joka sisältää teoriaa, harjoituksia, flashcardeja, edistymisen ja GuruPathin.",
+    "Ylioppilaskokeisiin valmistava kurssikokonaisuus, joka sisältää teoriaa, harjoituksia, flashcardeja, edistymisen ja GuruPeli",
   purchaseUrl: COURSE_PURCHASE_URLS.yo,
   modules: [
     {
