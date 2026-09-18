@@ -1,15 +1,31 @@
 import type { CourseId } from "../courses";
 
 export type TheoryEmbed = {
-  type: "canva";
+  type: "canva" | "pdf";
   title: string;
   url: string;
+};
+
+export type TheoryImage = {
+  fileName: string;
+  title?: string;
+  description?: string;
+  alt?: string;
+};
+
+export type TheoryBlock = {
+  id: string;
+  title: string;
+  content: string;
+  image?: TheoryImage;
 };
 
 export type TheorySection = {
   id: string;
   title: string;
   content: string;
+  subtitle?: string;
+  blocks?: TheoryBlock[];
   embed?: TheoryEmbed;
 };
 

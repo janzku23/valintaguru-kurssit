@@ -144,11 +144,11 @@ export async function hasCourseAccess(
     }
   }
 
-  console.error("Kurssioikeutta ei löytynyt:", {
-    userId: user.id,
-    email: normalizedEmail,
+if (process.env.NODE_ENV === "development") {
+  console.debug("Kurssioikeutta ei löytynyt:", {
     courseId: normalizedCourseId,
   });
+}
 
-  return false;
+return false;
 }

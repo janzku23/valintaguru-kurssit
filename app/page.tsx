@@ -11,6 +11,7 @@ import testiImage from "../assets/testi.jpg";
 import frontLogo from "../assets/frontlogo.png";
 import logo from "../assets/logo.png";
 import Etusivulogo from "../assets/Etusivulogo.png";
+import uudetkurssit from "../assets/uudetkurssit.png";
 
 type StudentCourseRow = {
   id?: string;
@@ -181,6 +182,15 @@ export default function Home() {
             <a href="#omat-kurssit" className="transition hover:text-[#3f51e7]">
               Omat kurssit
             </a>
+
+            {isLoggedIn && ownedCourses.length > 0 && (
+              <>
+                <a href="/kalenteri" className="transition hover:text-[#3f51e7]">
+                  Kalenteri
+                </a>
+              </>
+            )}
+
             <a href="#kurssit" className="transition hover:text-[#3f51e7]">
               Valmennuskurssit
             </a>
@@ -270,6 +280,38 @@ export default function Home() {
                   <span>Omat kurssit</span>
                   <span className="text-xl text-slate-400">›</span>
                 </a>
+
+                {isLoggedIn && ownedCourses.length > 0 && (
+                  <a
+                    href="/kalenteri"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-2xl bg-indigo-50 px-4 py-3.5 font-bold text-[#3f51e7] transition hover:bg-indigo-100"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-base shadow-sm">
+                        📅
+                      </span>
+                      <span>Kalenteri</span>
+                    </span>
+                    <span className="text-xl text-indigo-300">›</span>
+                  </a>
+                )}
+
+                {isLoggedIn && ownedCourses.length > 0 && (
+                  <a
+                    href="/gurupath"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-2xl bg-violet-50 px-4 py-3.5 font-bold text-violet-700 transition hover:bg-violet-100"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-base shadow-sm">
+                        ◈
+                      </span>
+                      <span>GuruPath</span>
+                    </span>
+                    <span className="text-xl text-violet-300">›</span>
+                  </a>
+                )}
 
                 <a
                   href="#kurssit"
@@ -465,7 +507,147 @@ export default function Home() {
             <a href="/kirjaudu" className="inline-flex w-full items-center justify-center rounded-full bg-[#3f51e7] px-6 py-3 text-center font-bold text-white sm:w-fit">Kirjaudu sisään</a>
           </div>
         ) : ownedCourses.length > 0 ? (
-          <div className="mt-8 grid gap-6 md:grid-cols-3">{ownedCourses.map((course) => <CourseAccessCard key={course.id} course={course} />)}</div>
+          <>
+            <div className="mt-8 grid gap-6 md:grid-cols-3">
+              {ownedCourses.map((course) => (
+                <CourseAccessCard key={course.id} course={course} />
+              ))}
+            </div>
+
+            <div className="mt-10 border-t border-slate-200 pt-8">
+              <div>
+                <p className="font-bold uppercase tracking-[0.16em] text-[#3f51e7]">
+                  Kurssin lisätyökalut
+                </p>
+                <h3 className="mt-2 font-serif text-2xl font-semibold sm:text-3xl">
+                  Kalenteri ja GuruPath
+                </h3>
+                <p className="mt-3 max-w-2xl leading-7 text-slate-600">
+                  Nämä työkalut avautuvat käyttöön, kun käyttäjätililläsi on vähintään yksi aktiivinen kurssi.
+                </p>
+              </div>
+
+              <div className="mt-6 grid gap-5 lg:grid-cols-2">
+                <a
+                  href="/kalenteri"
+                  className="group block overflow-hidden rounded-[2rem] border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-[#fff8e8] shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                >
+                  <div className="relative h-full p-5 sm:p-7 lg:p-8">
+                    <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#3f51e7]/10" />
+                    <div className="pointer-events-none absolute -bottom-14 right-20 h-28 w-28 rounded-[2rem] border-[8px] border-[#f3a31b]/20" />
+
+                    <div className="relative flex h-full flex-col">
+                      <div className="flex gap-4 sm:gap-5">
+                        <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#3f51e7] text-3xl shadow-lg shadow-indigo-600/20 sm:flex">
+                          📅
+                        </div>
+
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-bold uppercase tracking-[0.16em] text-[#3f51e7]">
+                              ValintaGuru kalenteri
+                            </p>
+
+                            <span className="rounded-full bg-[#f3a31b]/15 px-3 py-1 text-xs font-black text-[#a96500]">
+                              Sisältyy kurssiisi
+                            </span>
+                          </div>
+
+                          <h3 className="mt-2 font-serif text-2xl font-semibold leading-tight sm:text-3xl">
+                            Suunnittele opiskelu ja muu elämä samaan kalenteriin
+                          </h3>
+
+                          <p className="mt-3 leading-7 text-slate-600">
+                            Suunnittele tulevat viikot, seuraa opiskeluaikaasi,
+                            hallitse toistuvia menoja ja yhdistä halutessasi
+                            perheen yhteinen kalenteri.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex flex-wrap gap-2 text-sm font-semibold text-slate-600">
+                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+                          Viikkosuunnittelu
+                        </span>
+                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+                          Opiskelutilastot
+                        </span>
+                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+                          Perhekalenteri
+                        </span>
+                      </div>
+
+                      <div className="mt-auto pt-6">
+                        <span className="inline-flex items-center justify-center gap-2 rounded-full bg-[#3f51e7] px-6 py-3.5 font-bold text-white shadow-lg shadow-indigo-600/20 transition group-hover:bg-[#3142d6]">
+                          Avaa kalenteri
+                          <span aria-hidden="true">→</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+
+                <a
+                  href="/gurupath"
+                  className="group block overflow-hidden rounded-[2rem] border border-violet-200 bg-gradient-to-br from-violet-50 via-white to-indigo-50 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                >
+                  <div className="relative h-full p-5 sm:p-7 lg:p-8">
+                    <div className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full border-[12px] border-violet-200/40" />
+                    <div className="pointer-events-none absolute -bottom-16 -left-8 h-36 w-36 rotate-12 rounded-[2rem] bg-indigo-100/60" />
+
+                    <div className="relative flex h-full flex-col">
+                      <div className="flex gap-4 sm:gap-5">
+                        <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-3xl font-black text-white shadow-lg shadow-slate-900/20 sm:flex">
+                          ◈
+                        </div>
+
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-bold uppercase tracking-[0.16em] text-violet-700">
+                              GuruPath
+                            </p>
+
+                            <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-black text-violet-700">
+                              Pelaa & opiskele
+                            </span>
+                          </div>
+
+                          <h3 className="mt-2 font-serif text-2xl font-semibold leading-tight sm:text-3xl">
+                            Etene polulla, kerää XP:tä ja nouse rankingissa
+                          </h3>
+
+                          <p className="mt-3 leading-7 text-slate-600">
+                            Kaikkien kurssiesi opiskelusta kertyy yhteistä Guru-XP:tä.
+                            Ratkaise polun haasteita, avaa uusia solmuja ja tavoittele
+                            ennätystaulukon kärkisijaa omalla nimimerkilläsi.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex flex-wrap gap-2 text-sm font-semibold text-slate-600">
+                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+                          Guru Level
+                        </span>
+                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+                          Kurssipolut
+                        </span>
+                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+                          Ranking
+                        </span>
+                      </div>
+
+                      <div className="mt-auto pt-6">
+                        <span className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-950 px-6 py-3.5 font-bold text-white shadow-lg shadow-slate-900/15 transition group-hover:bg-violet-700">
+                          Avaa GuruPath
+                          <span aria-hidden="true">→</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </>
         ) : (
           <div className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-8"><h3 className="text-2xl font-extrabold">Sinulla ei ole vielä aktiivisia kursseja</h3><p className="mt-3 leading-8 text-slate-700">Kun hankit kurssin, se ilmestyy tähän samalla sähköpostiosoitteella kirjautumisen jälkeen.</p><a href="/kauppa" className="mt-6 inline-flex rounded-full bg-[#3f51e7] px-6 py-3 font-bold text-white">Tutustu kursseihin</a></div>
         )}
@@ -486,7 +668,7 @@ export default function Home() {
       <section id="miksi" className="scroll-mt-20 mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16 md:px-8 lg:py-24">
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="overflow-hidden rounded-[2rem] bg-[#eee9df] p-3 shadow-xl shadow-slate-900/10">
-            <img src={testiImage.src} alt="Opiskelua ValintaGurun avulla" className="aspect-square w-full rounded-[1.4rem] object-cover" />
+            <img src={uudetkurssit.src} alt="Opiskelua ValintaGurun avulla" className="aspect-square w-full rounded-[1.4rem] object-cover" />
           </div>
           <div>
             <p className="font-bold uppercase tracking-[0.18em] text-[#3f51e7]">Miksi ValintaGuru?</p>
@@ -708,6 +890,24 @@ export default function Home() {
         >
           Omat kurssit
         </a>
+
+        {isLoggedIn && ownedCourses.length > 0 && (
+          <>
+            <a
+              href="/kalenteri"
+              className="transition hover:text-[#3f51e7]"
+            >
+              Kalenteri
+            </a>
+
+            <a
+              href="/gurupath"
+              className="transition hover:text-[#3f51e7]"
+            >
+              GuruPath
+            </a>
+          </>
+        )}
 
         <a
           href="/kauppa"

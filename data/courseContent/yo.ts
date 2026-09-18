@@ -1,27 +1,12 @@
 import type { CourseContent } from "./types";
+import { biologiaTheorySections } from "./biologia";
 
 export const yoContent = {
   courseId: "yo",
 
   theorySections: [
-    {
-      id: "yo-biologia-solu",
-      title: "Biologia: Solun rakenne",
-      content: `Solu on elämän rakenteellinen ja toiminnallinen perusyksikkö.
+    ...biologiaTheorySections,
 
-Solussa on useita rakenteita, kuten solukalvo, solulima, tuma ja mitokondriot.
-
-Tuma sisältää solun perintöaineksen eli DNA:n. Mitokondriot osallistuvat solun energiantuotantoon.`,
-    },
-    {
-      id: "yo-biologia-perinnollisyys",
-      title: "Biologia: Perinnöllisyys",
-      content: `Perinnöllinen tieto sijaitsee DNA:ssa.
-
-Geeni on DNA:n jakso, joka sisältää tietoa esimerkiksi tietyn proteiinin valmistamisesta.
-
-Yksilö saa perintöainesta sekä äidiltään että isältään.`,
-    },
     {
       id: "yo-kemia-atomi",
       title: "Kemia: Atomin rakenne",
@@ -65,18 +50,9 @@ Energian säilymislain mukaan energiaa ei synny eikä häviä, vaan se muuntuu m
       id: "yo-q1",
       question: "Mikä rakenne sisältää solun perintöaineksen?",
       answers: [
-        {
-          id: "a",
-          text: "Tuma",
-        },
-        {
-          id: "b",
-          text: "Solukalvo",
-        },
-        {
-          id: "c",
-          text: "Mitokondrio",
-        },
+        { id: "a", text: "Tuma" },
+        { id: "b", text: "Solukalvo" },
+        { id: "c", text: "Mitokondrio" },
       ],
       correctAnswerIds: ["a"],
       explanation: "Tuma sisältää solun perintöaineksen eli DNA:n.",
@@ -85,22 +61,10 @@ Energian säilymislain mukaan energiaa ei synny eikä häviä, vaan se muuntuu m
       id: "yo-q2",
       question: "Mitkä hiukkaset sijaitsevat atomin ytimessä?",
       answers: [
-        {
-          id: "a",
-          text: "Protonit",
-        },
-        {
-          id: "b",
-          text: "Neutronit",
-        },
-        {
-          id: "c",
-          text: "Elektronit",
-        },
-        {
-          id: "d",
-          text: "Fotonit",
-        },
+        { id: "a", text: "Protonit" },
+        { id: "b", text: "Neutronit" },
+        { id: "c", text: "Elektronit" },
+        { id: "d", text: "Fotonit" },
       ],
       correctAnswerIds: ["a", "b"],
       explanation:
@@ -110,18 +74,9 @@ Energian säilymislain mukaan energiaa ei synny eikä häviä, vaan se muuntuu m
       id: "yo-q3",
       question: "Mikä määrittää alkuaineen?",
       answers: [
-        {
-          id: "a",
-          text: "Protonien lukumäärä",
-        },
-        {
-          id: "b",
-          text: "Neutronien lukumäärä",
-        },
-        {
-          id: "c",
-          text: "Atomin koko",
-        },
+        { id: "a", text: "Protonien lukumäärä" },
+        { id: "b", text: "Neutronien lukumäärä" },
+        { id: "c", text: "Atomin koko" },
       ],
       correctAnswerIds: ["a"],
       explanation:
@@ -131,18 +86,9 @@ Energian säilymislain mukaan energiaa ei synny eikä häviä, vaan se muuntuu m
       id: "yo-q4",
       question: "Mitä tapahtuu tasaisessa liikkeessä?",
       answers: [
-        {
-          id: "a",
-          text: "Nopeus pysyy samana.",
-        },
-        {
-          id: "b",
-          text: "Nopeus kasvaa jatkuvasti.",
-        },
-        {
-          id: "c",
-          text: "Kappaleen massa pienenee.",
-        },
+        { id: "a", text: "Nopeus pysyy samana." },
+        { id: "b", text: "Nopeus kasvaa jatkuvasti." },
+        { id: "c", text: "Kappaleen massa pienenee." },
       ],
       correctAnswerIds: ["a"],
       explanation:
@@ -152,22 +98,10 @@ Energian säilymislain mukaan energiaa ei synny eikä häviä, vaan se muuntuu m
       id: "yo-q5",
       question: "Mitkä ovat energian muotoja?",
       answers: [
-        {
-          id: "a",
-          text: "Liike-energia",
-        },
-        {
-          id: "b",
-          text: "Lämpöenergia",
-        },
-        {
-          id: "c",
-          text: "Potentiaalienergia",
-        },
-        {
-          id: "d",
-          text: "Protoniluku",
-        },
+        { id: "a", text: "Liike-energia" },
+        { id: "b", text: "Lämpöenergia" },
+        { id: "c", text: "Potentiaalienergia" },
+        { id: "d", text: "Protoniluku" },
       ],
       correctAnswerIds: ["a", "b", "c"],
       explanation:
@@ -177,18 +111,9 @@ Energian säilymislain mukaan energiaa ei synny eikä häviä, vaan se muuntuu m
       id: "yo-q6",
       question: "Mitä kovalenttisessa sidoksessa tapahtuu?",
       answers: [
-        {
-          id: "a",
-          text: "Atomit jakavat elektroneja.",
-        },
-        {
-          id: "b",
-          text: "Atomit menettävät kaikki protoninsa.",
-        },
-        {
-          id: "c",
-          text: "Neutronit siirtyvät atomista toiseen.",
-        },
+        { id: "a", text: "Atomit jakavat elektroneja." },
+        { id: "b", text: "Atomit menettävät kaikki protoninsa." },
+        { id: "c", text: "Neutronit siirtyvät atomista toiseen." },
       ],
       correctAnswerIds: ["a"],
       explanation:

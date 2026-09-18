@@ -1,4 +1,7 @@
-import type { TheoryCourse } from "../data/courseContent";
+import type {
+  TheoryCourse,
+  TheorySection,
+} from "../data/courseContent/types";
 
 type Props = {
   courses: TheoryCourse[];
