@@ -45,7 +45,7 @@ export default async function GuruPathPage() {
               </p>
 
               <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight">
-                GuruPath
+                GuruPeli
               </h1>
 
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
@@ -101,10 +101,10 @@ export default async function GuruPathPage() {
           ) : (
             <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6">
               <h2 className="text-xl font-black text-slate-950">
-                Ei aktiivisia GuruPath-kursseja
+                Ei aktiivisia GuruPeli-kursseja
               </h2>
               <p className="mt-2 leading-7 text-slate-600">
-                GuruPath näyttää vain ne kurssit, joihin käyttäjätililläsi
+                GuruPeli näyttää vain ne kurssit, joihin käyttäjätililläsi
                 on aktiivinen käyttöoikeus.
               </p>
               <a

@@ -6,6 +6,7 @@ import Script from "next/script";
 import { createClient } from "@/utils/supabase/client";
 import CourseAccessCard from "../components/CourseAccessCard";
 import LockedCourseCard from "../components/LockedCourseCard";
+import InquiryStatusLink from "../components/inquiries/InquiryStatusLink";
 import { CourseId, courses } from "../data/courses";
 import testiImage from "../assets/testi.jpg";
 import frontLogo from "../assets/frontlogo.png";
@@ -126,11 +127,11 @@ export default function Home() {
   const [instagramSlide, setInstagramSlide] = useState(0);
 
   const instagramPosts = [
-    { image: testiImage.src, alt: "ValintaGurun Instagram-julkaisu 1" },
-    { image: testiImage.src, alt: "ValintaGurun Instagram-julkaisu 2" },
-    { image: testiImage.src, alt: "ValintaGurun Instagram-julkaisu 3" },
+    { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 1" },
+    { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 2" },
+    { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 3" },
     { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 4" },
-    { image: frontLogo.src, alt: "ValintaGurun Instagram-julkaisu 5" },
+    { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 5" },
   ];
 
   const previousInstagramSlide = () => {
@@ -182,6 +183,14 @@ export default function Home() {
             <a href="#omat-kurssit" className="transition hover:text-[#3f51e7]">
               Omat kurssit
             </a>
+
+            {isLoggedIn ? (
+              <InquiryStatusLink />
+            ) : (
+              <a href="/kysy" className="transition hover:text-[#3f51e7]">
+                Kysy
+              </a>
+            )}
 
             {isLoggedIn && ownedCourses.length > 0 && (
               <>
@@ -286,6 +295,22 @@ export default function Home() {
                   <span>Omat kurssit</span>
                   <span className="text-xl text-slate-400">›</span>
                 </a>
+
+                {isLoggedIn ? (
+                  <InquiryStatusLink
+                    mobile
+                    onNavigate={() => setMobileMenuOpen(false)}
+                  />
+                ) : (
+                  <a
+                    href="/kysy"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
+                  >
+                    <span>Kysy</span>
+                    <span className="text-xl text-slate-400">›</span>
+                  </a>
+                )}
 
                 {isLoggedIn && ownedCourses.length > 0 && (
                   <a
@@ -913,6 +938,13 @@ export default function Home() {
             </a>
           </>
         )}
+
+        <a
+          href="/kysy"
+          className="transition hover:text-[#3f51e7]"
+        >
+          Kysy ValintaGurulta
+        </a>
 
         <a
           href="/kauppa"

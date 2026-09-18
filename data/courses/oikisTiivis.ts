@@ -35,8 +35,8 @@ export const oikisTiivisCourse = {
     },
     {
       id: "oikis-tiivis-gurupath",
-      title: "GuruPath",
-      description: "Oikis Tiiviin oma GuruPath-polku.",
+      title: "GuruPeli",
+      description: "Oikis Tiiviin oma GuruPeli-polku.",
       href: "/gurupath/oikis-tiivis",
     },
   ],

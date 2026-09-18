@@ -44,7 +44,7 @@ export default async function KauppaPage({
 
           <p className="mt-4 max-w-3xl leading-7 text-blue-50">
             Jokainen kokonaisuus on nyt kurssialustalla oma erillinen kurssinsa,
-            jolla on oma teoria, harjoitukset, edistyminen ja GuruPath.
+            jolla on oma teoria, harjoitukset, edistyminen ja GuruPeli.
           </p>
         </div>
 

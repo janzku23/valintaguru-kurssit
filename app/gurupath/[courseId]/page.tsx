@@ -32,12 +32,12 @@ export default async function GuruPathCoursePage({
             href="/gurupath"
             className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700"
           >
-            ← Takaisin GuruPathiin
+            ← Takaisin GuruPeliin
           </a>
 
           <div className="rounded-[2rem] border border-slate-200 bg-white p-8">
             <p className="text-sm font-black uppercase tracking-[0.16em] text-violet-700">
-              GuruPath
+              GuruPeli
             </p>
             <h1 className="mt-2 text-3xl font-black">
               Kurssioikeus vaaditaan
@@ -58,7 +58,7 @@ export default async function GuruPathCoursePage({
           href="/gurupath"
           className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-violet-300 hover:text-violet-700"
         >
-          ← Takaisin GuruPathiin
+          ← Takaisin GuruPeliin
         </a>
       </div>
 

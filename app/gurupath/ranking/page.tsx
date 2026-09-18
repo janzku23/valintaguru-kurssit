@@ -8,7 +8,7 @@ export default function GuruPathRankingPage() {
           href="/gurupath"
           className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-violet-300 hover:text-violet-700"
         >
-          ← Takaisin GuruPathiin
+          ← Takaisin GuruPeliin
         </a>
       </div>
 

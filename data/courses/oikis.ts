@@ -35,7 +35,7 @@ export const oikisCourse = {
     },
     {
       id: "oikis-gurupath",
-      title: "GuruPath",
+      title: "GuruPeli",
       description: "Etene Kyssäripankin omalla pelillisellä kurssipolulla.",
       href: "/gurupath/oikis",
     },
