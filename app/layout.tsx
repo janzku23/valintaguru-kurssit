@@ -22,12 +22,12 @@ export const metadata: Metadata = {
 
   title: {
     default:
-      "ValintaGuru – Valmennuskurssit, valintakokeet ja YO-harjoittelu",
+      "ValintaGuru – Valmennuskurssit",
     template: "%s | ValintaGuru",
   },
 
   description:
-    "ValintaGuru auttaa valmistautumaan valintakokeisiin ja ylioppilaskirjoituksiin. Teoriaa, harjoituksia, monivalintoja, opiskelupolkuja ja edistymisen seurantaa yhdessä palvelussa.",
+    "ValintaGurun valmennuskurssit auttavat hallitsemaan valintakokeen rakennetta, päättelyä, tekstianalyysiä ja ajankäyttöä. Sisällöt kattavat Valintakoe G:n sekä oikeustieteen eriytyvän osion",
 
   applicationName: siteName,
   creator: siteName,
@@ -43,9 +43,9 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName,
     title:
-      "ValintaGuru – Valmennuskurssit, valintakokeet ja YO-harjoittelu",
+      "ValintaGuru – Valmennuskurssit",
     description:
-      "Teoria, harjoitukset ja opiskelun seuranta valintakokeisiin ja ylioppilaskirjoituksiin yhdessä palvelussa.",
+      "Teoria, harjoitukset ja opiskelun seuranta valintakokeisiin yhdessä palvelussa.",
     images: [
       {
         url: "/Etusivulogo.png",
@@ -57,9 +57,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title:
-      "ValintaGuru – Valmennuskurssit, valintakokeet ja YO-harjoittelu",
+      "ValintaGuru – Valmennuskurssit ja Valintakokeet",
     description:
-      "Teoria, harjoitukset ja opiskelun seuranta valintakokeisiin ja ylioppilaskirjoituksiin.",
+      "Teoria, harjoitukset ja opiskelun seuranta valintakokeisiin",
     images: ["/Etusivulogo.png"],
   },
 
@@ -113,7 +113,7 @@ const organizationJsonLd = {
     url: `${siteUrl}/logo.png`,
   },
   description:
-    "ValintaGuru tarjoaa valmennuskursseja, teoriaa ja harjoittelua valintakokeisiin sekä ylioppilaskirjoituksiin.",
+    "ValintaGuru tarjoaa valmennuskursseja, teoriaa ja harjoittelua valintakokeisiin",
   inLanguage: "fi-FI",
 };
 

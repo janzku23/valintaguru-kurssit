@@ -3,41 +3,60 @@ import { COURSE_PURCHASE_URLS } from "./purchase";
 
 export const oikisTiivisCourse = {
   id: "oikis-tiivis",
-  title: "Oikis Tiivis - Ennakkomateriaalin hallintaan",
+  title:
+    "Oikis Tiivis - Ennakkomateriaalin hallintaan",
   label: "Oikis Tiivis",
   description:
     "Oma kurssikokonaisuus ennakkomateriaalin hallintaan: teoria, harjoitukset, flashcardit, edistyminen ja GuruPeli.",
-  purchaseUrl: COURSE_PURCHASE_URLS["oikis-tiivis"],
+  purchaseUrl:
+    COURSE_PURCHASE_URLS[
+      "oikis-tiivis"
+    ],
   modules: [
     {
-      id: "oikis-tiivis-teoria",
+      id:
+        "oikis-tiivis-teoria",
       title: "Teoria",
-      description: "Oikis Tiiviin oma teoriaosuus.",
-      href: "/kurssi/oikis-tiivis/teoria",
+      description:
+        "Oikis Tiiviin oma teoriaosuus.",
+      href:
+        "/kurssi/oikis-tiivis/teoria",
     },
     {
-      id: "oikis-tiivis-harjoitukset",
+      id:
+        "oikis-tiivis-harjoitukset",
       title: "Harjoitukset",
-      description: "Oikis Tiiviin omat harjoitukset.",
-      href: "/kurssi/oikis-tiivis/harjoitukset",
+      description:
+        "Oikis Tiiviin omat harjoitukset.",
+      href:
+        "/kurssi/oikis-tiivis/harjoitukset",
     },
     {
-      id: "oikis-tiivis-flashcardit",
+      id:
+        "oikis-tiivis-flashcardit",
       title: "Flashcardit",
-      description: "Oikis Tiiviin omat flashcardit.",
-      href: "/kurssi/oikis-tiivis/flashcardit",
+      description:
+        "Oikis Tiiviin omat flashcardit.",
+      href:
+        "/kurssi/oikis-tiivis/flashcardit",
     },
     {
-      id: "oikis-tiivis-edistyminen",
+      id:
+        "oikis-tiivis-edistyminen",
       title: "Edistyminen",
-      description: "Seuraa juuri tämän kurssin edistymistä.",
-      href: "/kurssi/oikis-tiivis/edistyminen",
+      description:
+        "Seuraa juuri tämän kurssin edistymistä.",
+      href:
+        "/kurssi/oikis-tiivis/edistyminen",
     },
     {
-      id: "oikis-tiivis-gurupath",
+      id:
+        "oikis-tiivis-gurupath",
       title: "GuruPeli",
-      description: "Oikis Tiiviin oma GuruPeli-polku.",
-      href: "/gurupath/oikis-tiivis",
+      description:
+        "Oikis Tiiviin oma pelillinen kurssipolku.",
+      href:
+        "/gurupath/oikis-tiivis",
     },
   ],
 } satisfies Course;

@@ -6,38 +6,53 @@ export const yoCourse = {
   title: "YO-kokeet",
   label: "YO",
   description:
-    "Ylioppilaskokeisiin valmistava kurssikokonaisuus, joka sisältää teoriaa, harjoituksia, flashcardeja, edistymisen ja GuruPeli",
-  purchaseUrl: COURSE_PURCHASE_URLS.yo,
+    "Ylioppilaskokeisiin valmistava kurssikokonaisuus. Kurssi säilyy järjestelmässä, mutta sitä ei tällä hetkellä näytetä ostettavana.",
+  purchaseUrl:
+    COURSE_PURCHASE_URLS.yo,
   modules: [
     {
       id: "yo-teoria",
       title: "Teoria",
-      description: "Biologian, kemian, fysiikan ja muiden YO-aineiden teoriaosuudet aiheittain.",
-      href: "/kurssi/yo/teoria",
+      description:
+        "YO-aineiden teoriaosuudet aiheittain.",
+      href:
+        "/kurssi/yo/teoria",
     },
     {
-      id: "yo-harjoitukset",
+      id:
+        "yo-harjoitukset",
       title: "Harjoitukset",
-      description: "Monivalinnat, minitestit ja oppiainekohtaiset tehtäväkokonaisuudet.",
-      href: "/kurssi/yo/harjoitukset",
+      description:
+        "Monivalinnat, minitestit ja oppiainekohtaiset tehtäväkokonaisuudet.",
+      href:
+        "/kurssi/yo/harjoitukset",
     },
     {
-      id: "yo-flashcardit",
+      id:
+        "yo-flashcardit",
       title: "Flashcardit",
-      description: "Keskeiset käsitteet, määritelmät ja tärkeät asiat nopeaan kertaukseen.",
-      href: "/kurssi/yo/flashcardit",
+      description:
+        "Keskeiset käsitteet ja tärkeät asiat nopeaan kertaukseen.",
+      href:
+        "/kurssi/yo/flashcardit",
     },
     {
-      id: "yo-edistyminen",
+      id:
+        "yo-edistyminen",
       title: "Edistyminen",
-      description: "Seuraa YO-harjoittelusi edistymistä.",
-      href: "/kurssi/yo/edistyminen",
+      description:
+        "Seuraa YO-harjoittelusi edistymistä.",
+      href:
+        "/kurssi/yo/edistyminen",
     },
     {
-      id: "yo-gurupath",
-      title: "GuruPath",
-      description: "YO-kokeiden oma GuruPath-polku.",
-      href: "/gurupath/yo",
+      id:
+        "yo-gurupath",
+      title: "GuruPeli",
+      description:
+        "YO-kokeiden oma pelillinen kurssipolku.",
+      href:
+        "/gurupath/yo",
     },
   ],
 } satisfies Course;

@@ -1,22 +1,23 @@
 import { oikisGuruPath } from "./oikis";
 import { cloneGuruPath } from "./cloneGuruPath";
 
-export const oikisTehoGuruPath =
+export const oikisTehoEtaopetusGuruPath =
   cloneGuruPath(
     oikisGuruPath,
     {
       courseId:
-        "oikis-teho",
-      title: "Oikis Teho",
+        "oikis-teho-etaope",
+      title:
+        "Oikis Teho + Etäopetus",
       description:
-        "Oikis Tehon oma pelillinen harjoittelupolku.",
+        "Oikis Teho + Etäopetus -kurssin oma pelillinen harjoittelupolku.",
       fromPrefix:
         "oikis",
       toPrefix:
-        "oikis-teho",
+        "oikis-teho-etaope",
       questionFromPrefix:
         "oikis",
       questionToPrefix:
-        "oikis-teho",
+        "oikis-teho-etaope",
     }
   );

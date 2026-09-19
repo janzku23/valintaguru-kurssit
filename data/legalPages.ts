@@ -292,13 +292,7 @@ export const legalPages: LegalPage[] = [
       "Autamme mielellämme sinua kurssivalinnoissa, valintakokeisiin liittyvissä kysymyksissä sekä kaikissa muissa ValintaGuruun liittyvissä asioissa.",
     ],
     blocks: [
-      {
-        heading: "ValintaGuru Oy",
-        paragraphs: [
-          "Y-tunnus 3573013-4",
-          "Sähköposti: info@valintaguru.com",
-        ],
-      },
+     
     ],
   },
 
