@@ -426,15 +426,17 @@ export default function Home() {
 
     {/* VASEN PUOLI */}
     <div>
-      <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-bold leading-5 text-[#3f51e7] sm:px-4 sm:text-sm">
+     
+
+    <h1 className="mt-5 max-w-3xl break-words font-serif text-[2rem] font-semibold leading-[1.02] tracking-tight sm:mt-2 sm:text-4xl md:text-6xl">
+  Valmennuskurssit oikeustieteen eriytyvään osioon ja valintakoe G:hen
+</h1>
+
+ <div className="mt-6 inline-flex max-w-full items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-bold leading-5 text-[#3f51e7] sm:px-4 sm:text-sm">
         Verkossa · Omaan tahtiin · Tavoitteellisesti
       </div>
 
-      <h1 className="mt-5 max-w-3xl break-words font-serif text-[2.55rem] font-semibold leading-[1.02] tracking-tight sm:mt-7 sm:text-5xl md:text-7xl">
-        Valmistaudu fiksummin
-      </h1>
-
-      <p className="mt-5 max-w-2xl text-base leading-7 text-slate-700 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl">
+      <p className="mt-6 max-w-2xl text-base leading-7 text-slate-700 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl">
         ValintaGurun valmennuskurssit auttavat hallitsemaan valintakokeen rakennetta, päättelyä, 
         tekstianalyysiä ja ajankäyttöä.
          Sisällöt kattavat Valintakoe G:n sekä oikeustieteen eriytyvän osion asiantuntuvien opettajien johdolla
@@ -483,7 +485,7 @@ export default function Home() {
           </strong>
 
           <span className="text-xs text-slate-600 sm:text-sm">
-            Valmennukset
+            valmennuskurssit
           </span>
         </div>
 
@@ -492,27 +494,28 @@ export default function Home() {
     </div>
 
     {/* OIKEA PUOLI */}
-    <div className="relative mx-auto w-full max-w-xl px-1 sm:px-0">
-      <div className="absolute -inset-2 rotate-2 rounded-[1.75rem] bg-[#f3a31b] sm:-inset-4 sm:rotate-3 sm:rounded-[2.25rem]" />
+{/* OIKEA PUOLI */}
+<div className="relative mx-auto w-full max-w-xl px-1 sm:px-0">
+  <div className="absolute -inset-2 rounded-[1.75rem] bg-[#f3a31b] sm:-inset-4 sm:rounded-[2.25rem]" />
 
-      <div className="relative overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/15 sm:rounded-[2rem] sm:p-3">
-        <img
-          src={frontLogo.src}
-          alt="ValintaGurun kurssialusta"
-          className="aspect-[16/10] w-full rounded-[1.1rem] object-cover sm:aspect-[4/2] sm:rounded-[1.4rem]"
-        />
+  <div className="relative overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/15 sm:rounded-[2rem] sm:p-3">
+    <img
+      src={frontLogo.src}
+      alt="ValintaGurun kurssialusta"
+      className="aspect-[16/10] w-full rounded-[1.1rem] object-cover sm:aspect-[4/2] sm:rounded-[1.4rem]"
+    />
 
-        <div className="absolute bottom-4 left-4 right-4 rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:bottom-7 sm:left-7 sm:right-7 sm:rounded-2xl sm:p-4">
-          <p className="text-sm font-bold text-[#3f51e7]">
-            Uudistunut kurssialusta
-          </p>
+    <div className="absolute bottom-4 left-4 right-4 rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:bottom-7 sm:left-7 sm:right-7 sm:rounded-2xl sm:p-4">
+      <p className="text-sm font-bold text-[#3f51e7]">
+        Uudistunut kurssialusta
+      </p>
 
-          <p className="mt-1 text-sm font-semibold leading-5 sm:text-base sm:leading-normal">
-            Teoria, harjoitukset ja oma edistyminen yhdessä paikassa.
-          </p>
-        </div>
-      </div>
+      <p className="mt-1 text-sm font-semibold leading-5 sm:text-base sm:leading-normal">
+        Teoria, harjoitukset ja oma edistyminen yhdessä paikassa.
+      </p>
     </div>
+  </div>
+</div>
   </div>
 </section>
 

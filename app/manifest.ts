@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "ValintaGuru",
     short_name: "ValintaGuru",
     description:
-      "Valmennuskurssit ja opiskelupalvelu valintakokeisiin sekä ylioppilaskirjoituksiin.",
+      "Valmennuskurssit valintakoe-g ja oikeustieteen eriytyvä osio",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
