@@ -14,6 +14,7 @@ import logo from "../assets/logo.png";
 import Etusivulogo from "../assets/Etusivulogo.png";
 import uudetkurssit from "../assets/uudetkurssit.png";
 
+
 type StudentCourseRow = {
   id?: string;
   user_id?: string | null;

@@ -2,15 +2,25 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    id: "/",
     name: "ValintaGuru",
     short_name: "ValintaGuru",
+
     description:
-      "Valmennuskurssit valintakoe-g ja oikeustieteen eriytyvä osio",
+      "ValintaGurun valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
+
     start_url: "/",
+    scope: "/",
+
     display: "standalone",
+
     background_color: "#ffffff",
     theme_color: "#ffffff",
-    lang: "fi",
+
+    lang: "fi-FI",
+
+    categories: ["education"],
+
     icons: [
       {
         src: "/logo.png",

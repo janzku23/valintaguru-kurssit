@@ -1,32 +1,25 @@
 import type { MetadataRoute } from "next";
 
-const baseUrl = "https://valintaguru.fi";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://www.valintaguru.fi";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: baseUrl,
-      lastModified: new Date(),
+      url: siteUrl,
       changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: `${baseUrl}/oikis`,
-      lastModified: new Date(),
+      url: `${siteUrl}/valintakoe-g`,
       changeFrequency: "weekly",
-      priority: 0.9,
+      priority: 0.95,
     },
     {
-      url: `${baseUrl}/valintakoe-g`,
-      lastModified: new Date(),
+      url: `${siteUrl}/oikeustiede`,
       changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/yo`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
+      priority: 0.95,
     },
   ];
 }
