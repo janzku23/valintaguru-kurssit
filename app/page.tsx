@@ -197,7 +197,7 @@ export default function Home() {
             )}
 
             <a href="#kurssit" className="transition hover:text-[#3f51e7]">
-              Valmennuskurssit
+              Valmennukset
             </a>
             {/*
             <a href="#miksi" className="transition hover:text-[#3f51e7]">
@@ -477,15 +477,17 @@ export default function Home() {
           </span>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+                <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
           <strong className="block text-lg text-[#3f51e7] sm:text-xl">
-            Oma
+            Vuoden 2027
           </strong>
 
           <span className="text-xs text-slate-600 sm:text-sm">
-            opiskelutahti
+            Valmennukset
           </span>
         </div>
+
+      
       </div>
     </div>
 

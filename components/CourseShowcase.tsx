@@ -25,47 +25,65 @@ const FILTERS: Array<{ id: FilterId; label: string }> = [
   { id: "yo", label: "YO" },
 ];
 
+const COURSE_PURCHASE_URLS: Partial<Record<CourseId, string>> = {
+  "oikis-tiivis":
+    "https://holvi.com/shop/ValintaGuru/product/2924c4a5d912b3900a8ff64a33acaf86/",
+  "oikis-teho":
+    "https://holvi.com/shop/ValintaGuru/product/cb4c0943e31b1004b46d7896c36e9ce1/",
+  "valintakoe-g":
+    "https://holvi.com/shop/ValintaGuru/product/fe710d122cc569aa42c7915c961f2acf/",
+  "valintakoe-g-etaope":
+    "https://holvi.com/shop/ValintaGuru/product/53808fad0e707c2e4a17a92355b58b4a/",
+};
+
+const COURSE_PRICES: Partial<Record<CourseId, string>> = {
+  "oikis-tiivis": "149 €",
+  "oikis-teho": "199 €",
+  "valintakoe-g": "120 €",
+  "valintakoe-g-etaope": "279 €",
+};
+
 const PRESENTATION: Partial<Record<CourseId, CoursePresentation>> = {
   oikis: {
     category: "oikis",
     eyebrow: "Oikeustiede",
     description:
-      "Harjoittele oikeustieteen valintakoetta varten selkeästi ja tavoitteellisesti.",
+      "",
     features: ["Harjoitukset", "Teoria", "GuruPeli"],
   },
   "oikis-tiivis": {
     category: "oikis",
     eyebrow: "Oikeustiede",
     description:
-      "Tiivis kokonaisuus ennakkomateriaalin tehokkaaseen haltuunottoon.",
+      "",
     features: ["Ennakkomateriaali", "Flashcardit", "GuruPeli"],
   },
   "oikis-teho": {
     category: "oikis",
     eyebrow: "Oikeustiede",
     description:
-      "Laajempi valmennuskokonaisuus, jossa verkko-opiskelu yhdistyy etäopetukseen.",
+      "",
     features: ["Teoria", "Harjoitukset", "Etäopetus"],
   },
   "valintakoe-g": {
     category: "g",
     eyebrow: "Valintakoe G",
     description:
-      "Päättelyä, aineiston tulkintaa ja tekstinymmärtämistä kehittävä verkkovalmennus.",
+      "",
     features: ["Päättely", "Aineistot", "GuruPeli"],
   },
   "valintakoe-g-etaope": {
     category: "g",
     eyebrow: "Valintakoe G",
     description:
-      "Valintakoe G -verkkovalmennus täydennettynä ohjatulla etäopetuksella.",
+      "",
     features: ["Harjoitukset", "GuruPeli", "Etäopetus"],
   },
   yo: {
     category: "yo",
     eyebrow: "Ylioppilaskokeet",
     description:
-      "Kertaa YO-kokeisiin teoriaa, käsitteitä ja tehtäviä yhdessä kokonaisuudessa.",
+      "",
     features: ["Teoria", "Flashcardit", "GuruPeli"],
   },
 };
@@ -82,15 +100,22 @@ function getPresentation(course: Course): CoursePresentation {
 }
 
 function getPurchaseUrl(course: Course) {
+  const directUrl = COURSE_PURCHASE_URLS[course.id];
+
+  if (directUrl) {
+    return directUrl;
+  }
+
   if (
     "purchaseUrl" in course &&
     typeof course.purchaseUrl === "string" &&
-    course.purchaseUrl.trim().length > 0
+    course.purchaseUrl.trim().length > 0 &&
+    course.purchaseUrl !== HOLVI_STORE_URL
   ) {
     return course.purchaseUrl;
   }
 
-  return HOLVI_STORE_URL;
+  return null;
 }
 
 export default function CourseShowcase({
@@ -200,7 +225,7 @@ export default function CourseShowcase({
             rel="noopener noreferrer"
             className="mt-6 inline-flex items-center gap-2 text-sm font-black text-[#3f51e7] transition hover:text-[#3142d6]"
           >
-            Avaa koko verkkokauppa
+            Avaa verkkokauppa
             <span aria-hidden="true">↗</span>
           </a>
         </div>
@@ -220,6 +245,7 @@ export default function CourseShowcase({
                 const presentation = getPresentation(course);
                 const owned = ownedCourseIds.includes(course.id);
                 const purchaseUrl = getPurchaseUrl(course);
+                const price = COURSE_PRICES[course.id];
 
                 const transform =
                   position === 0
@@ -255,75 +281,93 @@ export default function CourseShowcase({
                         : "brightness(0.92)",
                     }}
                   >
-                    <div className="grid min-h-[320px] sm:grid-cols-[1fr_168px]">
-                      <div className="p-5 sm:p-6">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#3f51e7]">
-                            {presentation.eyebrow}
-                          </p>
-
-                          {owned && (
-                            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-black text-emerald-700">
-                              Käytössä
-                            </span>
-                          )}
-                        </div>
-
-                        <h3 className="mt-3 font-serif text-2xl font-semibold leading-tight text-slate-950 sm:text-3xl">
-                          {course.title}
-                        </h3>
-
-                        <p className="mt-3 line-clamp-3 leading-6 text-slate-600">
-                          {presentation.description}
+                    <div className="flex h-[320px] flex-col p-5 sm:p-6">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-xs font-black uppercase tracking-[0.16em] text-[#3f51e7]">
+                          {presentation.eyebrow}
                         </p>
 
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {presentation.features.map((feature) => (
-                            <span
-                              key={feature}
-                              className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-bold text-slate-600"
-                            >
-                              {feature}
-                            </span>
-                          ))}
-                        </div>
-
-                        {!isActive && (
-                          <p className="mt-5 text-xs font-black uppercase tracking-[0.13em] text-slate-400">
-                            Klikkaa nähdäksesi
-                          </p>
+                        {owned && (
+                          <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-black text-emerald-700">
+                            Käytössä
+                          </span>
                         )}
                       </div>
 
-                      <div className="flex flex-col justify-center border-t border-slate-200 bg-[#fffdf8] p-5 sm:border-l sm:border-t-0">
-                        {isActive ? (
+                      <h3 className="mt-3 font-serif text-xl font-semibold leading-tight text-slate-950 sm:text-2xl">
+                        {course.title}
+                      </h3>
+
+                      {presentation.description && (
+                        <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">
+                          {presentation.description}
+                        </p>
+                      )}
+
+                      <div className="mt-4 flex flex-wrap gap-1.5">
+                        {presentation.features.map((feature) => (
+                          <span
+                            key={feature}
+                            className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-600"
+                          >
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="mt-auto flex min-h-12 items-end justify-between gap-3 border-t border-slate-100 pt-4">
+                        {!isActive ? (
+                          <p className="text-[11px] font-black uppercase tracking-[0.13em] text-slate-400">
+                            {position < 0 ? "Edellinen" : "Seuraava"} · klikkaa nähdäksesi
+                          </p>
+                        ) : owned ? (
+                          <a
+                            href={`/kurssi/${course.id}`}
+                            onClick={(event) => event.stopPropagation()}
+                            className="ml-auto inline-flex items-center justify-center gap-1.5 rounded-full bg-emerald-600 px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-emerald-700"
+                          >
+                            Avaa kurssi
+                            <span aria-hidden="true">→</span>
+                          </a>
+                        ) : (
                           <>
-                            {owned ? (
-                              <a
-                                href={`/kurssi/${course.id}`}
-                                className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-700"
-                              >
-                                Avaa kurssi
-                                <span aria-hidden="true">→</span>
-                              </a>
-                            ) : (
+                            <div className="min-w-0">
+                              {price && (
+                                <>
+                                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                                    Hinta
+                                  </p>
+                                  <p className="mt-0.5 text-sm font-black text-slate-800">
+                                    {price}
+                                  </p>
+                                </>
+                              )}
+                            </div>
+
+                            {purchaseUrl ? (
                               <a
                                 href={purchaseUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#3f51e7] px-4 py-3 text-sm font-black text-white shadow-lg shadow-indigo-600/15 transition hover:bg-[#3142d6]"
+                                onClick={(event) => event.stopPropagation()}
+                                className="ml-auto inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#3f51e7] px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-[#3142d6]"
                               >
                                 Osta Holvista
                                 <span aria-hidden="true">↗</span>
                               </a>
+                            ) : (
+                              <a
+                                href={HOLVI_STORE_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(event) => event.stopPropagation()}
+                                className="ml-auto inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-[11px] font-black text-slate-600 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
+                              >
+                                Avaa verkkokauppa
+                                <span aria-hidden="true">↗</span>
+                              </a>
                             )}
                           </>
-                        ) : (
-                          <div className="hidden text-center sm:block">
-                            <p className="text-xs font-black uppercase tracking-[0.13em] text-slate-400">
-                              {position < 0 ? "Edellinen" : "Seuraava"}
-                            </p>
-                          </div>
                         )}
                       </div>
                     </div>

@@ -1,24 +1,21 @@
 import type { Course } from "./types";
-import { COURSE_PURCHASE_URLS } from "./purchase";
 
 export const oikisCourse = {
   id: "oikis",
-  title: "Kyssäripankki (Oikis)",
-  label: "Oikis · Kyssäripankki",
-  description:
-    "Oikeustieteen valintakokeeseen liittyvä teoria, harjoitukset, flashcardit ja oma GuruPeli",
-  purchaseUrl: COURSE_PURCHASE_URLS.oikis,
+  title: "Oikeustiede",
+  label: "Oikis",
+  description: "Oikeustieteen valintakokeeseen liittyvä teoria, harjoitukset ja koetyyppiset tehtävät.",
   modules: [
     {
       id: "oikis-teoria",
       title: "Teoria",
-      description: "Kurssin omat teoriaosuudet ja aihekohtaiset materiaalit.",
+      description: "Oikiksen teoriaosuudet ja aihekohtaiset materiaalit.",
       href: "/kurssi/oikis/teoria",
     },
     {
       id: "oikis-harjoitukset",
       title: "Harjoitukset",
-      description: "Monivalinnat, aineistotehtävät ja minitestit.",
+      description: "Aiheharjoitukset sekä ajastetut Koe 1, Koe 2 ja muut harjoituskokeet.",
       href: "/kurssi/oikis/harjoitukset",
     },
     {
@@ -26,18 +23,6 @@ export const oikisCourse = {
       title: "Flashcardit",
       description: "Keskeiset käsitteet nopeaan kertaamiseen.",
       href: "/kurssi/oikis/flashcardit",
-    },
-    {
-      id: "oikis-edistyminen",
-      title: "Edistyminen",
-      description: "Seuraa tämän kurssin tehtävistä kertyvää edistymistä.",
-      href: "/kurssi/oikis/edistyminen",
-    },
-    {
-      id: "oikis-gurupath",
-      title: "GuruPeli",
-      description: "Etene Kyssäripankin omalla pelillisellä kurssipolulla.",
-      href: "/gurupath/oikis",
     },
   ],
 } satisfies Course;
