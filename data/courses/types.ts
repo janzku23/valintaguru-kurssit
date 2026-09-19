@@ -19,5 +19,5 @@ export type Course = {
   label: string;
   description: string;
   modules: CourseModule[];
-  purchaseUrl: string;
+  purchaseUrl?: string;
 };
