@@ -29,7 +29,8 @@ const FILTERS: Array<{ id: FilterId; label: string }> = [
 ];
 
 const COURSE_IMAGES: Partial<Record<CourseId, string>> = {
-  oikis: "/holvi/kuvat/oikis.png",
+  oikis: 
+  "/holvi/kuvat/kysbank.png",
   "oikis-tiivis": "/holvi/kuvat/oikistiivis.png",
   "oikis-teho": "/holvi/kuvat/oikisteho.png",
   "oikis-teho-etaope": "/holvi/kuvat/oikistehoeta.png",
@@ -41,7 +42,7 @@ const COURSE_IMAGES: Partial<Record<CourseId, string>> = {
 const PRESENTATION: Partial<Record<CourseId, CoursePresentation>> = {
   oikis: {
     category: "oikis",
-    eyebrow: "Oikeustiede",
+    eyebrow: "Oikis kyssäripankki",
     description: "",
     features: ["Harjoitukset", "Teoria", "GuruPeli"],
   },
