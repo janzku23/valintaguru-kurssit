@@ -440,7 +440,7 @@ export default function Home() {
       <p className="mt-6 max-w-2xl text-base leading-7 text-slate-700 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl">
         ValintaGurun valmennuskurssit auttavat hallitsemaan valintakokeen rakennetta, päättelyä, 
         tekstianalyysiä ja ajankäyttöä.
-         Sisällöt kattavat Valintakoe G:n sekä oikeustieteen eriytyvän osion asiantuntuvien opettajien johdolla
+         Sisällöt kattavat Valintakoe G:n sekä oikeustieteen eriytyvän osion asiantuntevien opettajien johdolla
       </p>
 
       <div className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap">
