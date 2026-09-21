@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PracticeExamOption, PublicPracticeExam } from "@/data/practiceExams/types";
 import { UNSURE_ANSWER_ID } from "@/data/practiceExams/types";
+import { createClient } from "@/utils/supabase/client";
 
 type HistoryItem = {
   id: string;
@@ -45,6 +46,12 @@ type ReviewItem = {
   options: PracticeExamOption[];
 };
 
+type ProgressSyncState =
+  | { status: "idle" }
+  | { status: "saving" }
+  | { status: "saved"; count: number }
+  | { status: "error"; message: string };
+
 function formatDuration(seconds: number | null) {
   if (seconds === null) return "-";
   const m = Math.floor(seconds / 60);
@@ -72,7 +79,22 @@ function answerText(options: PracticeExamOption[], id: string) {
   return options.find((option) => option.id === id)?.text ?? "Ei vastausta";
 }
 
-export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam }) {
+type PracticeExamRunnerMode =
+  | "lobby"
+  | "exam"
+  | "result";
+
+type PracticeExamRunnerProps = {
+  exam: PublicPracticeExam;
+  onModeChange?: (
+    mode: PracticeExamRunnerMode
+  ) => void;
+};
+
+export default function PracticeExamRunner({
+  exam,
+  onModeChange,
+}: PracticeExamRunnerProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -86,13 +108,162 @@ export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam 
   const [result, setResult] = useState<Result | null>(null);
   const [review, setReview] = useState<ReviewItem[]>([]);
   const [historyLoadingId, setHistoryLoadingId] = useState<string | null>(null);
+  const [progressSync, setProgressSync] =
+    useState<ProgressSyncState>({ status: "idle" });
+
+  const supabase = useMemo(() => createClient(), []);
+
+  useEffect(() => {
+    onModeChange?.(mode);
+  }, [mode, onModeChange]);
 
   const timerStartRef = useRef<number | null>(null);
   const initialRemainingRef = useRef(0);
   const autoFinishRef = useRef(false);
 
+  /**
+   * Estää saman koesuorituksen tallentamisen kahdesti
+   * student_progress_attempts-tauluun saman sivuistunnon aikana.
+   */
+  const progressSyncedAttemptsRef = useRef<Set<string>>(new Set());
+
+  /**
+   * Kysymyskohtainen aktiivinen aika.
+   *
+   * Aika kertyy vain sille VIELÄ VASTAAMATTOMALLE kysymykselle,
+   * joka on parhaiten näkyvissä käyttäjän viewportissa.
+   * Kun käyttäjä vastaa ensimmäisen kerran, kyseisen kysymyksen
+   * ajastus pysähtyy.
+   */
+  const answersRef = useRef<Record<string, string>>({});
+  const questionTimesRef = useRef<Record<string, number>>({});
+  const questionVisibilityRef = useRef<Map<string, number>>(new Map());
+  const activeQuestionIdRef = useRef<string | null>(null);
+  const activeQuestionStartedAtRef = useRef<number | null>(null);
+
   const apiUrl = `/api/practice-exams/${exam.courseId}/${exam.id}`;
   const answeredCount = useMemo(() => Object.keys(answers).length, [answers]);
+
+  function timingStorageKey(attemptId: string) {
+    return `valintaguru:practice-exam-timing:${attemptId}`;
+  }
+
+  function persistQuestionTimes(attemptId?: string | null) {
+    const id = attemptId ?? activeAttempt?.id;
+    if (!id) return;
+
+    try {
+      window.localStorage.setItem(
+        timingStorageKey(id),
+        JSON.stringify(questionTimesRef.current)
+      );
+    } catch {
+      // localStorage ei ole kriittinen kokeen toiminnalle.
+    }
+  }
+
+  function loadQuestionTimes(attemptId: string) {
+    try {
+      const raw = window.localStorage.getItem(
+        timingStorageKey(attemptId)
+      );
+
+      if (!raw) {
+        questionTimesRef.current = {};
+        return;
+      }
+
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      const safe: Record<string, number> = {};
+
+      Object.entries(parsed).forEach(([questionId, value]) => {
+        if (
+          typeof value === "number" &&
+          Number.isFinite(value) &&
+          value >= 0
+        ) {
+          safe[questionId] = value;
+        }
+      });
+
+      questionTimesRef.current = safe;
+    } catch {
+      questionTimesRef.current = {};
+    }
+  }
+
+  function flushActiveQuestionTime() {
+    const questionId = activeQuestionIdRef.current;
+    const startedAt = activeQuestionStartedAtRef.current;
+
+    if (!questionId || startedAt == null) {
+      activeQuestionIdRef.current = null;
+      activeQuestionStartedAtRef.current = null;
+      return;
+    }
+
+    // Ensimmäisen vastauksen jälkeen aikaa ei enää kasvateta.
+    if (!answersRef.current[questionId]) {
+      const elapsed = Math.max(
+        0,
+        performance.now() - startedAt
+      );
+
+      questionTimesRef.current[questionId] =
+        (questionTimesRef.current[questionId] ?? 0) +
+        elapsed;
+
+      persistQuestionTimes();
+    }
+
+    activeQuestionIdRef.current = null;
+    activeQuestionStartedAtRef.current = null;
+  }
+
+  function activateMostVisibleQuestion() {
+    if (
+      mode !== "exam" ||
+      document.visibilityState !== "visible"
+    ) {
+      flushActiveQuestionTime();
+      return;
+    }
+
+    let bestQuestionId: string | null = null;
+    let bestRatio = 0;
+
+    questionVisibilityRef.current.forEach(
+      (ratio, questionId) => {
+        if (answersRef.current[questionId]) {
+          return;
+        }
+
+        if (ratio > bestRatio) {
+          bestRatio = ratio;
+          bestQuestionId = questionId;
+        }
+      }
+    );
+
+    // Ei lasketa aikaa kysymykselle, joka on käytännössä poissa näkymästä.
+    if (bestRatio < 0.18) {
+      bestQuestionId = null;
+    }
+
+    if (
+      bestQuestionId === activeQuestionIdRef.current
+    ) {
+      return;
+    }
+
+    flushActiveQuestionTime();
+
+    if (bestQuestionId) {
+      activeQuestionIdRef.current = bestQuestionId;
+      activeQuestionStartedAtRef.current =
+        performance.now();
+    }
+  }
 
   const loadLobby = useCallback(async () => {
     setLoading(true);
@@ -126,13 +297,97 @@ export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam 
     );
 
     setActiveAttempt(attempt);
-    setAnswers(attempt.answers ?? {});
+
+    const restoredAnswers = attempt.answers ?? {};
+    setAnswers(restoredAnswers);
+    answersRef.current = restoredAnswers;
+
+    loadQuestionTimes(attempt.id);
+
     setRemainingMs(left);
     initialRemainingRef.current = left;
     timerStartRef.current = performance.now();
     autoFinishRef.current = false;
+    setProgressSync({ status: "idle" });
     setMode("exam");
   }
+
+  useEffect(() => {
+    if (mode !== "exam" || !activeAttempt) {
+      flushActiveQuestionTime();
+      questionVisibilityRef.current.clear();
+      return;
+    }
+
+    answersRef.current = answers;
+
+    const elements = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        "[data-practice-question-id]"
+      )
+    );
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const element = entry.target as HTMLElement;
+          const questionId =
+            element.dataset.practiceQuestionId;
+
+          if (!questionId) return;
+
+          questionVisibilityRef.current.set(
+            questionId,
+            entry.isIntersecting
+              ? entry.intersectionRatio
+              : 0
+          );
+        });
+
+        activateMostVisibleQuestion();
+      },
+      {
+        threshold: [0, 0.18, 0.35, 0.5, 0.7, 0.9, 1],
+        rootMargin: "-12% 0px -28% 0px",
+      }
+    );
+
+    elements.forEach((element) =>
+      observer.observe(element)
+    );
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        flushActiveQuestionTime();
+      } else {
+        activateMostVisibleQuestion();
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibility
+    );
+
+    activateMostVisibleQuestion();
+
+    return () => {
+      flushActiveQuestionTime();
+      observer.disconnect();
+      questionVisibilityRef.current.clear();
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibility
+      );
+    };
+    // answers käsitellään answersRefin kautta, jotta observeria ei luoda
+    // uudelleen jokaisella vastauksella.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, activeAttempt?.id]);
+
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
 
   async function startExam() {
     setStarting(true);
@@ -154,10 +409,222 @@ export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam 
     }
   }
 
+  const syncFinishedAttemptToProgress = useCallback(
+    async (
+      attemptId: string,
+      reviewItems: ReviewItem[],
+      resultData: Result | null
+    ) => {
+      if (
+        progressSyncedAttemptsRef.current.has(
+          attemptId
+        )
+      ) {
+        return true;
+      }
+
+      if (reviewItems.length === 0) {
+        setProgressSync({
+          status: "error",
+          message:
+            "Koesuoritus valmistui, mutta vastaustietoja ei saatu Edistyminen-näkymää varten.",
+        });
+        return false;
+      }
+
+      setProgressSync({ status: "saving" });
+
+      try {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError || !user) {
+          throw new Error(
+            userError?.message ??
+              "Kirjautunutta käyttäjää ei löytynyt."
+          );
+        }
+
+        const answeredAt =
+          new Date().toISOString();
+
+        // Varmistetaan, että juuri ennen kokeen päättämistä
+        // aktiivisena ollut kysymys saa viimeiset millisekuntinsa.
+        flushActiveQuestionTime();
+
+        const sessionDurationMs =
+          resultData?.durationSeconds != null
+            ? Math.max(
+                0,
+                resultData.durationSeconds * 1000
+              )
+            : null;
+
+        const rows = reviewItems.map(
+          (item) => {
+            const selectedAnswerId =
+              item.selectedAnswerId ?? "";
+
+            const isUnsure =
+              selectedAnswerId ===
+              UNSURE_ANSWER_ID;
+
+            const isCorrect =
+              !isUnsure &&
+              selectedAnswerId ===
+                item.correctAnswerId;
+
+            return {
+              user_id: user.id,
+
+              // Tärkeä: OikisTeho tallentuu
+              // kurssille "oikis-teho", ei "oikis".
+              course_id: exam.courseId,
+
+              // Sama kysymys-ID säilytetään eri
+              // koeyrityksillä, jotta Edistyminen
+              // tunnistaa uusintayritykset oikein.
+              question_id: item.questionId,
+
+              question: item.prompt,
+
+              // Näkyy Edistyminen-näkymän
+              // osa-aluekohtaisissa tilastoissa.
+              area: `${exam.title} · ${item.sectionTitle}`,
+
+              category: "Harjoituskoe",
+
+              selected_answer_ids:
+                selectedAnswerId
+                  ? [selectedAnswerId]
+                  : [],
+
+              correct_answer_ids:
+                item.correctAnswerId
+                  ? [item.correctAnswerId]
+                  : [],
+
+              is_correct: isCorrect,
+              answered_at: answeredAt,
+
+              // Todellinen kysymyskohtainen aktiivinen aika:
+              // aika kertyy vain, kun kysymys on aktiivisesti näkyvissä
+              // ennen ensimmäistä vastausta.
+              answer_time_ms:
+                questionTimesRef.current[
+                  item.questionId
+                ] != null
+                  ? Math.round(
+                      questionTimesRef.current[
+                        item.questionId
+                      ]
+                    )
+                  : null,
+              answer_time_source:
+                questionTimesRef.current[
+                  item.questionId
+                ] != null
+                  ? "active_question"
+                  : null,
+
+              // Koko koesuorituksen todellinen kesto tallennetaan
+              // erikseen. Näin koetahti ja aktiivinen kysymysaika
+              // eivät mene enää sekaisin.
+              session_duration_ms:
+                sessionDurationMs,
+              session_id: attemptId,
+              session_type: "harjoituskoe",
+              session_name: exam.title,
+            };
+          }
+        );
+
+        const { error: insertError } =
+          await supabase
+            .from(
+              "student_progress_attempts"
+            )
+            .insert(rows);
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        progressSyncedAttemptsRef.current.add(
+          attemptId
+        );
+
+        try {
+          window.localStorage.removeItem(
+            timingStorageKey(attemptId)
+          );
+        } catch {
+          // Ei kriittinen.
+        }
+
+        setProgressSync({
+          status: "saved",
+          count: rows.length,
+        });
+
+        return true;
+      } catch (err) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Edistymisen tallennus epäonnistui.";
+
+        console.error(
+          "Practice exam progress sync failed:",
+          err
+        );
+
+        setProgressSync({
+          status: "error",
+          message,
+        });
+
+        return false;
+      }
+    },
+    [
+      exam.courseId,
+      exam.title,
+      supabase,
+    ]
+  );
+
   async function saveAnswer(questionId: string, answerId: string) {
     if (!activeAttempt) return;
 
-    setAnswers((current) => ({ ...current, [questionId]: answerId }));
+    const isFirstAnswer =
+      !answersRef.current[questionId];
+
+    if (
+      isFirstAnswer &&
+      activeQuestionIdRef.current === questionId
+    ) {
+      flushActiveQuestionTime();
+    }
+
+    const nextAnswers = {
+      ...answersRef.current,
+      [questionId]: answerId,
+    };
+
+    answersRef.current = nextAnswers;
+    setAnswers(nextAnswers);
+
+    if (isFirstAnswer) {
+      persistQuestionTimes(activeAttempt.id);
+      window.setTimeout(
+        activateMostVisibleQuestion,
+        0
+      );
+    }
+
     setSavingCount((value) => value + 1);
 
     try {
@@ -171,9 +638,19 @@ export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam 
 
       if (!response.ok) {
         if (response.status === 409 && data.finished) {
+          const finishedReview =
+            (data.review ?? []) as ReviewItem[];
+
           setResult(data.result ?? null);
-          setReview(data.review ?? []);
+          setReview(finishedReview);
           setMode("result");
+
+          await syncFinishedAttemptToProgress(
+            activeAttempt.id,
+            finishedReview,
+            data.result ?? null
+          );
+
           void loadLobby();
           return;
         }
@@ -193,6 +670,7 @@ export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam 
   ) {
     setHistoryLoadingId(attemptId);
     setError("");
+    setProgressSync({ status: "idle" });
 
     try {
       const response = await fetch(
@@ -266,9 +744,19 @@ export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam 
           throw new Error(data.error ?? "Kokeen päättäminen epäonnistui.");
         }
 
+        const finishedReview =
+          (data.review ?? []) as ReviewItem[];
+
         setResult(data.result ?? null);
-        setReview(data.review ?? []);
+        setReview(finishedReview);
         setMode("result");
+
+        await syncFinishedAttemptToProgress(
+          activeAttempt.id,
+          finishedReview,
+          data.result ?? null
+        );
+
         await loadLobby();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Kokeen päättäminen epäonnistui.");
@@ -276,7 +764,12 @@ export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam 
         setFinishing(false);
       }
     },
-    [activeAttempt, finishing, loadLobby]
+    [
+      activeAttempt,
+      finishing,
+      loadLobby,
+      syncFinishedAttemptToProgress,
+    ]
   );
 
   useEffect(() => {
@@ -325,6 +818,7 @@ export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam 
                 setResult(null);
                 setReview([]);
                 setActiveAttempt(null);
+                setProgressSync({ status: "idle" });
               }}
               className="rounded-full bg-blue-600 px-6 py-3 font-black text-white transition hover:bg-blue-700"
             >
@@ -339,6 +833,38 @@ export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam 
             <Stat label="Kesto" value={formatDuration(result.durationSeconds)} />
           </div>
         </section>
+
+        {progressSync.status === "saving" && (
+          <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800">
+            Tallennetaan koesuoritusta Edistyminen-näkymään...
+          </div>
+        )}
+
+        {progressSync.status === "saved" && (
+          <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm font-bold text-emerald-800">
+              ✓ Koesuoritus tallennettiin Edistymiseen ({progressSync.count} vastausta).
+            </p>
+
+            <a
+              href={`/kurssi/${exam.courseId}/edistyminen`}
+              className="inline-flex items-center justify-center rounded-full bg-emerald-700 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-800"
+            >
+              Avaa Edistyminen
+            </a>
+          </div>
+        )}
+
+        {progressSync.status === "error" && (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <p className="font-bold text-amber-900">
+              Koe tallentui koehistoriaan, mutta Edistyminen-synkronointi epäonnistui.
+            </p>
+            <p className="mt-1 text-sm text-amber-800">
+              {progressSync.message}
+            </p>
+          </div>
+        )}
 
         <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <h3 className="text-2xl font-black">Vastausten tarkistus</h3>
@@ -426,7 +952,11 @@ export default function PracticeExamRunner({ exam }: { exam: PublicPracticeExam 
                   const selected = answers[question.id];
 
                   return (
-                    <article key={question.id} className="py-6">
+                    <article
+                      key={question.id}
+                      data-practice-question-id={question.id}
+                      className="py-6"
+                    >
                       <h3 className="font-bold leading-7">
                         {previousCount + questionIndex + 1}. {question.prompt}
                       </h3>

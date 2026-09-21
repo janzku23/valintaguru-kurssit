@@ -11,46 +11,20 @@ export type PracticeExamOption = {
   text: string;
 };
 
-export type PracticeExamInstructionStep = {
-  number: number;
-  title: string;
-  text: string;
-};
-
-export type PracticeExamIntro = {
-  eyebrow?: string;
-  title: string;
-  lead?: string;
-
-  article?: {
-    label?: string;
-    title: string;
-    description?: string;
-    url: string;
-    buttonText?: string;
-  };
-
-  instructionsTitle?: string;
-  steps?: PracticeExamInstructionStep[];
-
-  notice?: string;
-  closing?: string;
-};
-
 export type PracticeExamQuestion = {
   id: string;
   prompt: string;
   options: PracticeExamOption[];
 
   /**
-   * Vanhan koemoottorin yhden oikean vastauksen kenttä.
-   * Pidetään mukana, jotta nykyiset kokeet toimivat ennallaan.
+   * Nykyisen koemoottorin vanha yhden oikean vastauksen kenttä.
+   * Pidetään mukana, jotta nykyiset oikis.ts ja valintakoeG.ts eivät hajoa.
    */
   correctAnswerId: string;
 
   /**
-   * Monivalintakysymykset.
-   * Jos tätä ei ole, käytetään [correctAnswerId].
+   * Käytä tätä, jos kysymyksessä on useampi oikea vastaus.
+   * Jos kenttää ei ole, oikea vastaus on [correctAnswerId].
    */
   correctAnswerIds?: string[];
 
@@ -69,24 +43,13 @@ export type PracticeExam = {
   version: number;
   courseId: PracticeExamCourseId;
   title: string;
-
-  /**
-   * Lyhyt korttikuvaus. Älä laita pitkää ohjeistusta tähän.
-   */
   description: string;
-
   durationMinutes: number;
 
   /**
-   * Yhteensopivuuden vuoksi myös suora URL.
-   * Varsinainen näyttöteksti löytyy intro.article-kentästä.
+   * Valinnainen ennakkomateriaalin/artikkelin linkki.
    */
   articleUrl?: string;
-
-  /**
-   * Rakenteinen aloitusnäkymä ennen kokeen aloittamista.
-   */
-  intro?: PracticeExamIntro;
 
   sections: PracticeExamSection[];
 };
@@ -100,8 +63,6 @@ export type PublicPracticeExam = {
   durationMinutes: number;
   questionCount: number;
   articleUrl?: string;
-  intro?: PracticeExamIntro;
-
   sections: Array<{
     id: string;
     title: string;
@@ -110,11 +71,18 @@ export type PublicPracticeExam = {
       id: string;
       prompt: string;
       options: PracticeExamOption[];
+
+      /**
+       * Frontend voi tämän avulla päättää käytetäänkö radio- vai checkbox-valintaa.
+       */
       allowsMultipleAnswers: boolean;
     }>;
   }>;
 };
 
+/**
+ * Palauttaa kysymyksen kaikki oikeat vastaus-ID:t yhtenäisessä muodossa.
+ */
 export function getCorrectAnswerIds(
   question: PracticeExamQuestion
 ): string[] {

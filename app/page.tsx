@@ -185,7 +185,7 @@ export default function Home() {
               <InquiryStatusLink />
             ) : (
               <a href="/kysy" className="transition hover:text-[#3f51e7]">
-                Kysy
+                Ota yhteyttä
               </a>
             )}
 
@@ -304,7 +304,7 @@ export default function Home() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
                   >
-                    <span>Kysy</span>
+                    <span>Ota yhteyttä</span>
                     <span className="text-xl text-slate-400">›</span>
                   </a>
                 )}
@@ -430,7 +430,7 @@ export default function Home() {
      
 
     <h1 className="mt-5 max-w-3xl break-words font-serif text-[2rem] font-semibold leading-[1.02] tracking-tight sm:mt-2 sm:text-4xl md:text-6xl">
-  Valmennuskurssit oikeustieteen eriytyvään osioon ja valintakoe G:hen
+  Valmennuskurssit oikeustieteen eriytyvään osioon ja valintakoe g:hen
 </h1>
 
  <div className="mt-6 inline-flex max-w-full items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-bold leading-5 text-[#3f51e7] sm:px-4 sm:text-sm">
@@ -440,7 +440,7 @@ export default function Home() {
       <p className="mt-6 max-w-2xl text-base leading-7 text-slate-700 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl">
         ValintaGurun valmennuskurssit auttavat hallitsemaan valintakokeen rakennetta, päättelyä, 
         tekstianalyysiä ja ajankäyttöä.
-         Sisällöt kattavat Valintakoe G:n sekä oikeustieteen eriytyvän osion asiantuntevien opettajien johdolla
+         Sisällöt kattavat g:n sekä oikeustieteen eriytyvän osion asiantuntevien opettajien johdolla
       </p>
 
       <div className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap">
@@ -902,7 +902,7 @@ export default function Home() {
       </div>
 
       <p className="mt-4 max-w-sm leading-7 text-slate-600">
-        Valmennuskurssit valintakoe G:hen ja oikeustieteen
+        Valmennuskurssit valintakoe g:hen ja oikeustieteen
         eriytyvään osioon.
       </p>
     </div>
@@ -940,7 +940,7 @@ export default function Home() {
           href="/kysy"
           className="transition hover:text-[#3f51e7]"
         >
-          Kysy ValintaGurulta
+          Yhteydenottolomake
         </a>
 
         <a

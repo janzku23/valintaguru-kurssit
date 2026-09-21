@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 import AdminUserPanel from "@/components/AdminUserPanel";
-import { UNSURE_ANSWER_ID } from "@/data/practiceExams/types";
 
 const feedbackEmail = "info@valintaguru.fi";
 
@@ -45,7 +44,6 @@ type QuizAttemptRow = {
   is_correct: boolean;
   answered_at: string;
   answer_time_ms?: number | null;
-  answer_time_source?: string | null;
   session_id?: string | null;
   session_type?: string | null;
   session_name?: string | null;
@@ -66,7 +64,6 @@ type CourseProgressSummary = {
   attempts: number;
   correct: number;
   wrong: number;
-  unsure: number;
   accuracy: number;
   uniqueQuestions: number;
   weakestArea: string | null;
@@ -81,7 +78,6 @@ type Stats = {
   quizAttempts: number;
   correctAnswers: number;
   wrongAnswers: number;
-  unsureAnswers: number;
   averageScore: number;
   uniqueQuestions: number;
   activeDays: number;
@@ -89,41 +85,6 @@ type Stats = {
   knownFlashcards: number;
   practiceFlashcards: number;
 };
-
-function isUnsureQuizAttempt(
-  attempt: QuizAttemptRow
-) {
-  return (
-    attempt.selected_answer_ids ?? []
-  ).includes(UNSURE_ANSWER_ID);
-}
-
-function hasActualProfileAnswerTime(
-  attempt: QuizAttemptRow
-) {
-  if (
-    typeof attempt.answer_time_ms !==
-      "number" ||
-    !Number.isFinite(
-      attempt.answer_time_ms
-    ) ||
-    attempt.answer_time_ms < 0
-  ) {
-    return false;
-  }
-
-  if (
-    attempt.answer_time_source ===
-    "active_question"
-  ) {
-    return true;
-  }
-
-  return (
-    attempt.session_type?.toLowerCase() !==
-    "harjoituskoe"
-  );
-}
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -407,28 +368,9 @@ export default function ProfilePage() {
   const stats: Stats = useMemo(() => {
     const correctAnswers = quizAttempts.filter((item) => item.is_correct).length;
 
-    const unsureAnswers =
-      quizAttempts.filter(
-        isUnsureQuizAttempt
-      ).length;
-
-    const wrongAnswers =
-      quizAttempts.filter(
-        (item) =>
-          !item.is_correct &&
-          !isUnsureQuizAttempt(item)
-      ).length;
-
-    const resolvedAnswers =
-      correctAnswers + wrongAnswers;
-
     const averageScore =
-      resolvedAnswers > 0
-        ? Math.round(
-            (correctAnswers /
-              resolvedAnswers) *
-              100
-          )
+      quizAttempts.length > 0
+        ? Math.round((correctAnswers / quizAttempts.length) * 100)
         : 0;
 
     const knownFlashcards = flashcardProgress.filter(
@@ -439,19 +381,15 @@ export default function ProfilePage() {
       (item) => item.status === "needs_practice"
     ).length;
 
-    const uniqueQuestions = new Set(
-      quizAttempts.map(
-        (item) => item.question_id
-      )
-    ).size;
+    const wrongAnswers = quizAttempts.length - correctAnswers;
+    const uniqueQuestions = new Set(quizAttempts.map((item) => item.question_id)).size;
     const activeDays = new Set(
       quizAttempts.map((item) => new Date(item.answered_at).toISOString().slice(0, 10))
     ).size;
     const answerTimes = quizAttempts
-      .filter(hasActualProfileAnswerTime)
-      .map(
-        (item) =>
-          item.answer_time_ms as number
+      .map((item) => item.answer_time_ms)
+      .filter((value): value is number =>
+        typeof value === "number" && Number.isFinite(value) && value >= 0
       );
     const averageAnswerTimeMs =
       answerTimes.length > 0
@@ -463,7 +401,6 @@ export default function ProfilePage() {
       quizAttempts: quizAttempts.length,
       correctAnswers,
       wrongAnswers,
-      unsureAnswers,
       averageScore,
       uniqueQuestions,
       activeDays,
@@ -494,26 +431,9 @@ export default function ProfilePage() {
         (attempt) => attempt.course_id === courseId
       );
 
-      const correct =
-        courseQuizAttempts.filter(
-          (attempt) =>
-            attempt.is_correct
-        ).length;
-
-      const unsure =
-        courseQuizAttempts.filter(
-          isUnsureQuizAttempt
-        ).length;
-
-      const wrong =
-        courseQuizAttempts.filter(
-          (attempt) =>
-            !attempt.is_correct &&
-            !isUnsureQuizAttempt(attempt)
-        ).length;
-
-      const resolved =
-        correct + wrong;
+      const correct = courseQuizAttempts.filter(
+        (attempt) => attempt.is_correct
+      ).length;
 
       const courseFlashcards = flashcardProgress.filter(
         (card) => card.course_id === courseId
@@ -537,84 +457,27 @@ export default function ProfilePage() {
             return new Date(b ?? 0).getTime() - new Date(a ?? 0).getTime();
           })[0] ?? null;
 
-      const areaGroups = new Map<
-        string,
-        {
-          attempts: number;
-          correct: number;
-          wrong: number;
-          unsure: number;
-        }
-      >();
+      const areaGroups = new Map<string, { attempts: number; correct: number }>();
       courseQuizAttempts.forEach((attempt) => {
         const area = attempt.area?.trim() || "Yleinen";
-        const current =
-          areaGroups.get(area) ?? {
-            attempts: 0,
-            correct: 0,
-            wrong: 0,
-            unsure: 0,
-          };
-
-        const isUnsure =
-          isUnsureQuizAttempt(attempt);
-
+        const current = areaGroups.get(area) ?? { attempts: 0, correct: 0 };
         areaGroups.set(area, {
-          attempts:
-            current.attempts + 1,
-          correct:
-            current.correct +
-            (attempt.is_correct ? 1 : 0),
-          wrong:
-            current.wrong +
-            (!attempt.is_correct &&
-            !isUnsure
-              ? 1
-              : 0),
-          unsure:
-            current.unsure +
-            (isUnsure ? 1 : 0),
+          attempts: current.attempts + 1,
+          correct: current.correct + (attempt.is_correct ? 1 : 0),
         });
       });
 
       const rankedAreas = Array.from(areaGroups.entries())
-        .map(([area, values]) => {
-          const resolved =
-            values.correct +
-            values.wrong;
+        .map(([area, values]) => ({
+          area,
+          attempts: values.attempts,
+          accuracy: values.attempts > 0
+            ? Math.round((values.correct / values.attempts) * 100)
+            : 0,
+        }))
+        .sort((a, b) => a.accuracy - b.accuracy || b.attempts - a.attempts);
 
-          return {
-            area,
-            attempts:
-              values.attempts,
-            resolved,
-            accuracy:
-              resolved > 0
-                ? Math.round(
-                    (values.correct /
-                      resolved) *
-                      100
-                  )
-                : 0,
-          };
-        })
-        .filter(
-          (item) =>
-            item.resolved > 0
-        )
-        .sort(
-          (a, b) =>
-            a.accuracy -
-              b.accuracy ||
-            b.resolved -
-              a.resolved
-        );
-
-      const enoughData =
-        rankedAreas.filter(
-          (item) =>
-            item.resolved >= 3
-        );
+      const enoughData = rankedAreas.filter((item) => item.attempts >= 3);
       const weakestArea = (enoughData[0] ?? rankedAreas[0])?.area ?? null;
       const strongestArea =
         ([...enoughData].sort((a, b) => b.accuracy - a.accuracy || b.attempts - a.attempts)[0] ??
@@ -623,17 +486,12 @@ export default function ProfilePage() {
       return {
         courseId,
         title: getCourseTitleById(courseId),
-        attempts:
-          courseQuizAttempts.length,
+        attempts: courseQuizAttempts.length,
         correct,
-        wrong,
-        unsure,
+        wrong: courseQuizAttempts.length - correct,
         accuracy:
-          resolved > 0
-            ? Math.round(
-                (correct / resolved) *
-                  100
-              )
+          courseQuizAttempts.length > 0
+            ? Math.round((correct / courseQuizAttempts.length) * 100)
             : 0,
         uniqueQuestions: new Set(courseQuizAttempts.map((attempt) => attempt.question_id)).size,
         weakestArea,
@@ -646,26 +504,16 @@ export default function ProfilePage() {
   }, [courses, quizAttempts, flashcardProgress]);
 
   const latestActivity = useMemo(() => {
-    const quizItems = quizAttempts.map((item) => {
-      const unsure =
-        isUnsureQuizAttempt(item);
-
-      return {
-        id: item.id,
-        type: "Monivalinta",
-        title: item.question,
-        courseId: item.course_id,
-        meta: item.area,
-        result: item.is_correct
-          ? "Oikein"
-          : unsure
-            ? "En osaa sanoa"
-            : "Väärin",
-        date: item.answered_at,
-        isPositive: item.is_correct,
-        isNeutral: unsure,
-      };
-    });
+    const quizItems = quizAttempts.map((item) => ({
+      id: item.id,
+      type: "Monivalinta",
+      title: item.question,
+      courseId: item.course_id,
+      meta: item.area,
+      result: item.is_correct ? "Oikein" : "Väärin",
+      date: item.answered_at,
+      isPositive: item.is_correct,
+    }));
 
     const flashcardItems = flashcardProgress.map((item) => ({
       id: item.id ?? `${item.course_id}-${item.flashcard_id}`,
@@ -676,7 +524,6 @@ export default function ProfilePage() {
       result: item.status === "known" ? "Osaan" : "Kertaa",
       date: item.updated_at,
       isPositive: item.status === "known",
-      isNeutral: false,
     }));
 
     return [...quizItems, ...flashcardItems]
@@ -832,18 +679,8 @@ export default function ProfilePage() {
           <StatCard label="Vastauksia" value={stats.quizAttempts.toString()} />
           <StatCard label="Eri kysymyksiä" value={stats.uniqueQuestions.toString()} />
           <StatCard label="Oikein" value={stats.correctAnswers.toString()} />
-          <StatCard
-            label="Väärin"
-            value={stats.wrongAnswers.toString()}
-          />
-          <StatCard
-            label="En osaa sanoa"
-            value={stats.unsureAnswers.toString()}
-          />
-          <StatCard
-            label="Tarkkuus"
-            value={`${stats.averageScore} %`}
-          />
+          <StatCard label="Väärin" value={stats.wrongAnswers.toString()} />
+          <StatCard label="Tarkkuus" value={`${stats.averageScore} %`} />
           <StatCard label="Aktiivisia päiviä" value={stats.activeDays.toString()} />
           <StatCard
             label="Keskim. vastausaika"
@@ -949,17 +786,17 @@ export default function ProfilePage() {
                       <MiniStat label="Vastauksia" value={summary.attempts.toString()} />
                       <MiniStat label="Eri kysymyksiä" value={summary.uniqueQuestions.toString()} />
                       <MiniStat label="Oikein" value={summary.correct.toString()} />
+                      <MiniStat label="Väärin" value={summary.wrong.toString()} />
+                      <MiniStat label="Tarkkuus" value={`${summary.accuracy} %`} />
                       <MiniStat
-                        label="Väärin"
-                        value={summary.wrong.toString()}
+                        label="Heikoin alue"
+                        value={summary.weakestArea ?? "-"}
+                        wide
                       />
                       <MiniStat
-                        label="En osaa sanoa"
-                        value={summary.unsure.toString()}
-                      />
-                      <MiniStat
-                        label="Tarkkuus"
-                        value={`${summary.accuracy} %`}
+                        label="Vahvin alue"
+                        value={summary.strongestArea ?? "-"}
+                        wide
                       />
                       <MiniStat
                         label="Osaan"
@@ -968,18 +805,6 @@ export default function ProfilePage() {
                       <MiniStat
                         label="Kertaa"
                         value={summary.practiceFlashcards.toString()}
-                      />
-                    </div>
-
-                    <div style={styles.areaSummaryList}>
-                      <AreaSummary
-                        label="Heikoin alue"
-                        value={compactAreaName(summary.weakestArea)}
-                      />
-
-                      <AreaSummary
-                        label="Vahvin alue"
-                        value={compactAreaName(summary.strongestArea)}
                       />
                     </div>
 
@@ -1030,18 +855,10 @@ export default function ProfilePage() {
                   <span
                     style={{
                       ...styles.badge,
-                      background:
-                        item.isPositive
-                          ? "rgba(18,128,76,0.10)"
-                          : item.isNeutral
-                            ? "rgba(100,116,139,0.12)"
-                            : "rgba(220,38,38,0.10)",
-                      color:
-                        item.isPositive
-                          ? "#12804C"
-                          : item.isNeutral
-                            ? "#475569"
-                            : "#B91C1C",
+                      background: item.isPositive
+                        ? "rgba(18,128,76,0.10)"
+                        : "rgba(230,126,34,0.12)",
+                      color: item.isPositive ? "#12804C" : "#C06416",
                     }}
                   >
                     {item.result}
@@ -1179,57 +996,31 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function compactAreaName(value: string | null) {
-  if (!value) return "-";
-
-  const separator = " · ";
-  const separatorIndex = value.indexOf(separator);
-
-  if (separatorIndex === -1) {
-    return value;
-  }
-
-  const prefix = value.slice(0, separatorIndex).trim();
-  let rest = value
-    .slice(separatorIndex + separator.length)
-    .trim();
-
-  if (rest.startsWith(prefix)) {
-    rest = rest
-      .slice(prefix.length)
-      .replace(/^[\s—–-]+/, "")
-      .trim();
-  }
-
-  return rest || value;
-}
-
 function MiniStat({
   label,
   value,
+  wide = false,
 }: {
   label: string;
   value: string;
+  wide?: boolean;
 }) {
   return (
-    <div style={styles.miniStat}>
+    <div
+      style={{
+        ...styles.miniStat,
+        ...(wide ? styles.miniStatWide : {}),
+      }}
+    >
       <p style={styles.miniStatLabel}>{label}</p>
-      <p style={styles.miniStatValue}>{value}</p>
-    </div>
-  );
-}
-
-function AreaSummary({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div style={styles.areaSummary}>
-      <p style={styles.areaSummaryLabel}>{label}</p>
-      <p style={styles.areaSummaryValue}>{value}</p>
+      <p
+        style={{
+          ...styles.miniStatValue,
+          ...(wide ? styles.miniStatLongValue : {}),
+        }}
+      >
+        {value}
+      </p>
     </div>
   );
 }
@@ -1568,38 +1359,8 @@ const styles: Record<string, React.CSSProperties> = {
     minWidth: 0,
     overflow: "hidden",
   },
-  areaSummaryList: {
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr)",
-    gap: 10,
-    marginTop: 10,
-    minWidth: 0,
-  },
-  areaSummary: {
-    width: "100%",
-    minWidth: 0,
-    boxSizing: "border-box",
-    background: "#FFFFFF",
-    border: "1px solid rgba(40, 90, 180, 0.10)",
-    borderRadius: 14,
-    padding: "12px 14px",
-    overflow: "hidden",
-  },
-  areaSummaryLabel: {
-    margin: 0,
-    color: "#687894",
-    fontSize: 11,
-    fontWeight: 850,
-  },
-  areaSummaryValue: {
-    margin: "6px 0 0",
-    color: "#0A46D9",
-    fontSize: 15,
-    lineHeight: 1.4,
-    fontWeight: 900,
-    overflowWrap: "anywhere",
-    wordBreak: "break-word",
-    whiteSpace: "normal",
+  miniStatWide: {
+    gridColumn: "span 2",
   },
   miniStatLabel: {
     margin: 0,
@@ -1614,6 +1375,12 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: 1.15,
     fontWeight: 950,
     minWidth: 0,
+  },
+  miniStatLongValue: {
+    fontSize: 14,
+    lineHeight: 1.35,
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
   },
   progressBarTrack: {
     marginTop: 12,

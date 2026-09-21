@@ -11,6 +11,219 @@ type Props = {
   initialExamId?: string;
 };
 
+type PracticeExamIntroStep = {
+  number: number;
+  title: string;
+  text: string;
+};
+
+type PracticeExamIntroData = {
+  eyebrow?: string;
+  title?: string;
+  lead?: string;
+  article?: {
+    label?: string;
+    title?: string;
+    description?: string;
+    url: string;
+    buttonText?: string;
+  };
+  instructionsTitle?: string;
+  steps?: PracticeExamIntroStep[];
+  notice?: string;
+  closing?: string;
+};
+
+type PracticeExamWithIntro = PublicPracticeExam & {
+  articleUrl?: string;
+  intro?: PracticeExamIntroData;
+};
+
+type RunnerMode = "lobby" | "exam" | "result";
+
+function ExamPreparationCard({
+  exam,
+}: {
+  exam: PracticeExamWithIntro;
+}) {
+  const intro = exam.intro;
+
+  const articleUrl =
+    intro?.article?.url ??
+    exam.articleUrl;
+
+  const hasPreparationContent =
+    Boolean(articleUrl) ||
+    Boolean(intro?.title) ||
+    Boolean(intro?.lead) ||
+    Boolean(intro?.steps?.length);
+
+  if (!hasPreparationContent) {
+    return null;
+  }
+
+  const steps =
+    intro?.steps?.length
+      ? intro.steps
+      : [
+          {
+            number: 1,
+            title: "Tutustu ennakkomateriaaliin",
+            text:
+              "Lue ennakkomateriaali huolellisesti ennen harjoituskokeen aloittamista.",
+          },
+          {
+            number: 2,
+            title: "Sulje materiaali ennen koetta",
+            text:
+              "Tee varsinainen harjoituskoe ilman ennakkomateriaalia näkyvissä.",
+          },
+          {
+            number: 3,
+            title: `Tee ${exam.durationMinutes} minuutin koe`,
+            text:
+              "Kun olet valmis, käynnistä ajastettu koe ja vastaa kysymyksiin annetussa ajassa.",
+          },
+          {
+            number: 4,
+            title: "Tarkista tuloksesi",
+            text:
+              "Kokeen jälkeen voit tarkastella tuloksia ja käydä läpi kehityskohteesi.",
+          },
+        ];
+
+  return (
+    <div className="space-y-5">
+      <section className="overflow-hidden rounded-3xl border border-blue-200 bg-white shadow-sm">
+        <div className="px-6 py-6 sm:px-8 sm:py-7">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+            <div className="max-w-4xl">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-700">
+                {intro?.eyebrow ??
+                  "Oikeustieteen eriytyvä osio"}
+              </p>
+
+              <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">
+                {intro?.title ??
+                  `${exam.title} – valmistautuminen`}
+              </h2>
+
+              <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
+                {intro?.lead ??
+                  exam.description}
+              </p>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-blue-700">
+                  {exam.durationMinutes} min
+                </span>
+
+                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-extrabold text-slate-700">
+                  {exam.questionCount} kysymystä
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {articleUrl ? (
+          <div className="border-t border-blue-100 bg-blue-50/70 px-6 py-6 sm:px-8">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-700">
+                  {intro?.article?.label ??
+                    `${exam.title}:n ennakkomateriaali`}
+                </p>
+
+                <h3 className="mt-2 text-xl font-extrabold text-slate-950">
+                  {intro?.article?.title ??
+                    "Lue artikkeli ennen harjoituskokeen aloittamista"}
+                </h3>
+
+                <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600">
+                  {intro?.article?.description ??
+                    "Tutustu artikkeliin huolellisesti ennen koetta. Kun aloitat varsinaisen harjoituskokeen, sulje artikkeli pois näkyvistä, jotta harjoitus vastaa mahdollisimman hyvin oikeaa koetilannetta."}
+                </p>
+              </div>
+
+              <a
+                href={articleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200"
+              >
+                {intro?.article?.buttonText ?? "Avaa artikkeli"} ↗
+              </a>
+            </div>
+          </div>
+        ) : null}
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-700">
+              Ennen kuin aloitat
+            </p>
+
+            <h3 className="mt-2 text-xl font-extrabold text-slate-950 sm:text-2xl">
+              {intro?.instructionsTitle ??
+                "Miten harjoitustentti suoritetaan?"}
+            </h3>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          {steps.map((step) => (
+            <div
+              key={`${exam.id}-step-${step.number}`}
+              className="rounded-2xl border border-slate-200 bg-white p-5"
+            >
+              <div className="flex gap-4">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-black text-white">
+                  {step.number}
+                </div>
+
+                <div>
+                  <h4 className="font-extrabold text-slate-950">
+                    {step.title}
+                  </h4>
+
+                  <p className="mt-1.5 text-sm leading-6 text-slate-600">
+                    {step.text}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {intro?.notice ? (
+          <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+            <p className="text-sm font-semibold leading-6 text-amber-950">
+              {intro.notice}
+            </p>
+          </div>
+        ) : articleUrl ? (
+          <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+            <p className="text-sm font-semibold leading-6 text-amber-950">
+              Älä aloita koetta ennen kuin olet tutustunut
+              ennakkomateriaaliin. Kun käynnistät kokeen,
+              tarkoitus on vastata ilman artikkelia näkyvissä.
+            </p>
+          </div>
+        ) : null}
+
+        {intro?.closing ? (
+          <p className="mt-5 text-sm font-extrabold text-slate-700">
+            {intro.closing}
+          </p>
+        ) : null}
+      </section>
+    </div>
+  );
+}
+
 export default function PracticeExercisesView({
   course,
   exams,
@@ -24,10 +237,9 @@ export default function PracticeExercisesView({
   const [activeExamId, setActiveExamId] =
     useState(defaultExamId);
 
-  /*
-   * Nämä ovat nyt oikeita avaus/sulku-tiloja.
-   * Aiemmassa versiossa +/- olivat vain tekstiä.
-   */
+  const [runnerMode, setRunnerMode] =
+    useState<RunnerMode>("lobby");
+
   const [tasksOpen, setTasksOpen] =
     useState(true);
 
@@ -46,6 +258,7 @@ export default function PracticeExercisesView({
 
   function selectExam(examId: string) {
     setActiveExamId(examId);
+    setRunnerMode("lobby");
     setTasksOpen(true);
     setExamGroupOpen(true);
 
@@ -79,6 +292,9 @@ export default function PracticeExercisesView({
       </div>
     );
   }
+
+  const activeExamWithIntro =
+    activeExam as PracticeExamWithIntro;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
@@ -114,11 +330,6 @@ export default function PracticeExercisesView({
                 href={`/kurssi/${course.id}/harjoitukset`}
                 className="flex-1 px-4 py-3 text-sm font-bold"
                 onClick={(event) => {
-                  /*
-                   * Jos olemme jo harjoitussivulla,
-                   * ei navigoida turhaan pois, vaan
-                   * pidetään nykyinen koe valittuna.
-                   */
                   if (
                     window.location.pathname ===
                     `/kurssi/${course.id}/harjoitukset`
@@ -284,9 +495,17 @@ export default function PracticeExercisesView({
           </p>
         </div>
 
+        {runnerMode === "lobby" && (
+          <ExamPreparationCard
+            key={`prep-${activeExam.id}`}
+            exam={activeExamWithIntro}
+          />
+        )}
+
         <PracticeExamRunner
           key={activeExam.id}
           exam={activeExam}
+          onModeChange={setRunnerMode}
         />
       </section>
     </div>
