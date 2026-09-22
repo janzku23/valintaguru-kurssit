@@ -29,7 +29,7 @@ export const oikisTehoCourse = {
       href:
         "/kurssi/oikis-teho/harjoitukset",
     },
-    {
+   /* {
       id:
         "oikis-teho-flashcardit",
       title: "Flashcardit",
@@ -37,7 +37,7 @@ export const oikisTehoCourse = {
         "Oikis Tehon omat flashcardit.",
       href:
         "/kurssi/oikis-teho/flashcardit",
-    },
+    }, */
     {
       id:
         "oikis-teho-edistyminen",

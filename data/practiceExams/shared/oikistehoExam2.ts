@@ -21,7 +21,7 @@ export const OIKISTEHO_EXAM_2_ARTICLE_URL =
 export const oikisTehoExam2 = {
   id: "koe-2",
   version: 1,
-  title: "Koe 2",
+  title: "Harjoitustentti 2",
   description:
     "60 minuutin ajastettu harjoitustentti, joka perustuu ennakkoon luettavaan akateemiseen artikkeliin.",
   durationMinutes: 60,

@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
-import { getCourseById, isCourseId } from "../../../data/courses";
+import {
+  getCourseById,
+  isCourseId,
+} from "../../../data/courses";
 import { hasCourseAccess } from "../../../lib/courseAccess";
+import { getAvailableCourseModules } from "@/lib/courseNavigation";
 
 type Props = {
   params: Promise<{
@@ -8,20 +12,25 @@ type Props = {
   }>;
 };
 
-export default async function CoursePage({ params }: Props) {
-  const { courseId } = await params;
+export default async function CoursePage({
+  params,
+}: Props) {
+  const { courseId } =
+    await params;
 
   if (!isCourseId(courseId)) {
     notFound();
   }
 
-  const course = getCourseById(courseId);
+  const course =
+    getCourseById(courseId);
 
   if (!course) {
     notFound();
   }
 
-  const allowed = await hasCourseAccess(courseId);
+  const allowed =
+    await hasCourseAccess(courseId);
 
   if (!allowed) {
     return (
@@ -32,11 +41,13 @@ export default async function CoursePage({ params }: Props) {
           </p>
 
           <h1 className="mt-3 text-3xl font-extrabold">
-            Sinulla ei ole pääsyä kurssiin {course.title}
+            Sinulla ei ole pääsyä
+            kurssiin {course.title}
           </h1>
 
           <p className="mt-4 leading-8 text-slate-700">
-            Tämä kurssi ei kuulu nykyisiin käyttöoikeuksiisi.
+            Tämä kurssi ei kuulu
+            nykyisiin käyttöoikeuksiisi.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-4">
@@ -58,6 +69,11 @@ export default async function CoursePage({ params }: Props) {
       </main>
     );
   }
+
+  const modules =
+    getAvailableCourseModules(
+      course
+    );
 
   return (
     <main className="min-h-screen bg-[#f5f8ff] text-slate-950">
@@ -95,7 +111,7 @@ export default async function CoursePage({ params }: Props) {
         </div>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {course.modules.map((module) => (
+          {modules.map((module) => (
             <a
               key={module.id}
               href={module.href}

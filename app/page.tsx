@@ -200,6 +200,13 @@ export default function Home() {
             <a href="#kurssit" className="transition hover:text-[#3f51e7]">
               Valmennukset
             </a>
+
+            <a
+              href="/valintakoe-g-pisterajat"
+              className="transition hover:text-[#3f51e7]"
+            >
+              Pisterajat
+            </a>
             {/*
             <a href="#miksi" className="transition hover:text-[#3f51e7]">
               Miksi ValintaGuru?
@@ -351,6 +358,15 @@ export default function Home() {
                 </a>
 
                 <a
+                  href="/valintakoe-g-pisterajat"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
+                >
+                  <span>Pisterajat</span>
+                  <span className="text-xl text-slate-400">›</span>
+                </a>
+
+                <a
                   href="#miksi"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
@@ -430,7 +446,7 @@ export default function Home() {
      
 
     <h1 className="mt-5 max-w-3xl break-words font-serif text-[2rem] font-semibold leading-[1.02] tracking-tight sm:mt-2 sm:text-4xl md:text-6xl">
-  Valmennuskurssit oikeustieteen eriytyvään osioon ja valintakoe g:hen
+  Valmennuskurssit oikeustieteen eriytyvään osioon ja valintakoe G:hen
 </h1>
 
  <div className="mt-6 inline-flex max-w-full items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-bold leading-5 text-[#3f51e7] sm:px-4 sm:text-sm">
@@ -440,7 +456,7 @@ export default function Home() {
       <p className="mt-6 max-w-2xl text-base leading-7 text-slate-700 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl">
         ValintaGurun valmennuskurssit auttavat hallitsemaan valintakokeen rakennetta, päättelyä, 
         tekstianalyysiä ja ajankäyttöä.
-         Sisällöt kattavat g:n sekä oikeustieteen eriytyvän osion asiantuntevien opettajien johdolla
+         Sisällöt kattavat G:n sekä oikeustieteen eriytyvän osion asiantuntevien opettajien johdolla
       </p>
 
       <div className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap">
@@ -519,6 +535,7 @@ export default function Home() {
 </div>
   </div>
 </section>
+
 
 
 
@@ -718,6 +735,46 @@ export default function Home() {
         </div>
       </section>
 
+      {/* VALINTAKOE G PISTERAJAT */}
+      <section className="border-b border-slate-200 bg-gradient-to-br from-indigo-50 via-white to-[#fff8e8]">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-5 sm:py-12 md:px-8 lg:py-16">
+          <a
+            href="/valintakoe-g-pisterajat"
+            className="group block overflow-hidden rounded-[2rem] border border-indigo-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+          >
+            <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-10">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em] text-[#3f51e7]">
+                    Valintakoe G
+                  </span>
+
+                  <span className="rounded-full bg-amber-100 px-3 py-1.5 text-xs font-black text-amber-800">
+                    Pisterajat 2026
+                  </span>
+                </div>
+
+                <h2 className="mt-4 font-serif text-3xl font-semibold leading-tight text-slate-950 sm:text-4xl">
+                  Katso Valintakoe G:n lopulliset pisterajat
+                </h2>
+
+                <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+                  Pisterajat hallintotieteisiin, sosiaali- ja yhteiskuntatieteisiin, viestintätieteisiin sekä oikeustieteeseen. Samalta sivulta löydät myös tiiviin kuvauksen siitä, mikä Valintakoe G on.
+                </p>
+              </div>
+
+              <div className="flex lg:justify-end">
+                <span className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#3f51e7] px-6 py-3.5 font-bold text-white shadow-lg shadow-indigo-600/20 transition group-hover:bg-[#3142d6] sm:w-auto">
+                  Avaa pisterajat
+                  <span aria-hidden="true">→</span>
+                </span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
+
+
       <section id="ajankohtaista" className="scroll-mt-20 bg-[#3f51e7] py-12 text-white sm:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8">
           <div className="grid items-stretch gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
@@ -902,7 +959,7 @@ export default function Home() {
       </div>
 
       <p className="mt-4 max-w-sm leading-7 text-slate-600">
-        Valmennuskurssit valintakoe g:hen ja oikeustieteen
+        Valmennuskurssit valintakoe G:hen ja oikeustieteen
         eriytyvään osioon.
       </p>
     </div>

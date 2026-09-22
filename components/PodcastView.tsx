@@ -1,46 +1,97 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type {
   CoursePodcastContent,
   PodcastAudioTrack,
   PodcastEpisode,
 } from "@/data/podcasts/types";
+import {
+  getCachedPodcastAudio,
+  warmPodcastAudioCache,
+} from "@/lib/podcastAudioCache";
 
 type Props = {
   content: CoursePodcastContent;
 };
 
-function getCanvaEmbedUrl(url?: string) {
+function getCanvaEmbedUrl(
+  url?: string
+) {
   const value = url?.trim();
 
   return value || null;
 }
 
+
+const THEORY_HEADINGS = new Set([
+  "Oikeustieteen keskeiset perusteet ja käsitteet",
+  "Lain rakenne: pykälät, momentit ja artiklat",
+  "Oikeudelliset peruskäsitteet",
+  "Oikeusteoriat",
+  "Oikeusvaltioperiaate",
+  "Oikeusvaltioperiaatteen keskeiset lähtökohdat",
+  "Oikeusvaltioperiaatteen merkitys yksilölle",
+  "Oikeusvaltioperiaate ja demokratia",
+  "Vallan kolmijako - oppi",
+  "Lainsäädäntövalta",
+  "Hallitusvalta",
+  "Tuomiovalta",
+  "Vallan kolmijaon merkitys",
+  "Oikeuslähdeoppi",
+  "Oikeuslähteiden väliset ristiriidat",
+  "Oikeudelliset tulkintateoriat",
+  "Suomen tuomioistuinjärjestelmä",
+  "Eurooppalainen tuomiovalta",
+  "Kansainvälinen tuomiovalta",
+  "Kansainvälinen oikeus ja ihmisoikeudet",
+  "Suomen täysivaltaisuus",
+]);
+
+function isTheoryHeading(
+  paragraph: string
+) {
+  return THEORY_HEADINGS.has(
+    paragraph.trim()
+  );
+}
+
 export default function PodcastView({
   content,
 }: Props) {
-  const [activeEpisodeId, setActiveEpisodeId] =
-    useState(
-      content.episodes[0]?.id ?? ""
-    );
+  const [
+    activeEpisodeId,
+    setActiveEpisodeId,
+  ] = useState(
+    content.episodes[0]?.id ?? ""
+  );
 
   const activeEpisode = useMemo(
     () =>
       content.episodes.find(
         (episode) =>
-          episode.id === activeEpisodeId
+          episode.id ===
+          activeEpisodeId
       ) ??
       content.episodes[0] ??
       null,
-    [activeEpisodeId, content.episodes]
+    [
+      activeEpisodeId,
+      content.episodes,
+    ]
   );
 
   if (!activeEpisode) {
     return (
       <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
         <h2 className="text-2xl font-extrabold text-slate-950">
-          Podcast-sisältöä ei ole vielä lisätty
+          Podcast-sisältöä ei ole vielä
+          lisätty
         </h2>
       </div>
     );
@@ -48,37 +99,42 @@ export default function PodcastView({
 
   return (
     <div className="space-y-6">
-      {content.episodes.length > 1 && (
+      {content.episodes.length >
+        1 && (
         <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="px-2 text-xs font-black uppercase tracking-[0.14em] text-blue-700">
             Valitse jakso
           </p>
 
           <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-            {content.episodes.map((episode) => {
-              const active =
-                episode.id ===
-                activeEpisode.id;
+            {content.episodes.map(
+              (episode) => {
+                const active =
+                  episode.id ===
+                  activeEpisode.id;
 
-              return (
-                <button
-                  key={episode.id}
-                  type="button"
-                  onClick={() =>
-                    setActiveEpisodeId(
-                      episode.id
-                    )
-                  }
-                  className={`shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
-                    active
-                      ? "bg-blue-600 text-white"
-                      : "border border-slate-200 bg-slate-50 text-slate-600 hover:border-blue-200 hover:text-blue-700"
-                  }`}
-                >
-                  {episode.title}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={episode.id}
+                    type="button"
+                    onClick={() =>
+                      setActiveEpisodeId(
+                        episode.id
+                      )
+                    }
+                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
+                      active
+                        ? "bg-blue-600 text-white"
+                        : "border border-slate-200 bg-slate-50 text-slate-600 hover:border-blue-200 hover:text-blue-700"
+                    }`}
+                  >
+                    {
+                      episode.title
+                    }
+                  </button>
+                );
+              }
+            )}
           </div>
         </section>
       )}
@@ -101,11 +157,53 @@ function EpisodeView({
       episode.canvaUrl
     );
 
-  const audioTracks =
-    episode.audioTracks?.filter(
-      (track: PodcastAudioTrack) =>
-        track.url.trim().length > 0
-    ) ?? [];
+  const audioTracks = useMemo(
+    () =>
+      episode.audioTracks?.filter(
+        (
+          track: PodcastAudioTrack
+        ) =>
+          track.url.trim().length >
+          0
+      ) ?? [],
+    [episode.audioTracks]
+  );
+
+  /**
+   * Automaattinen taustalataus:
+   *
+   * - sivu renderöidään heti
+   * - ensimmäinen kuuntelu voi käyttää Firebasea normaalisti
+   * - kaikki puuttuvat äänitteet tallennetaan taustalla IndexedDB:hen
+   * - seuraavalla sivun avauksella CachedAudioPlayer käyttää paikallista Blobia
+   *
+   * Pieni viive antaa käyttöliittymän ja Canvan renderöityä ensin.
+   */
+  useEffect(() => {
+    if (
+      audioTracks.length === 0
+    ) {
+      return;
+    }
+
+    const timer =
+      window.setTimeout(() => {
+        void warmPodcastAudioCache(
+          audioTracks.map(
+            (track) => ({
+              id: track.id,
+              url: track.url,
+            })
+          )
+        );
+      }, 350);
+
+    return () => {
+      window.clearTimeout(
+        timer
+      );
+    };
+  }, [audioTracks]);
 
   return (
     <>
@@ -118,7 +216,9 @@ function EpisodeView({
 
             {episode.duration && (
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">
-                {episode.duration}
+                {
+                  episode.duration
+                }
               </span>
             )}
           </div>
@@ -129,13 +229,17 @@ function EpisodeView({
 
           {episode.subtitle && (
             <p className="mt-2 text-lg font-bold text-slate-700">
-              {episode.subtitle}
+              {
+                episode.subtitle
+              }
             </p>
           )}
 
           {episode.description && (
             <p className="mt-4 max-w-3xl leading-7 text-slate-600">
-              {episode.description}
+              {
+                episode.description
+              }
             </p>
           )}
         </div>
@@ -163,20 +267,26 @@ function EpisodeView({
                 className="relative w-full overflow-hidden rounded-lg bg-slate-100"
                 style={{
                   height: 0,
-                  paddingTop: "56.25%",
+                  paddingTop:
+                    "56.25%",
                   paddingBottom: 0,
-                  boxShadow: "0 2px 8px 0 rgba(63,69,81,0.16)",
-                  willChange: "transform",
+                  boxShadow:
+                    "0 2px 8px 0 rgba(63,69,81,0.16)",
+                  willChange:
+                    "transform",
                 }}
               >
                 <iframe
                   loading="lazy"
-                  src={canvaEmbedUrl}
+                  src={
+                    canvaEmbedUrl
+                  }
                   title={`${episode.title} – Canva-esitys`}
                   allowFullScreen
                   allow="fullscreen"
                   style={{
-                    position: "absolute",
+                    position:
+                      "absolute",
                     width: "100%",
                     height: "100%",
                     top: 0,
@@ -191,7 +301,8 @@ function EpisodeView({
               <div className="flex aspect-[16/9] min-h-[220px] items-center justify-center p-8 text-center">
                 <div>
                   <p className="font-extrabold text-slate-800">
-                    Canva-esitys lisätään tähän
+                    Canva-esitys
+                    lisätään tähän
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -199,7 +310,8 @@ function EpisodeView({
                     <code className="rounded bg-white px-1.5 py-0.5">
                       canvaUrl
                     </code>
-                    , niin esitys näkyy suoraan tässä.
+                    , niin esitys
+                    näkyy suoraan tässä.
                   </p>
                 </div>
               </div>
@@ -224,62 +336,77 @@ function EpisodeView({
             </h3>
 
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Voit kuunnella podcastia samalla kun seuraat yllä olevaa esitystä.
+              Voit kuunnella
+              podcastia samalla kun
+              seuraat yllä olevaa
+              esitystä.
             </p>
 
-            {audioTracks.length > 0 ? (
+            {audioTracks.length >
+            0 ? (
               <div className="mt-5 space-y-4">
                 {audioTracks.map(
                   (
-                    track: PodcastAudioTrack,
+                    track:
+                      PodcastAudioTrack,
                     index: number
                   ) => (
-                  <div
-                    key={track.id}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5"
-                  >
-                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.13em] text-blue-700">
-                          Äänite {index + 1}
-                        </p>
+                    <div
+                      key={
+                        track.id
+                      }
+                      className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5"
+                    >
+                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-[0.13em] text-blue-700">
+                            Äänite{" "}
+                            {index +
+                              1}
+                          </p>
 
-                        <h4 className="mt-1 font-extrabold text-slate-900">
-                          {track.title}
-                        </h4>
+                          <h4 className="mt-1 font-extrabold text-slate-900">
+                            {
+                              track.title
+                            }
+                          </h4>
+                        </div>
+
+                        {track.duration && (
+                          <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500">
+                            {
+                              track.duration
+                            }
+                          </span>
+                        )}
                       </div>
 
-                      {track.duration && (
-                        <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500">
-                          {track.duration}
-                        </span>
-                      )}
+                      <CachedAudioPlayer
+                        track={
+                          track
+                        }
+                      />
                     </div>
-
-                    <audio
-                      controls
-                      preload="metadata"
-                      className="w-full"
-                    >
-                      <source src={track.url} />
-                      Selaimesi ei tue äänen toistoa.
-                    </audio>
-                  </div>
                   )
                 )}
               </div>
             ) : (
               <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
                 <p className="font-bold text-slate-700">
-                  Äänitteitä ei ole vielä lisätty
+                  Äänitteitä ei ole
+                  vielä lisätty
                 </p>
 
                 <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Lisää Firebase Storage -linkit jakson{" "}
+                  Lisää Firebase
+                  Storage -linkit
+                  jakson{" "}
                   <code className="rounded bg-white px-1.5 py-0.5">
                     audioTracks
                   </code>
-                  -listaan. Äänitteiden määrää ei ole rajoitettu.
+                  -listaan.
+                  Äänitteiden määrää ei
+                  ole rajoitettu.
                 </p>
               </div>
             )}
@@ -303,16 +430,138 @@ function EpisodeView({
             .filter(Boolean)
             .map(
               (
-                paragraph: string,
+                paragraph:
+                  string,
                 index: number
-              ) => (
-                <p key={index}>
-                  {paragraph}
-                </p>
-              )
+              ) => {
+                const trimmed =
+                  paragraph.trim();
+
+                if (
+                  isTheoryHeading(
+                    trimmed
+                  )
+                ) {
+                  return (
+                    <h4
+                      key={index}
+                      className="pt-4 text-lg font-black leading-7 text-slate-950 first:pt-0 sm:text-xl"
+                    >
+                      {trimmed}
+                    </h4>
+                  );
+                }
+
+                return (
+                  <p
+                    key={index}
+                    className="text-slate-700"
+                  >
+                    {paragraph}
+                  </p>
+                );
+              }
             )}
         </div>
       </section>
     </>
+  );
+}
+
+/**
+ * Soitin käyttää sivua avatessa paikallista IndexedDB-kopiota,
+ * jos sellainen löytyy ja sen sourceUrl vastaa nykyistä Firebase-URL:ia.
+ *
+ * Jos kopiota ei vielä ole, soitin käyttää Firebasea normaalisti.
+ * EpisodeView lataa puuttuvan tiedoston samalla taustalla seuraavia
+ * käyttökertoja varten.
+ */
+function CachedAudioPlayer({
+  track,
+}: {
+  track: PodcastAudioTrack;
+}) {
+  const audioRef =
+    useRef<HTMLAudioElement | null>(
+      null
+    );
+
+  const [sourceUrl, setSourceUrl] =
+    useState(track.url);
+
+  useEffect(() => {
+    let cancelled = false;
+    let objectUrl: string | null =
+      null;
+
+    setSourceUrl(
+      track.url
+    );
+
+    void (async () => {
+      const cachedBlob =
+        await getCachedPodcastAudio(
+          track.id,
+          track.url
+        );
+
+      if (
+        cancelled ||
+        !cachedBlob
+      ) {
+        return;
+      }
+
+      const audio =
+        audioRef.current;
+
+      /**
+       * Jos käyttäjä ehti jo aloittaa Firebase-version kuuntelun,
+       * emme vaihda lähdettä kesken toiston. Paikallinen tiedosto
+       * otetaan käyttöön seuraavalla komponentin avauksella.
+       */
+      if (
+        audio &&
+        (!audio.paused ||
+          audio.currentTime > 0)
+      ) {
+        return;
+      }
+
+      objectUrl =
+        URL.createObjectURL(
+          cachedBlob
+        );
+
+      setSourceUrl(
+        objectUrl
+      );
+    })();
+
+    return () => {
+      cancelled = true;
+
+      if (objectUrl) {
+        URL.revokeObjectURL(
+          objectUrl
+        );
+      }
+    };
+  }, [
+    track.id,
+    track.url,
+  ]);
+
+  return (
+    <audio
+      ref={audioRef}
+      controls
+      preload="none"
+      src={sourceUrl}
+      className="w-full"
+    >
+      Selaimesi ei tue äänen
+      toistoa.
+    </audio>
   );
 }

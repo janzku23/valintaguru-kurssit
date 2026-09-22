@@ -1,5 +1,5 @@
-import { Course } from "../data/courses";
-import { hasPodcastForCourse } from "@/data/podcasts";
+import type { Course } from "../data/courses";
+import { getAvailableCourseModules } from "@/lib/courseNavigation";
 
 type Props = {
   course: Course;
@@ -13,12 +13,45 @@ type Props = {
     | "exams";
 };
 
+function getActiveHref(
+  courseId: string,
+  activePage: Props["activePage"]
+) {
+  switch (activePage) {
+    case "theory":
+      return `/kurssi/${courseId}/teoria`;
+
+    case "tasks":
+    case "exams":
+      return `/kurssi/${courseId}/harjoitukset`;
+
+    case "flashcards":
+      return `/kurssi/${courseId}/flashcardit`;
+
+    case "podcast":
+      return `/kurssi/${courseId}/podcast`;
+
+    case "progress":
+      return `/kurssi/${courseId}/edistyminen`;
+
+    case "overview":
+    default:
+      return `/kurssi/${courseId}`;
+  }
+}
+
 export default function CourseMaterialSidebar({
   course,
   activePage,
 }: Props) {
-  const podcastAvailable =
-    hasPodcastForCourse(course.id);
+  const modules =
+    getAvailableCourseModules(course);
+
+  const activeHref =
+    getActiveHref(
+      course.id,
+      activePage
+    );
 
   const links = [
     {
@@ -26,35 +59,11 @@ export default function CourseMaterialSidebar({
       title: "Kurssin etusivu",
       href: `/kurssi/${course.id}`,
     },
-    {
-      id: "theory",
-      title: "Teoria",
-      href: `/kurssi/${course.id}/teoria`,
-    },
-    {
-      id: "tasks",
-      title: "Harjoitukset",
-      href: `/kurssi/${course.id}/harjoitukset`,
-    },
-    {
-      id: "flashcards",
-      title: "Flashcardit",
-      href: `/kurssi/${course.id}/flashcardit`,
-    },
-    ...(podcastAvailable
-      ? [
-          {
-            id: "podcast",
-            title: "Podcast",
-            href: `/kurssi/${course.id}/podcast`,
-          },
-        ]
-      : []),
-    {
-      id: "progress",
-      title: "Edistyminen",
-      href: `/kurssi/${course.id}/edistyminen`,
-    },
+    ...modules.map((module) => ({
+      id: module.id,
+      title: module.title,
+      href: module.href,
+    })),
   ];
 
   return (
@@ -72,7 +81,7 @@ export default function CourseMaterialSidebar({
       <nav className="space-y-2">
         {links.map((link) => {
           const isActive =
-            link.id === activePage;
+            link.href === activeHref;
 
           return (
             <a

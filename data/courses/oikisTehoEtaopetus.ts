@@ -32,7 +32,7 @@ export const oikisTehoEtaopetusCourse = {
       href:
         "/kurssi/oikis-teho-etaope/harjoitukset",
     },
-    {
+    /*{
       id:
         "oikis-teho-etaope-flashcardit",
       title: "Flashcardit",
@@ -40,7 +40,7 @@ export const oikisTehoEtaopetusCourse = {
         "Oikis Teho + Etäopetus -kurssin flashcardit.",
       href:
         "/kurssi/oikis-teho-etaope/flashcardit",
-    },
+    },*/
     {
       id:
         "oikis-teho-etaope-edistyminen",
