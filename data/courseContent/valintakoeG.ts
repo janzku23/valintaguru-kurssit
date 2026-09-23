@@ -3,81 +3,45 @@ import type { CourseContent } from "./types";
 export const valintakoeGContent = {
   courseId: "valintakoe-g",
 
+  /**
+   * Teoriat ryhmitellään sisällysluettelossa subtitle-kentän mukaan.
+   *
+   * Esimerkki myöhemmin:
+   *
+   * {
+   *   id: "g-teoria-2-1",
+   *   subtitle: "Teoria 2",
+   *   title: "2.1 Aineiston tulkinta",
+   *   content: `...`,
+   * }
+   *
+   * {
+   *   id: "g-teoria-2-2",
+   *   subtitle: "Teoria 2",
+   *   title: "2.2 Johtopäätökset",
+   *   content: `...`,
+   * }
+   *
+   * Tällöin sisällysluettelo näyttää:
+   * Teoria
+   *   Teoria 2
+   *     2.1 Aineiston tulkinta
+   *     2.2 Johtopäätökset
+   */
   theorySections: [
     {
-      id: "g-paattely",
-      title: "Päättely ja looginen ajattelu",
-      content: `Valintakoe G:ssä päättely tarkoittaa kykyä tunnistaa sääntöjä, johtopäätöksiä ja ristiriitoja annetusta aineistosta.
-
-Tärkeää on lukea tehtävänanto tarkasti ja vastata vain siihen, mitä kysytään.
-
-Usein väärät vastausvaihtoehdot perustuvat oletuksiin, joita aineisto tai tehtävänanto ei tue.`,
-    },
-    {
-      id: "g-aineiston-lukeminen",
-      title: "Aineiston lukeminen",
-      content: `Aineistotehtävissä vastaukset perustuvat annettuun tekstiin, kuvaan, taulukkoon tai kaavioon.
-
-Aineistosta kannattaa erottaa toisistaan faktat, tulkinnat ja johtopäätökset.
-
-Vastauksessa ei pidä käyttää sellaista tietoa, jota aineistossa ei ole annettu, ellei tehtävänanto erikseen pyydä hyödyntämään ennakkotietoa.`,
-    },
-    {
-      id: "g-tekstinymmartaminen",
-      title: "Tekstin ymmärtäminen",
-      content: `Tekstinymmärtämisessä keskeistä on tunnistaa tekstin pääajatus, perustelut ja kirjoittajan tekemät johtopäätökset.
-
-Yksittäistä virkettä ei kannata irrottaa asiayhteydestään.
-
-Vastausvaihtoehtoja vertaillessa on hyvä tarkistaa, vastaako vaihtoehto täsmällisesti tekstin sisältöä vai sisältääkö se liioittelua tai liian laajan yleistyksen.`,
-    },
-    {
-      id: "g-loogiset-suhteet",
-      title: "Loogiset suhteet",
-      content: `Loogisissa tehtävissä voidaan tarkastella esimerkiksi ehtoja, järjestyksiä, ryhmittelyä ja syy-seuraussuhteita.
-
-Tehtävän tiedot kannattaa tarvittaessa kirjoittaa näkyviin lyhyinä sääntöinä.
-
-Kun ratkaisu perustuu useaan ehtoon, jokaisen ehdon täyttyminen on tarkistettava ennen vastauksen valitsemista.`,
-    },
-    {
-      id: "g-taulukot-ja-kaaviot",
-      title: "Taulukot ja kaaviot",
-      content: `Taulukoissa ja kaavioissa on tärkeää tarkistaa otsikot, yksiköt, asteikot ja selitteet.
-
-Pelkkä kuvion silmämääräinen tarkastelu voi johtaa virheeseen, jos asteikko ei ala nollasta tai jos luvut esitetään eri yksiköissä.
-
-Laskutoimitukset kannattaa tehdä vain niillä tiedoilla, jotka aineistossa annetaan.`,
+      id: "g-teoria-1-canva",
+      subtitle: "Teoria",
+      title: "Valintakoe G 2026",
+      content: "",
+      embed: {
+        type: "canva",
+        title: "Valintakoe G 2026",
+        url: "https://www.canva.com/design/DAHVn_7CioE/snFTxZEvj9bwKSLS29b71A/view?embed",
+      },
     },
   ],
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
   quizQuestions: [
     {
       id: "g-q1",
@@ -172,26 +136,6 @@ Laskutoimitukset kannattaa tehdä vain niillä tiedoilla, jotka aineistossa anne
         "Pääajatus tarkoittaa tekstin keskeisintä viestiä tai väitettä. Se ei välttämättä sijaitse yhdessä yksittäisessä virkkeessä.",
     },
   ],
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   flashcards: [
     {

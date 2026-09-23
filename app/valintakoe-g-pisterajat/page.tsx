@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import {
   scoreLimitCategories,
-  VALINTAKOE_G_2027_DATE,
   type ScoreLimitCategory,
 } from "@/data/valintakoeGPisterajat";
 
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
   title:
     "Valintakoe G pisterajat 2026 | ValintaGuru",
   description:
-    "Katso Valintakoe G:n vuoden 2026 lopulliset pisterajat hallintotieteisiin, yhteiskunta- ja sosiaalitieteisiin, viestintätieteisiin sekä oikeustieteeseen. Lue myös, mikä Valintakoe G on.",
+    "Katso Valintakoe G:n vuoden 2026 lopulliset pisterajat hallintotieteisiin, yhteiskunta- ja sosiaalitieteisiin, viestintätieteisiin sekä oikeustieteeseen.",
   alternates: {
     canonical: PAGE_URL,
   },
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
     title:
       "Valintakoe G pisterajat 2026 | ValintaGuru",
     description:
-      "Valintakoe G:n lopulliset pisterajat 2026 sekä tiivis kuvaus Valintakoe G:stä.",
+      "Valintakoe G:n lopulliset pisterajat 2026 hallintotieteisiin, yhteiskunta- ja sosiaalitieteisiin, viestintätieteisiin sekä oikeustieteeseen.",
     url: PAGE_URL,
     siteName: "ValintaGuru",
     locale: "fi_FI",
@@ -268,7 +267,7 @@ export default function ValintakoeGPisterajatPage() {
     name: "Valintakoe G pisterajat 2026",
     url: PAGE_URL,
     description:
-      "Valintakoe G:n vuoden 2026 lopulliset pisterajat ja kuvaus Valintakoe G:stä.",
+      "Valintakoe G:n vuoden 2026 lopulliset pisterajat.",
     inLanguage: "fi",
     isPartOf: {
       "@type": "WebSite",
@@ -346,104 +345,13 @@ export default function ValintakoeGPisterajatPage() {
               </a>
 
               <a
-                href="#mika-on-valintakoe-g"
+                href="/valintakoe-g"
                 className="inline-flex rounded-full border border-slate-300 bg-white px-6 py-3 font-bold text-slate-800 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
               >
                 Mikä on Valintakoe G?
               </a>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section
-        id="mika-on-valintakoe-g"
-        className="scroll-mt-24 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16"
-      >
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-          <div>
-            <p className="font-bold uppercase tracking-[0.16em] text-[#3f51e7]">
-              Perustiedot
-            </p>
-
-            <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">
-              Mikä on valintakoe G?
-            </h2>
-
-            <div className="mt-6 space-y-5 text-base leading-8 text-slate-700 sm:text-lg">
-              <p>
-                Valintakoe G on useiden yhteiskunnallisten alojen yhteinen yliopistojen valintakoe. Sen kautta voi hakea muun muassa oikeustieteen, hallintotieteiden, sosiaalitieteiden, yhteiskuntatieteiden ja viestintätieteiden koulutuksiin.
-              </p>
-
-              <p>
-                Vuoden 2027 valintakoe G järjestetään{" "}
-                <strong className="font-extrabold text-slate-950">
-                  {VALINTAKOE_G_2027_DATE}
-                </strong>
-                .
-              </p>
-
-              <p>
-                Valintakoe on digitaalinen ja suoritetaan omalla kannettavalla tietokoneella.
-              </p>
-
-              <p>
-                Valintakoe G{" "}
-                <strong className="font-extrabold text-slate-950">
-                  ei edellytetä tiettyjen sisältöjen opiskelua tai hallintaa etukäteen
-                </strong>
-                . Kokeessa tarvittaville valmiuksille on kuitenkin muodostunut pohjaa jo lukio-opinnoissa ja muissa toisen asteen opinnoissa.
-              </p>
-
-              <p>
-                Kokeessa keskeistä on kyky{" "}
-                <strong className="font-extrabold text-slate-950">
-                  lukea ja ymmärtää tieteellistä tekstiä, löytää aineistosta olennaista tietoa sekä analysoida ja soveltaa annettua tietoa tehokkaasti rajatussa ajassa
-                </strong>
-                . Olennaista ei siis ole ulkoa opettelu, vaan se, miten osaat työskennellä kokeessa annettavan aineiston kanssa.
-              </p>
-
-              <p>
-                Vuoden 2027 kokeen tarkempia sisältö- ja rakennetietoja ei ole vielä kokonaisuudessaan julkaistu. Tietoja täydennetään sitä mukaa, kun yliopistot julkaisevat vuoden 2027 valintaperusteita ja tarkempia tietoja kokeesta.
-              </p>
-            </div>
-          </div>
-
-          <aside className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6">
-              <p className="text-xs font-black uppercase tracking-[0.14em] text-[#3f51e7]">
-                Valintakoe G 2027
-              </p>
-
-              <p className="mt-2 text-2xl font-extrabold text-slate-950">
-                9.6.2027 klo 14.00
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
-                Toteutus
-              </p>
-
-              <p className="mt-2 text-xl font-extrabold text-slate-950">
-                Digitaalinen koe
-              </p>
-
-              <p className="mt-2 leading-7 text-slate-600">
-                Koe suoritetaan omalla kannettavalla tietokoneella.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 sm:col-span-2 lg:col-span-1">
-              <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-800">
-                Olennaista kokeessa
-              </p>
-
-              <p className="mt-2 leading-7 text-slate-700">
-                Tieteellisen tekstin ymmärtäminen, olennaisen tiedon löytäminen sekä annetun tiedon analysointi ja soveltaminen rajatussa ajassa.
-              </p>
-            </div>
-          </aside>
         </div>
       </section>
 

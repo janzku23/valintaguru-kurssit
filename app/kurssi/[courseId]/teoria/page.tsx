@@ -81,18 +81,19 @@ export default async function CourseTheoryPage({
   const content = getCourseContent(courseId);
 
   /**
-   * Haetaan URL:sta pyydetty teoria:
+   * URL voi osoittaa suoraan teoriaan:
    *
-   * /kurssi/yo/teoria?section=yo-biologia-2-1
+   * /kurssi/valintakoe-g/teoria?section=g-teoria-1-canva
    *
    * Jos section-parametria ei ole tai sitä ei löydy,
    * näytetään ensimmäinen teoria.
    */
-const selectedSection =
-  content.theorySections.find(
-    (section: TheorySection) => section.id === requestedSectionId
-  ) ?? content.theorySections[0];
-  
+  const selectedSection =
+    content.theorySections.find(
+      (section: TheorySection) =>
+        section.id === requestedSectionId
+    ) ?? content.theorySections[0];
+
   if (!selectedSection) {
     return (
       <main className="min-h-screen bg-[#f5f8ff] px-4 py-8 text-slate-950 sm:px-6 lg:px-10">
@@ -111,6 +112,7 @@ const selectedSection =
             <CourseMaterialSidebar
               course={course}
               activePage="theory"
+              theorySections={content.theorySections}
             />
 
             <section>
@@ -151,10 +153,11 @@ const selectedSection =
           <CourseMaterialSidebar
             course={course}
             activePage="theory"
+            theorySections={content.theorySections}
+            activeTheorySectionId={selectedSection.id}
           />
 
           <section className="space-y-6">
-            {/* KURSSIN ESITTELY */}
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
                 Kurssi
@@ -169,7 +172,6 @@ const selectedSection =
               </p>
             </div>
 
-            {/* VAIN VALITTU TEORIA */}
             <TheoryCard
               key={selectedSection.id}
               section={selectedSection}

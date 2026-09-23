@@ -6,6 +6,8 @@ import { createClient } from "@/utils/supabase/client";
 import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 import type { CourseId } from "../data/courses";
 import { UNSURE_ANSWER_ID } from "@/data/practiceExams/types";
+import ValintakoeGReadingProfile from "@/components/ValintakoeGReadingProfile";
+import type { ValintakoeGCourseId } from "@/data/valintakoeGExercises/types";
 
 type Props = {
   courseId: CourseId;
@@ -248,6 +250,9 @@ function buildGroupStats(
 
 export default function ProgressView({ courseId }: Props) {
   const router = useRouter();
+  const isValintakoeG =
+    courseId === "valintakoe-g" ||
+    courseId === "valintakoe-g-etaope";
   const supabase = useMemo(() => createClient(), []);
 
   const [attempts, setAttempts] = useState<ProgressAttempt[]>([]);
@@ -792,13 +797,21 @@ export default function ProgressView({ courseId }: Props) {
 
   if (attempts.length === 0) {
     return (
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <p className="text-sm font-bold uppercase tracking-wide text-blue-700">Ei dataa vielä</p>
-        <h2 className="mt-2 text-3xl font-extrabold text-slate-950">Et ole tehnyt vielä monivalintatehtäviä tällä kurssilla.</h2>
-        <p className="mt-4 leading-8 text-slate-700">Kun teet monivalintatehtäviä, tulokset tallentuvat automaattisesti Supabaseen.</p>
-        <a href={`/kurssi/${courseId}/harjoitukset`} className="mt-6 inline-flex rounded-full bg-blue-600 px-6 py-3 font-bold text-white transition hover:bg-blue-700">
-          Siirry harjoituksiin
-        </a>
+      <div className="space-y-6">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">Ei dataa vielä</p>
+          <h2 className="mt-2 text-3xl font-extrabold text-slate-950">Et ole tehnyt vielä tehtäviä tällä kurssilla.</h2>
+          <p className="mt-4 leading-8 text-slate-700">Kun teet harjoituksia, tulokset tallentuvat automaattisesti Supabaseen.</p>
+          <a href={`/kurssi/${courseId}/harjoitukset`} className="mt-6 inline-flex rounded-full bg-blue-600 px-6 py-3 font-bold text-white transition hover:bg-blue-700">
+            Siirry harjoituksiin
+          </a>
+        </div>
+
+        {isValintakoeG && (
+          <ValintakoeGReadingProfile
+            courseId={courseId as ValintakoeGCourseId}
+          />
+        )}
       </div>
     );
   }
@@ -817,6 +830,12 @@ export default function ProgressView({ courseId }: Props) {
           </button>
         </div>
       </section>
+
+      {isValintakoeG && (
+        <ValintakoeGReadingProfile
+          courseId={courseId as ValintakoeGCourseId}
+        />
+      )}
 
       <section className="grid min-w-0 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
         <MetricCard
@@ -931,7 +950,7 @@ export default function ProgressView({ courseId }: Props) {
         />
       </section>
 
-      {(weakestCategory || strongestCategory) && (
+      {!isValintakoeG && (weakestCategory || strongestCategory) && (
         <section className="grid min-w-0 gap-4 xl:grid-cols-2">
           <InsightCard
             eyebrow="Heikoin kategoria"
@@ -960,7 +979,9 @@ export default function ProgressView({ courseId }: Props) {
 
       <StatsTable title="Osa-alueet" subtitle="Tulokset osa-alueittain. Vahvuusarvio muuttuu luotettavammaksi, kun vastauksia kertyy vähintään kolme." rows={areaStats} />
 
-      <StatsTable title="Kategoriat" subtitle="Esimerkiksi Oikis: Luetun ymmärtäminen. Jos kysymyksellä ei ole kategoriaa, se näkyy ryhmässä Yleinen." rows={categoryStats} />
+      {!isValintakoeG && (
+        <StatsTable title="Kategoriat" subtitle="Esimerkiksi Oikis: Luetun ymmärtäminen. Jos kysymyksellä ei ole kategoriaa, se näkyy ryhmässä Yleinen." rows={categoryStats} />
+      )}
 
       <section className="min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">

@@ -2,54 +2,50 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.valintaguru.fi";
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://www.valintaguru.fi";
 
 export const metadata: Metadata = {
-  title: "Valintakoe G valmennuskurssi",
-
+  title: "Mikä on Valintakoe G? | ValintaGuru",
   description:
-    "Valmistaudu Valintakoe G:hen ValintaGurun valmennuskurssilla. Harjoittele päättelyä, aineistojen analysointia, tekstinymmärtämistä ja ajankäyttöä.",
-
+    "Valintakoe G on useiden yhteiskunnallisten alojen yhteinen yliopistojen valintakoe. Lue, miten koe toteutetaan ja mitä taitoja siinä tarvitaan.",
   alternates: {
     canonical: "/valintakoe-g",
   },
-
   openGraph: {
-    type: "website",
+    type: "article",
     locale: "fi_FI",
     siteName: "ValintaGuru",
     url: `${siteUrl}/valintakoe-g`,
-    title: "Valintakoe G valmennuskurssi | ValintaGuru",
+    title: "Mikä on Valintakoe G? | ValintaGuru",
     description:
-      "Valmistaudu Valintakoe G:hen teoria-, harjoitus- ja opiskelun seurantatyökaluilla.",
+      "Tietoa Valintakoe G:stä, vuoden 2027 koepäivästä, digitaalisesta toteutuksesta ja kokeessa tarvittavista taidoista.",
   },
-
   twitter: {
     card: "summary_large_image",
-    title: "Valintakoe G valmennuskurssi | ValintaGuru",
+    title: "Mikä on Valintakoe G? | ValintaGuru",
     description:
-      "Valmistaudu Valintakoe G:hen ValintaGurun verkkovalmennuksessa.",
+      "Tietoa Valintakoe G:stä ja kokeessa tarvittavista taidoista.",
   },
-
   robots: {
     index: true,
     follow: true,
   },
 };
 
-const courseJsonLd = {
+const pageJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Course",
-  name: "Valintakoe G valmennuskurssi",
+  "@type": "WebPage",
+  name: "Mikä on Valintakoe G?",
   description:
-    "ValintaGurun valmennuskurssi Valintakoe G:hen valmistautuville.",
-  provider: {
-    "@type": "EducationalOrganization",
+    "Tietoa Valintakoe G:stä, sen toteutuksesta ja kokeessa tarvittavista taidoista.",
+  inLanguage: "fi-FI",
+  url: `${siteUrl}/valintakoe-g`,
+  isPartOf: {
+    "@type": "WebSite",
     name: "ValintaGuru",
     url: siteUrl,
   },
-  inLanguage: "fi-FI",
-  url: `${siteUrl}/valintakoe-g`,
 };
 
 export default function ValintakoeGPage() {
@@ -58,112 +54,199 @@ export default function ValintakoeGPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(courseJsonLd).replace(/</g, "\\u003c"),
+          __html: JSON.stringify(
+            pageJsonLd
+          ).replace(
+            /</g,
+            "\\u003c"
+          ),
         }}
       />
 
-      <main className="min-h-screen bg-[#f5f8ff] text-slate-950">
-        <section className="px-5 py-16 sm:px-6 lg:py-24">
-          <div className="mx-auto max-w-5xl">
-            <div className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 px-6 py-10 text-white shadow-2xl shadow-blue-900/20 sm:px-10 lg:px-14 lg:py-14">
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-100">
-                ValintaGuru
+      <main className="min-h-screen bg-[#fffdf8] text-slate-950">
+        <header className="border-b border-slate-200 bg-white">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+            <Link
+              href="/"
+              className="font-serif text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl"
+            >
+              ValintaGuru
+            </Link>
+
+            <div className="flex items-center gap-2">
+              <Link
+                href="/valintakoe-g-pisterajat"
+                className="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-[#3f51e7] hover:text-[#3f51e7] sm:inline-flex"
+              >
+                Pisterajat 2026
+              </Link>
+
+              <Link
+                href="/#kurssit"
+                className="inline-flex rounded-full bg-[#3f51e7] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#3142d6]"
+              >
+                Valmennuskurssit
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        <section className="relative overflow-hidden border-b border-slate-200 bg-white">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-indigo-100" />
+          <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-[2.5rem] border-[10px] border-amber-200" />
+
+          <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+            <div className="max-w-4xl">
+              <p className="text-sm font-black uppercase tracking-[0.18em] text-[#3f51e7]">
+                Valintakoe G
               </p>
 
-              <h1 className="mt-4 max-w-4xl text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-                Valintakoe G valmennuskurssi
+              <h1 className="mt-4 font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+                Mikä on Valintakoe G?
               </h1>
 
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-blue-50 sm:text-xl">
-                Valmistaudu Valintakoe G:hen suunnitelmallisesti ja harjoittele
-                kokeessa tarvittavia päättely-, aineisto- ja ajankäyttötaitoja.
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-700 sm:text-xl">
+                Valintakoe G on useiden yhteiskunnallisten alojen yhteinen yliopistojen valintakoe. Sen kautta voi hakea muun muassa oikeustieteen, hallintotieteiden, sosiaalitieteiden, yhteiskuntatieteiden ja viestintätieteiden koulutuksiin.
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-4">
+              <div className="mt-8 flex flex-wrap gap-3">
                 <Link
-                  href="/kurssi/valintakoe-g"
-                  className="rounded-full bg-white px-6 py-3 font-bold text-blue-700 transition hover:bg-blue-50"
+                  href="/valintakoe-g-pisterajat"
+                  className="inline-flex rounded-full bg-[#3f51e7] px-6 py-3 font-bold text-white transition hover:bg-[#3142d6]"
                 >
-                  Siirry kurssille
+                  Katso pisterajat 2026
                 </Link>
 
                 <Link
-                  href="/"
-                  className="rounded-full border border-white/30 bg-white/10 px-6 py-3 font-bold text-white transition hover:bg-white/20"
+                  href="/#kurssit"
+                  className="inline-flex rounded-full border border-slate-300 bg-white px-6 py-3 font-bold text-slate-800 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
                 >
-                  Takaisin etusivulle
+                  Tutustu valmennuksiin
                 </Link>
               </div>
             </div>
-
-            <section className="mt-10 grid gap-6 md:grid-cols-3">
-              <article className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-                <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
-                  Päättely
-                </p>
-
-                <h2 className="mt-2 text-2xl font-extrabold">
-                  Harjoittele kokeessa tarvittavaa ajattelua
-                </h2>
-
-                <p className="mt-4 leading-7 text-slate-700">
-                  Kurssilla harjoitellaan päättelyä, tekstien tulkintaa ja
-                  aineistojen huolellista analysointia.
-                </p>
-              </article>
-
-              <article className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-                <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
-                  Harjoittelu
-                </p>
-
-                <h2 className="mt-2 text-2xl font-extrabold">
-                  Tehtäviä ja koeharjoittelua
-                </h2>
-
-                <p className="mt-4 leading-7 text-slate-700">
-                  Monipuoliset harjoitukset auttavat soveltamaan opittua ja
-                  kehittämään toimintavarmuutta koetilanteeseen.
-                </p>
-              </article>
-
-              <article className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-                <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
-                  Seuranta
-                </p>
-
-                <h2 className="mt-2 text-2xl font-extrabold">
-                  Seuraa omaa etenemistäsi
-                </h2>
-
-                <p className="mt-4 leading-7 text-slate-700">
-                  ValintaGurun opiskelutyökalut auttavat hahmottamaan omaa
-                  etenemistä ja tunnistamaan harjoittelua vaativia osa-alueita.
-                </p>
-              </article>
-            </section>
-
-            <section className="mt-10 rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-9">
-              <h2 className="text-3xl font-extrabold">
-                Valmistaudu Valintakoe G:hen tehokkaasti
-              </h2>
-
-              <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-700">
-                ValintaGurun valmennuskurssi yhdistää teoriaa, harjoituksia ja
-                opiskelun seurantaa yhteen selkeään kokonaisuuteen. Tavoitteena
-                on kehittää kokeessa tarvittavia taitoja ja auttaa käyttämään
-                opiskeluaika mahdollisimman tehokkaasti.
-              </p>
-
-              <Link
-                href="/kurssi/valintakoe-g"
-                className="mt-7 inline-flex rounded-full bg-blue-600 px-7 py-3 font-bold text-white transition hover:bg-blue-700"
-              >
-                Avaa Valintakoe G -kurssi
-              </Link>
-            </section>
           </div>
         </section>
+
+        <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+          <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
+            <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8 lg:p-10">
+              <p className="font-bold uppercase tracking-[0.16em] text-[#3f51e7]">
+                Valintakoe G 2027
+              </p>
+
+              <div className="mt-6 space-y-6 text-base leading-8 text-slate-700 sm:text-lg">
+                <p>
+                  Vuoden 2027 valintakoe G järjestetään{" "}
+                  <strong className="font-extrabold text-slate-950">
+                    keskiviikkona 9.6.2027 klo 14.00
+                  </strong>
+                  .
+                </p>
+
+                <p>
+                  Valintakoe on digitaalinen ja suoritetaan omalla kannettavalla tietokoneella.
+                </p>
+
+                <p>
+                  Valintakoe G{" "}
+                  <strong className="font-extrabold text-slate-950">
+                    ei edellytetä tiettyjen sisältöjen opiskelua tai hallintaa etukäteen
+                  </strong>
+                  . Kokeessa tarvittaville valmiuksille on kuitenkin muodostunut pohjaa jo lukio-opinnoissa ja muissa toisen asteen opinnoissa.
+                </p>
+
+                <p>
+                  Kokeessa keskeistä on kyky{" "}
+                  <strong className="font-extrabold text-slate-950">
+                    lukea ja ymmärtää tieteellistä tekstiä, löytää aineistosta olennaista tietoa sekä analysoida ja soveltaa annettua tietoa tehokkaasti rajatussa ajassa
+                  </strong>
+                  . Olennaista ei siis ole ulkoa opettelu, vaan se, miten osaat työskennellä kokeessa annettavan aineiston kanssa.
+                </p>
+
+                <p>
+                  Vuoden 2027 kokeen tarkempia sisältö- ja rakennetietoja ei ole vielä kokonaisuudessaan julkaistu. Tietoja täydennetään sitä mukaa, kun yliopistot julkaisevat vuoden 2027 valintaperusteita ja tarkempia tietoja kokeesta.
+                </p>
+              </div>
+            </article>
+
+            <aside className="grid gap-4">
+              <div className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-[#3f51e7]">
+                  Ajankohta
+                </p>
+
+                <p className="mt-2 text-2xl font-extrabold text-slate-950">
+                  9.6.2027 klo 14.00
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                  Toteutus
+                </p>
+
+                <p className="mt-2 text-xl font-extrabold text-slate-950">
+                  Digitaalinen koe
+                </p>
+
+                <p className="mt-2 leading-7 text-slate-600">
+                  Valintakoe suoritetaan omalla kannettavalla tietokoneella.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-800">
+                  Kokeessa keskeistä
+                </p>
+
+                <p className="mt-2 leading-7 text-slate-700">
+                  Kyky lukea ja ymmärtää tieteellistä tekstiä, löytää aineistosta olennaista tietoa sekä analysoida ja soveltaa annettua tietoa tehokkaasti rajatussa ajassa.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section className="border-y border-slate-200 bg-[#f7f8ff]">
+          <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+            <div className="grid gap-6 rounded-[2rem] bg-[#3f51e7] p-6 text-white sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-10">
+              <div>
+                <p className="font-bold uppercase tracking-[0.16em] text-indigo-100">
+                  Valintakoe G
+                </p>
+
+                <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">
+                  Valintakoe G pisterajat 2026
+                </h2>
+
+                <p className="mt-4 max-w-3xl leading-8 text-indigo-100">
+                  Tutustu valintakoe Gä käyttäneiden hakukohteiden vuoden 2026 lopullisiin pisterajoihin.
+                </p>
+              </div>
+
+              <Link
+                href="/valintakoe-g-pisterajat"
+                className="inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-3.5 font-bold text-[#3f51e7] transition hover:bg-indigo-50 sm:w-fit"
+              >
+                Avaa pisterajat
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <footer className="border-t border-slate-200 bg-white">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-7 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+            <p>© 2026 ValintaGuru Oy</p>
+
+            <Link
+              href="/"
+              className="font-bold text-slate-700 transition hover:text-[#3f51e7]"
+            >
+              Takaisin etusivulle
+            </Link>
+          </div>
+        </footer>
       </main>
     </>
   );

@@ -16,7 +16,7 @@ export const COURSE_PURCHASE_URLS: Record<
     "https://holvi.com/shop/ValintaGuru/product/cb4c0943e31b1004b46d7896c36e9ce1/",
 
   "oikis-teho-etaope":
-    HOLVI_STORE_URL,
+    "https://holvi.com/shop/ValintaGuru/product/70897e512ad411304a55fb73963baf02/",
 
   "valintakoe-g":
     "https://holvi.com/shop/ValintaGuru/product/fe710d122cc569aa42c7915c961f2acf/",
@@ -32,8 +32,10 @@ export const COURSE_PRICES: Partial<
 > = {
   "oikis-tiivis": "149 €",
   "oikis-teho": "199 €",
+  "oikis-teho-etaope": "379 €",
   "valintakoe-g": "120 €",
   "valintakoe-g-etaope": "279 €",
+  
 };
 
 export const PURCHASABLE_COURSE_IDS = [

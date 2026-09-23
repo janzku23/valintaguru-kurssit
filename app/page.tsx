@@ -6,7 +6,6 @@ import Script from "next/script";
 import { createClient } from "@/utils/supabase/client";
 import CourseAccessCard from "../components/CourseAccessCard";
 import CourseShowcase from "../components/CourseShowcase";
-import InquiryStatusLink from "../components/inquiries/InquiryStatusLink";
 import { CourseId, courses, HOLVI_STORE_URL } from "../data/courses";
 import testiImage from "../assets/testi.jpg";
 import frontLogo from "../assets/frontlogo.png";
@@ -177,28 +176,25 @@ export default function Home() {
           </a>
 
           <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-700 lg:flex">
-            <a href="#omat-kurssit" className="transition hover:text-[#3f51e7]">
-              Omat kurssit
+            <a
+              href="/kysy"
+              className="transition hover:text-[#3f51e7]"
+            >
+            Ota yhteyttä
             </a>
 
-            {isLoggedIn ? (
-              <InquiryStatusLink />
-            ) : (
-              <a href="/kysy" className="transition hover:text-[#3f51e7]">
-                Ota yhteyttä
-              </a>
-            )}
+            <a
+              href="/valintakoe-g"
+              className="transition hover:text-[#3f51e7]"
+            >
+              Valintakoe G
+            </a>
 
-            {isLoggedIn && ownedCourses.length > 0 && (
-              <>
-                <a href="/kalenteri" className="transition hover:text-[#3f51e7]">
-                  Kalenteri
-                </a>
-              </>
-            )}
-
-            <a href="#kurssit" className="transition hover:text-[#3f51e7]">
-              Valmennukset
+            <a
+              href="/oikeustiede"
+              className="transition hover:text-[#3f51e7]"
+            >
+              Oikeustiede
             </a>
 
             <a
@@ -207,23 +203,13 @@ export default function Home() {
             >
               Pisterajat
             </a>
-            {/*
-            <a href="#miksi" className="transition hover:text-[#3f51e7]">
-              Miksi ValintaGuru?
-            </a>
-            */}
-            <a href="#ajankohtaista" className="transition hover:text-[#3f51e7]">
-              Ajankohtaista
-            </a>
 
-            {/*
-            {isLoggedIn && (
-              <a href="/profiili" className="transition hover:text-[#3f51e7]">
-                Profiili
-              </a>
-              
-            )}
-              */}
+            <a
+              href="/tietoa-meista"
+              className="transition hover:text-[#3f51e7]"
+            >
+              Tietoa meistä
+            </a>
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -292,68 +278,29 @@ export default function Home() {
             <div className="mx-auto max-w-7xl px-4 py-4 sm:px-5 md:px-8">
               <nav className="flex flex-col gap-2">
                 <a
-                  href="#omat-kurssit"
+                  href="/kysy"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
                 >
-                  <span>Omat kurssit</span>
+                  <span>Kysy (Ota yhteyttä)</span>
                   <span className="text-xl text-slate-400">›</span>
                 </a>
 
-                {isLoggedIn ? (
-                  <InquiryStatusLink
-                    mobile
-                    onNavigate={() => setMobileMenuOpen(false)}
-                  />
-                ) : (
-                  <a
-                    href="/kysy"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
-                  >
-                    <span>Ota yhteyttä</span>
-                    <span className="text-xl text-slate-400">›</span>
-                  </a>
-                )}
-
-                {isLoggedIn && ownedCourses.length > 0 && (
-                  <a
-                    href="/kalenteri"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between rounded-2xl bg-indigo-50 px-4 py-3.5 font-bold text-[#3f51e7] transition hover:bg-indigo-100"
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-base shadow-sm">
-                        📅
-                      </span>
-                      <span>Kalenteri</span>
-                    </span>
-                    <span className="text-xl text-indigo-300">›</span>
-                  </a>
-                )}
-
-                {isLoggedIn && ownedCourses.length > 0 && (
-                  <a
-                    href="/gurupath"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between rounded-2xl bg-violet-50 px-4 py-3.5 font-bold text-violet-700 transition hover:bg-violet-100"
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-base shadow-sm">
-                        ◈
-                      </span>
-                      <span>GuruPeli</span>
-                    </span>
-                    <span className="text-xl text-violet-300">›</span>
-                  </a>
-                )}
-
                 <a
-                  href="#kurssit"
+                  href="/valintakoe-g"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
                 >
-                  <span>Valmennuskurssit</span>
+                  <span>Valintakoe G</span>
+                  <span className="text-xl text-slate-400">›</span>
+                </a>
+
+                <a
+                  href="/oikeustiede"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
+                >
+                  <span>Oikeustiede</span>
                   <span className="text-xl text-slate-400">›</span>
                 </a>
 
@@ -367,33 +314,13 @@ export default function Home() {
                 </a>
 
                 <a
-                  href="#miksi"
+                  href="/tietoa-meista"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
                 >
-                  <span>Miksi ValintaGuru?</span>
+                  <span>Tietoa meistä</span>
                   <span className="text-xl text-slate-400">›</span>
                 </a>
-
-                <a
-                  href="#ajankohtaista"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
-                >
-                  <span>Ajankohtaista</span>
-                  <span className="text-xl text-slate-400">›</span>
-                </a>
-
-                {isLoggedIn && (
-                  <a
-                    href="/profiili"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
-                  >
-                    <span>Profiili</span>
-                    <span className="text-xl text-slate-400">›</span>
-                  </a>
-                )}
               </nav>
 
               <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">

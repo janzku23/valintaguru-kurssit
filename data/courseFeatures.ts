@@ -30,20 +30,20 @@ export const COURSE_FEATURES: Record<
   CourseFeatureFlags
 > = {
   oikis: {
-    theory: true,
+    theory: false,
     tasks: false,
     flashcards: false,
     podcast: false,
-    progress: true,
+    progress: false,
     gurupeli: false,
   },
 
   "oikis-tiivis": {
-    theory: true,
+    theory: false,
     tasks: false,
     flashcards: false,
     podcast: false,
-    progress: true,
+    progress: false,
     gurupeli: false,
   },
 
@@ -67,7 +67,7 @@ export const COURSE_FEATURES: Record<
 
   "valintakoe-g": {
     theory: true,
-    tasks: false,
+    tasks: true,
     flashcards: false,
     podcast: false,
     progress: true,
@@ -76,7 +76,7 @@ export const COURSE_FEATURES: Record<
 
   "valintakoe-g-etaope": {
     theory: true,
-    tasks: false,
+    tasks: true,
     flashcards: false,
     podcast: false,
     progress: true,

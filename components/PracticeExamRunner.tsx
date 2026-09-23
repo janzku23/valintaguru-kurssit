@@ -18,11 +18,14 @@ type HistoryItem = {
   unsureCount: number | null;
 };
 
+type StoredAnswerValue = string | string[];
+type AnswerMap = Record<string, string[]>;
+
 type ActiveAttempt = {
   id: string;
   startedAt: string;
   expiresAt: string;
-  answers: Record<string, string>;
+  answers: Record<string, StoredAnswerValue>;
   serverNow: string;
 };
 
@@ -40,8 +43,15 @@ type ReviewItem = {
   sectionTitle: string;
   questionId: string;
   prompt: string;
-  selectedAnswerId: string;
-  correctAnswerId: string;
+
+  // Uusi monivalintaa tukeva muoto.
+  selectedAnswerIds: string[];
+  correctAnswerIds: string[];
+
+  // Taaksepäin yhteensopivuus vanhoille koesuorituksille.
+  selectedAnswerId?: string;
+  correctAnswerId?: string;
+
   explanation: string | null;
   options: PracticeExamOption[];
 };
@@ -74,9 +84,78 @@ function formatClock(ms: number) {
   ).padStart(2, "0")}`;
 }
 
-function answerText(options: PracticeExamOption[], id: string) {
-  if (id === UNSURE_ANSWER_ID) return "En osaa sanoa";
-  return options.find((option) => option.id === id)?.text ?? "Ei vastausta";
+function normalizeAnswerIds(
+  value: StoredAnswerValue | string[] | null | undefined
+): string[] {
+  if (Array.isArray(value)) {
+    return Array.from(
+      new Set(
+        value
+          .filter((item): item is string => typeof item === "string")
+          .map((item) => item.trim())
+          .filter(Boolean)
+      )
+    );
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    return [value.trim()];
+  }
+
+  return [];
+}
+
+function normalizeAnswerMap(
+  input: Record<string, StoredAnswerValue> | null | undefined
+): AnswerMap {
+  const result: AnswerMap = {};
+
+  Object.entries(input ?? {}).forEach(([questionId, value]) => {
+    const ids = normalizeAnswerIds(value);
+    if (ids.length > 0) result[questionId] = ids;
+  });
+
+  return result;
+}
+
+function sameAnswerSet(a: string[], b: string[]) {
+  const left = Array.from(new Set(a)).sort();
+  const right = Array.from(new Set(b)).sort();
+
+  return (
+    left.length === right.length &&
+    left.every((value, index) => value === right[index])
+  );
+}
+
+function answerTexts(
+  options: PracticeExamOption[],
+  ids: string[]
+) {
+  if (
+    ids.length === 0 ||
+    ids.includes(UNSURE_ANSWER_ID)
+  ) {
+    return "En osaa sanoa";
+  }
+
+  return ids
+    .map(
+      (id) =>
+        options.find((option) => option.id === id)?.text ??
+        id
+    )
+    .join(", ");
+}
+
+function isSourceSkipOption(option: PracticeExamOption) {
+  const value = option.text.trim().toLowerCase();
+
+  return (
+    value.startsWith("jätän vastaamatta") ||
+    value.startsWith("jatan vastaamatta") ||
+    value.startsWith("en osaa sanoa")
+  );
 }
 
 type PracticeExamRunnerMode =
@@ -99,7 +178,7 @@ export default function PracticeExamRunner({
   const [error, setError] = useState("");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeAttempt, setActiveAttempt] = useState<ActiveAttempt | null>(null);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<AnswerMap>({});
   const [mode, setMode] = useState<"lobby" | "exam" | "result">("lobby");
   const [remainingMs, setRemainingMs] = useState(exam.durationMinutes * 60_000);
   const [starting, setStarting] = useState(false);
@@ -135,14 +214,20 @@ export default function PracticeExamRunner({
    * Kun käyttäjä vastaa ensimmäisen kerran, kyseisen kysymyksen
    * ajastus pysähtyy.
    */
-  const answersRef = useRef<Record<string, string>>({});
+  const answersRef = useRef<AnswerMap>({});
   const questionTimesRef = useRef<Record<string, number>>({});
   const questionVisibilityRef = useRef<Map<string, number>>(new Map());
   const activeQuestionIdRef = useRef<string | null>(null);
   const activeQuestionStartedAtRef = useRef<number | null>(null);
 
   const apiUrl = `/api/practice-exams/${exam.courseId}/${exam.id}`;
-  const answeredCount = useMemo(() => Object.keys(answers).length, [answers]);
+  const answeredCount = useMemo(
+    () =>
+      Object.values(answers).filter(
+        (ids) => Array.isArray(ids) && ids.length > 0
+      ).length,
+    [answers]
+  );
 
   function timingStorageKey(attemptId: string) {
     return `valintaguru:practice-exam-timing:${attemptId}`;
@@ -298,7 +383,9 @@ export default function PracticeExamRunner({
 
     setActiveAttempt(attempt);
 
-    const restoredAnswers = attempt.answers ?? {};
+    const restoredAnswers =
+      normalizeAnswerMap(attempt.answers ?? {});
+
     setAnswers(restoredAnswers);
     answersRef.current = restoredAnswers;
 
@@ -464,17 +551,32 @@ export default function PracticeExamRunner({
 
         const rows = reviewItems.map(
           (item) => {
-            const selectedAnswerId =
-              item.selectedAnswerId ?? "";
+            const selectedAnswerIds =
+              item.selectedAnswerIds?.length
+                ? item.selectedAnswerIds
+                : normalizeAnswerIds(
+                    item.selectedAnswerId
+                  );
+
+            const correctAnswerIds =
+              item.correctAnswerIds?.length
+                ? item.correctAnswerIds
+                : normalizeAnswerIds(
+                    item.correctAnswerId
+                  );
 
             const isUnsure =
-              selectedAnswerId ===
-              UNSURE_ANSWER_ID;
+              selectedAnswerIds.length === 0 ||
+              selectedAnswerIds.includes(
+                UNSURE_ANSWER_ID
+              );
 
             const isCorrect =
               !isUnsure &&
-              selectedAnswerId ===
-                item.correctAnswerId;
+              sameAnswerSet(
+                selectedAnswerIds,
+                correctAnswerIds
+              );
 
             return {
               user_id: user.id,
@@ -497,14 +599,10 @@ export default function PracticeExamRunner({
               category: "Harjoituskoe",
 
               selected_answer_ids:
-                selectedAnswerId
-                  ? [selectedAnswerId]
-                  : [],
+                selectedAnswerIds,
 
               correct_answer_ids:
-                item.correctAnswerId
-                  ? [item.correctAnswerId]
-                  : [],
+                correctAnswerIds,
 
               is_correct: isCorrect,
               answered_at: answeredAt,
@@ -596,11 +694,26 @@ export default function PracticeExamRunner({
     ]
   );
 
-  async function saveAnswer(questionId: string, answerId: string) {
+  async function saveAnswer(
+    questionId: string,
+    answerIds: string[]
+  ) {
     if (!activeAttempt) return;
 
+    const normalized = Array.from(
+      new Set(
+        answerIds
+          .map((item) => item.trim())
+          .filter(Boolean)
+      )
+    );
+
+    const previous =
+      answersRef.current[questionId] ?? [];
+
     const isFirstAnswer =
-      !answersRef.current[questionId];
+      previous.length === 0 &&
+      normalized.length > 0;
 
     if (
       isFirstAnswer &&
@@ -611,8 +724,13 @@ export default function PracticeExamRunner({
 
     const nextAnswers = {
       ...answersRef.current,
-      [questionId]: answerId,
     };
+
+    if (normalized.length > 0) {
+      nextAnswers[questionId] = normalized;
+    } else {
+      delete nextAnswers[questionId];
+    }
 
     answersRef.current = nextAnswers;
     setAnswers(nextAnswers);
@@ -628,16 +746,27 @@ export default function PracticeExamRunner({
     setSavingCount((value) => value + 1);
 
     try {
-      const response = await fetch(`/api/practice-exams/attempt/${activeAttempt.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionId, answerId }),
-      });
+      const response = await fetch(
+        `/api/practice-exams/attempt/${activeAttempt.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            questionId,
+            answerIds: normalized,
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 409 && data.finished) {
+        if (
+          response.status === 409 &&
+          data.finished
+        ) {
           const finishedReview =
             (data.review ?? []) as ReviewItem[];
 
@@ -655,12 +784,21 @@ export default function PracticeExamRunner({
           return;
         }
 
-        throw new Error(data.error ?? "Vastauksen tallennus epäonnistui.");
+        throw new Error(
+          data.error ??
+            "Vastauksen tallennus epäonnistui."
+        );
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Vastauksen tallennus epäonnistui.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Vastauksen tallennus epäonnistui."
+      );
     } finally {
-      setSavingCount((value) => Math.max(0, value - 1));
+      setSavingCount((value) =>
+        Math.max(0, value - 1)
+      );
     }
   }
 
@@ -872,8 +1010,32 @@ export default function PracticeExamRunner({
 
           <div className="mt-6 space-y-4">
             {review.map((item, index) => {
-              const unsure = item.selectedAnswerId === UNSURE_ANSWER_ID;
-              const correct = item.selectedAnswerId === item.correctAnswerId;
+              const selectedAnswerIds =
+                item.selectedAnswerIds?.length
+                  ? item.selectedAnswerIds
+                  : normalizeAnswerIds(
+                      item.selectedAnswerId
+                    );
+
+              const correctAnswerIds =
+                item.correctAnswerIds?.length
+                  ? item.correctAnswerIds
+                  : normalizeAnswerIds(
+                      item.correctAnswerId
+                    );
+
+              const unsure =
+                selectedAnswerIds.length === 0 ||
+                selectedAnswerIds.includes(
+                  UNSURE_ANSWER_ID
+                );
+
+              const correct =
+                !unsure &&
+                sameAnswerSet(
+                  selectedAnswerIds,
+                  correctAnswerIds
+                );
 
               return (
                 <article key={item.questionId} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
@@ -893,8 +1055,20 @@ export default function PracticeExamRunner({
                   </div>
 
                   <h4 className="mt-3 font-black">{index + 1}. {item.prompt}</h4>
-                  <p className="mt-3 text-sm"><strong>Vastauksesi:</strong> {answerText(item.options, item.selectedAnswerId)}</p>
-                  <p className="mt-1 text-sm"><strong>Oikea:</strong> {answerText(item.options, item.correctAnswerId)}</p>
+                  <p className="mt-3 text-sm">
+                    <strong>Vastauksesi:</strong>{" "}
+                    {answerTexts(
+                      item.options,
+                      selectedAnswerIds
+                    )}
+                  </p>
+                  <p className="mt-1 text-sm">
+                    <strong>Oikea:</strong>{" "}
+                    {answerTexts(
+                      item.options,
+                      correctAnswerIds
+                    )}
+                  </p>
                   {item.explanation && <p className="mt-2 text-sm leading-6 text-slate-600">{item.explanation}</p>}
                 </article>
               );
@@ -949,7 +1123,14 @@ export default function PracticeExamRunner({
 
               <div className="divide-y divide-slate-200">
                 {section.questions.map((question, questionIndex) => {
-                  const selected = answers[question.id];
+                  const selected =
+                    answers[question.id] ?? [];
+
+                  const visibleOptions =
+                    question.options.filter(
+                      (option) =>
+                        !isSourceSkipOption(option)
+                    );
 
                   return (
                     <article
@@ -962,41 +1143,102 @@ export default function PracticeExamRunner({
                       </h3>
 
                       <div className="mt-4 grid gap-2">
-                        {question.options.map((option) => (
-                          <label
-                            key={option.id}
-                            className={`flex cursor-pointer gap-3 rounded-xl border p-3.5 ${
-                              selected === option.id
-                                ? "border-[#3f51e7] bg-indigo-50"
-                                : "border-slate-200 bg-white"
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name={question.id}
-                              checked={selected === option.id}
-                              onChange={() => void saveAnswer(question.id, option.id)}
-                              className="mt-1 accent-[#3f51e7]"
-                            />
-                            <span>{option.text}</span>
-                          </label>
-                        ))}
+                        {question.allowsMultipleAnswers && (
+                          <p className="mb-1 text-sm font-bold text-indigo-700">
+                            Valitse kaikki oikeat vaihtoehdot.
+                          </p>
+                        )}
+
+                        {visibleOptions.map((option) => {
+                          const checked =
+                            selected.includes(option.id);
+
+                          return (
+                            <label
+                              key={option.id}
+                              className={`flex cursor-pointer gap-3 rounded-xl border p-3.5 ${
+                                checked
+                                  ? "border-[#3f51e7] bg-indigo-50"
+                                  : "border-slate-200 bg-white"
+                              }`}
+                            >
+                              <input
+                                type={
+                                  question.allowsMultipleAnswers
+                                    ? "checkbox"
+                                    : "radio"
+                                }
+                                name={question.id}
+                                checked={checked}
+                                onChange={() => {
+                                  if (
+                                    question.allowsMultipleAnswers
+                                  ) {
+                                    const withoutUnsure =
+                                      selected.filter(
+                                        (id) =>
+                                          id !==
+                                          UNSURE_ANSWER_ID
+                                      );
+
+                                    const next =
+                                      checked
+                                        ? withoutUnsure.filter(
+                                            (id) =>
+                                              id !== option.id
+                                          )
+                                        : [
+                                            ...withoutUnsure,
+                                            option.id,
+                                          ];
+
+                                    void saveAnswer(
+                                      question.id,
+                                      next
+                                    );
+                                  } else {
+                                    void saveAnswer(
+                                      question.id,
+                                      [option.id]
+                                    );
+                                  }
+                                }}
+                                className="mt-1 accent-[#3f51e7]"
+                              />
+                              <span>{option.text}</span>
+                            </label>
+                          );
+                        })}
 
                         <label
                           className={`flex cursor-pointer gap-3 rounded-xl border border-dashed p-3.5 ${
-                            selected === UNSURE_ANSWER_ID
+                            selected.includes(
+                              UNSURE_ANSWER_ID
+                            )
                               ? "border-slate-600 bg-slate-100"
                               : "border-slate-300 bg-slate-50"
                           }`}
                         >
                           <input
                             type="radio"
-                            name={question.id}
-                            checked={selected === UNSURE_ANSWER_ID}
-                            onChange={() => void saveAnswer(question.id, UNSURE_ANSWER_ID)}
+                            name={`${question.id}-unsure`}
+                            checked={selected.includes(
+                              UNSURE_ANSWER_ID
+                            )}
+                            onChange={() =>
+                              void saveAnswer(
+                                question.id,
+                                [UNSURE_ANSWER_ID]
+                              )
+                            }
                             className="mt-1 accent-slate-700"
                           />
-                          <span className="font-bold">En osaa sanoa <span className="font-normal text-slate-400">0 p</span></span>
+                          <span className="font-bold">
+                            En osaa sanoa{" "}
+                            <span className="font-normal text-slate-400">
+                              0 p
+                            </span>
+                          </span>
                         </label>
                       </div>
                     </article>

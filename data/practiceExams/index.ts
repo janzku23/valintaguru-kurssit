@@ -4,7 +4,6 @@ import type { CourseId } from "@/data/courses";
 import { oikisPracticeExams } from "./oikis";
 import { oikisTehoPracticeExams } from "./oikisteho";
 import { oikisTehoEtaopetusPracticeExams } from "./oikistehoEtaopetus";
-import { valintakoeGPracticeExams } from "./valintakoeG";
 
 import type {
   PracticeExam,
@@ -15,9 +14,8 @@ import { getCorrectAnswerIds } from "./types";
 
 export * from "./types";
 
-const exams: Record<PracticeExamCourseId, PracticeExam[]> = {
+const exams: Partial<Record<PracticeExamCourseId, PracticeExam[]>> = {
   oikis: oikisPracticeExams,
-  "valintakoe-g": valintakoeGPracticeExams,
   "oikis-teho": oikisTehoPracticeExams,
   "oikis-teho-etaope": oikisTehoEtaopetusPracticeExams,
 };
@@ -27,7 +25,6 @@ export function isPracticeExamCourseId(
 ): value is PracticeExamCourseId {
   return (
     value === "oikis" ||
-    value === "valintakoe-g" ||
     value === "oikis-teho" ||
     value === "oikis-teho-etaope"
   );
@@ -37,7 +34,7 @@ export function getPracticeExamsForCourse(
   courseId: CourseId | string
 ): PracticeExam[] {
   return isPracticeExamCourseId(courseId)
-    ? exams[courseId]
+    ? exams[courseId] ?? []
     : [];
 }
 

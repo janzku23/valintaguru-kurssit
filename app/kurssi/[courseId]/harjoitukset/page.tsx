@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import CourseMaterialSidebar from "@/components/CourseMaterialSidebar";
 import PracticeExercisesView from "@/components/PracticeExercisesView";
+import ValintakoeGExercisesView from "@/components/ValintakoeGExercisesView";
 import QuizView from "@/components/QuizView";
 import {
   getCourseById,
@@ -13,6 +14,11 @@ import {
   toPublicPracticeExam,
 } from "@/data/practiceExams";
 import { hasCourseAccess } from "@/lib/courseAccess";
+import {
+  getValintakoeGExercises,
+  isValintakoeGCourseId,
+  toPublicValintakoeGExercise,
+} from "@/data/valintakoeGExercises";
 
 type Props = {
   params: Promise<{
@@ -68,7 +74,32 @@ export default async function CourseTasksPage({
   }
 
   /*
-   * OIKIS + VALINTAKOE G
+   * VALINTAKOE G + VALINTAKOE G ETÄOPETUS
+   *
+   * Näillä kursseilla käytetään omaa Valintakoe G -harjoittelumoottoria,
+   * omaa lukutaitoprofiilia ja omaa pisteytyslogiikkaa.
+   * Oikeustieteen harjoituskoemoottoriin ei kosketa.
+   */
+  if (isValintakoeGCourseId(courseId)) {
+    const exercises = getValintakoeGExercises(courseId).map(
+      toPublicValintakoeGExercise
+    );
+
+    return (
+      <main className="min-h-screen bg-[#f5f8ff] px-4 py-8 text-slate-950 sm:px-6 lg:px-10">
+        <div className="mx-auto max-w-[1500px]">
+          <ValintakoeGExercisesView
+            course={course}
+            exercises={exercises}
+            initialExerciseId={koe}
+          />
+        </div>
+      </main>
+    );
+  }
+
+  /*
+   * OIKIS + OIKIS TEHO
    *
    * Näillä kursseilla vanhaa QuizView-monivalintaa
    * EI enää näytetä lainkaan.
