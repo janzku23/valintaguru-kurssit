@@ -102,7 +102,9 @@ export async function getAdminUsersOverview(): Promise<AdminUserOverview[]> {
   }
 
   const courseRows = (courseResult.data ?? []) as CourseRow[];
-  const courseTitleMap = new Map(courses.map((course) => [course.id, course.title]));
+  const courseTitleMap = new Map<string, string>(
+    courses.map((course) => [course.id, course.title])
+  );
 
   return users
     .map((user) => {

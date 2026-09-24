@@ -16,7 +16,9 @@ export async function PUT(request: Request, { params }: Params) {
     ? body.courseIds.filter((value): value is string => typeof value === "string")
     : [];
 
-  const available = new Map(courses.map((course) => [course.id, course]));
+  const available = new Map<string, (typeof courses)[number]>(
+    courses.map((course) => [course.id, course])
+  );
   const courseIds = Array.from(new Set(requested.map((id) => id.trim()).filter((id) => available.has(id))));
 
   const { data: authData, error: authError } = await ctx.admin.auth.admin.getUserById(userId);
