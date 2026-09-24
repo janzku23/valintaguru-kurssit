@@ -6,7 +6,7 @@ export const oikisTehoCourse = {
   title: "Oikis Teho",
   label: "Oikis Teho",
   description:
-    "Oikiksen Teho-valmennuskurssi omana teknisenä kurssinaan, omilla teoria-, harjoitus-, flashcard-, edistymis- ja GuruPeli-sisällöillään.",
+    "",
   purchaseUrl:
     COURSE_PURCHASE_URLS[
       "oikis-teho"
@@ -16,7 +16,7 @@ export const oikisTehoCourse = {
       id: "oikis-teho-teoria",
       title: "Teoria",
       description:
-        "Oikis Tehon oma teoriaosuus.",
+        "",
       href:
         "/kurssi/oikis-teho/teoria",
     },

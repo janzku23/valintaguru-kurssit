@@ -6,7 +6,7 @@ export const oikisCourse = {
   title: "Kyssäripankki",
   label: "Oikis · Kyssäripankki",
   description:
-    "Oikiksen Kyssäripankki kokoaa harjoitukset, teoriaosuudet, flashcardit, edistymisen ja GuruPelin samaan kokonaisuuteen.",
+    "",
   purchaseUrl:
     COURSE_PURCHASE_URLS.oikis,
   modules: [
@@ -14,7 +14,7 @@ export const oikisCourse = {
       id: "oikis-teoria",
       title: "Teoria",
       description:
-        "Kyssäripankin teoriaosuudet ja aihekohtaiset materiaalit.",
+        "",
       href: "/kurssi/oikis/teoria",
     },
     {

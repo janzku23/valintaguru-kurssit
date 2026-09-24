@@ -8,7 +8,7 @@ export const valintakoeGEtaopetusCourse = {
   label:
     "Valintakoe G + Etäopetus",
   description:
-    "Valintakoe G + Etäopetus omana teknisenä kurssinaan, omalla teoria-, harjoitus- ja GuruPeli-rakenteellaan.",
+    "",
   purchaseUrl:
     COURSE_PURCHASE_URLS[
       "valintakoe-g-etaope"

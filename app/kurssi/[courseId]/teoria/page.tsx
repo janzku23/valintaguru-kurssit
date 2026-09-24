@@ -144,9 +144,6 @@ export default async function CourseTheoryPage({
             Teoria
           </h1>
 
-          <p className="mt-4 max-w-3xl text-lg leading-8 text-blue-50">
-            Tämä näkymä näyttää kurssin {course.title} teoriaosuudet.
-          </p>
         </header>
 
         <div className="grid gap-6 lg:grid-cols-[320px_1fr]">

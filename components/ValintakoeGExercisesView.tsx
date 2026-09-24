@@ -294,12 +294,7 @@ export default function ValintakoeGExercisesView({
           <h1 className="mt-2 text-4xl font-extrabold text-slate-950">
             Harjoitukset
           </h1>
-          <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-700">
-            Valintakoe G:n harjoitukset käyttävät omaa
-            lukutaitoprofiilia. Oikeustieteen
-            harjoituskoelogiiikkaa ei käytetä tässä
-            näkymässä.
-          </p>
+        
         </div>
 
         <ValintakoeGExerciseRunner

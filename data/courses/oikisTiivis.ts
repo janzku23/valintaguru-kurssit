@@ -7,7 +7,7 @@ export const oikisTiivisCourse = {
     "Oikis Tiivis - Ennakkomateriaalin hallintaan",
   label: "Oikis Tiivis",
   description:
-    "Oma kurssikokonaisuus ennakkomateriaalin hallintaan: teoria, harjoitukset, flashcardit, edistyminen ja GuruPeli.",
+    "",
   purchaseUrl:
     COURSE_PURCHASE_URLS[
       "oikis-tiivis"

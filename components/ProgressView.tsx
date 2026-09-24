@@ -292,7 +292,7 @@ export default function ProgressView({ courseId }: Props) {
 
     if (error) {
       console.error("Progress fetch failed:", error);
-      setErrorMessage(`Edistymisen haku Supabasesta epäonnistui: ${error.message}`);
+      setErrorMessage(`Edistymisen haku epäonnistui: ${error.message}`);
       setAttempts([]);
       setHasLoaded(true);
       return;
@@ -770,7 +770,7 @@ export default function ProgressView({ courseId }: Props) {
     return (
       <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
         <h2 className="text-2xl font-extrabold text-slate-950">Ladataan edistymistä</h2>
-        <p className="mt-3 leading-8 text-slate-700">Haetaan käyttäjän tallennettuja tehtävätuloksia Supabasesta.</p>
+        <p className="mt-3 leading-8 text-slate-700">Haetaan käyttäjän tallennettuja tehtävätuloksia</p>
       </div>
     );
   }
@@ -801,7 +801,7 @@ export default function ProgressView({ courseId }: Props) {
         <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
           <p className="text-sm font-bold uppercase tracking-wide text-blue-700">Ei dataa vielä</p>
           <h2 className="mt-2 text-3xl font-extrabold text-slate-950">Et ole tehnyt vielä tehtäviä tällä kurssilla.</h2>
-          <p className="mt-4 leading-8 text-slate-700">Kun teet harjoituksia, tulokset tallentuvat automaattisesti Supabaseen.</p>
+          <p className="mt-4 leading-8 text-slate-700">Kun teet harjoituksia, tulokset tallentuvat automaattisesti</p>
           <a href={`/kurssi/${courseId}/harjoitukset`} className="mt-6 inline-flex rounded-full bg-blue-600 px-6 py-3 font-bold text-white transition hover:bg-blue-700">
             Siirry harjoituksiin
           </a>
@@ -1197,7 +1197,7 @@ export default function ProgressView({ courseId }: Props) {
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-bold uppercase tracking-wide text-slate-500">Hallinta</p>
         <h2 className="mt-2 text-2xl font-extrabold text-slate-950">Edistymisen nollaus</h2>
-        <p className="mt-3 leading-8 text-slate-700">Nollaus poistaa tämän kurssin monivalintaedistymisen Supabasesta kirjautuneelta käyttäjältä.</p>
+        <p className="mt-3 leading-8 text-slate-700">Nollaus poistaa tämän kurssin monivalintaedistymisen kirjautuneelta käyttäjältä.</p>
         <button type="button" onClick={() => void resetProgress()} disabled={isResetting || !userId} className="mt-6 rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60">
           {isResetting ? "Nollataan..." : "Nollaa edistyminen"}
         </button>

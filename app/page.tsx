@@ -471,7 +471,7 @@ export default function Home() {
           <div>
             <p className="font-bold uppercase tracking-[0.18em] text-[#3f51e7]">Kurssialusta</p>
             <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl md:text-5xl">Omat kurssisi</h2>
-            <p className="mt-4 max-w-2xl leading-8 text-slate-700">Näet tässä ne kurssit, joihin sinulla on aktiivinen käyttöoikeus.</p>
+            
           </div>
           <a href="#kurssit" className="inline-flex w-full items-center justify-center rounded-full bg-slate-950 px-6 py-3 text-center font-bold text-white transition hover:bg-[#3f51e7] sm:w-fit">Hanki uusi kurssi</a>
         </div>
@@ -497,11 +497,9 @@ export default function Home() {
                   Kurssin lisätyökalut
                 </p>
                 <h3 className="mt-2 font-serif text-2xl font-semibold sm:text-3xl">
-                  Kalenteri ja GuruPeli
+                  Kalenteri ja GuruPeli (Tulossa)
                 </h3>
-                <p className="mt-3 max-w-2xl leading-7 text-slate-600">
-                  Nämä työkalut avautuvat käyttöön, kun käyttäjätililläsi on vähintään yksi aktiivinen kurssi.
-                </p>
+                
               </div>
 
               <div className="mt-6 grid gap-5 lg:grid-cols-2">

@@ -8,7 +8,7 @@ export const oikisTehoEtaopetusCourse = {
   label:
     "Oikis Teho + Etäopetus",
   description:
-    "Oikis Teho + Etäopetus omana kurssinaan. Kurssilla on oma käyttöoikeus ja oma tekninen sisältörakenne.",
+    "",
   purchaseUrl:
     COURSE_PURCHASE_URLS[
       "oikis-teho-etaope"

@@ -719,12 +719,7 @@ export default function ValintakoeGExerciseRunner({
               <p className="mt-2 text-lg font-black text-blue-700">
                 {result.percentage} %
               </p>
-              <p className="mt-2 text-slate-600">
-                Harjoittelussa ei käytetä Oikiksen
-                miinuspisteytystä. Lukutaitoprofiilin
-                osaamisprosentti lasketaan erikseen
-                ratkaistuista vastauksista.
-              </p>
+             
             </div>
 
             <button

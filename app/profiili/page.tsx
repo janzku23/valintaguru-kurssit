@@ -744,8 +744,8 @@ export default function ProfilePage() {
             <p style={styles.eyebrow}>Oma profiili</p>
             <h1 style={styles.title}>{displayName}</h1>
             <p style={styles.subtitle}>
-              Näet täältä omat tiedot, kurssioikeudet, tehtäväedistymisen,
-              flashcardit ja voit vaihtaa salasanan.
+              Näet täältä omat tiedot, kurssioikeudet, tehtäväedistymisen
+              ja voit vaihtaa salasanan.
             </p>
           </div>
 

@@ -184,7 +184,7 @@ export default function QuizView({
 
         <p className="mt-4 text-lg leading-8 text-slate-700">
           Sait oikein {correctCount} / {questions.length}. Vastaukset
-          tallennettiin kirjautuneelle käyttäjälle Supabaseen.
+          tallennettiin kirjautuneelle käyttäjälle
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -314,7 +314,7 @@ export default function QuizView({
 
           {savedCurrentAnswer && (
             <p className="mt-3 text-sm font-bold">
-              Vastaus tallennettu Supabaseen.
+              Vastaus tallennettu
             </p>
           )}
         </div>

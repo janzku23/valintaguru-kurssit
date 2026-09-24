@@ -16,8 +16,8 @@ export const valintakoeGExercise1Base = {
   difficulty: "easy",
   articleId: "sosiaalisen-median-logiikka-ja-uutismedia",
   articleTitle: "Sosiaalisen median logiikka ja uutismedia",
-  notice:
-    "Aineiston linkki puuttuu vielä lähdedokumentista. Lisää articleUrl, kun artikkelin URL on tiedossa.",
+  articleUrl:
+    "https://journal.fi/mediaviestinta/article/view/162494/105986",
   questions: [
     {
       id: "g-h1-q1",

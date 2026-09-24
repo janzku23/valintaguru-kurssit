@@ -73,11 +73,7 @@ export default async function CourseProgressPage({ params }: Props) {
             Edistyminen
           </h1>
 
-          <p className="mt-4 max-w-3xl text-base leading-7 text-blue-50 sm:text-lg sm:leading-8">
-            Näet tästä kurssin tehtävistä kertyneen edistymisen ja osa-alueet,
-            joita kannattaa harjoitella lisää. Tulokset tallentuvat
-            kirjautuneelle käyttäjälle Supabaseen.
-          </p>
+        
         </header>
 
         <div className="grid min-w-0 gap-5 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
@@ -98,10 +94,7 @@ export default async function CourseProgressPage({ params }: Props) {
                 {course.title}
               </h2>
 
-              <p className="mt-3 max-w-4xl text-base leading-7 text-slate-700 sm:text-lg sm:leading-8">
-                Edistyminen perustuu tämän kurssin harjoituksissa annettuihin
-                vastauksiin. Tallennus tapahtuu käyttäjäkohtaisesti Supabaseen.
-              </p>
+             
             </div>
 
             <div className="min-w-0 max-w-full overflow-hidden">

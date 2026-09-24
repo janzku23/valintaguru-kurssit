@@ -1,6 +1,15 @@
 import "server-only";
 
 import { valintakoeGExercise1Base } from "./exercise1";
+import { valintakoeGExercise2Base } from "./exercise2";
+import { valintakoeGExercise3Base } from "./exercise3";
+import { valintakoeGExercise4Base } from "./exercise4";
+import { valintakoeGExercise5Base } from "./exercise5";
+import { valintakoeGExercise6Base } from "./exercise6";
+import { valintakoeGExercise7Base } from "./exercise7";
+import { valintakoeGExercise8Base } from "./exercise8";
+import { valintakoeGExercise9Base } from "./exercise9";
+import { valintakoeGExercise10Base } from "./exercise10";
 import type {
   PublicValintakoeGExercise,
   ValintakoeGCourseId,
@@ -18,7 +27,18 @@ export function isValintakoeGCourseId(
   );
 }
 
-const baseExercises = [valintakoeGExercise1Base];
+const baseExercises = [
+  valintakoeGExercise1Base,
+  valintakoeGExercise2Base,
+  valintakoeGExercise3Base,
+  valintakoeGExercise4Base,
+  //valintakoeGExercise5Base,
+  valintakoeGExercise6Base,
+  //valintakoeGExercise7Base,
+  //valintakoeGExercise8Base,
+  //valintakoeGExercise9Base,
+  //valintakoeGExercise10Base,
+];
 
 export function getValintakoeGExercises(
   courseId: ValintakoeGCourseId

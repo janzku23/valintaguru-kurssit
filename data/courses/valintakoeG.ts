@@ -6,7 +6,7 @@ export const valintakoeGCourse = {
   title: "Valintakoe G tehokurssi",
   label: "Valintakoe G",
   description:
-    "Yhteisen valintakoeosion päättelyyn, aineiston tulkintaan ja tekstinymmärtämiseen valmistava kurssikokonaisuus.",
+    "",
   purchaseUrl:
     COURSE_PURCHASE_URLS[
       "valintakoe-g"
@@ -16,7 +16,7 @@ export const valintakoeGCourse = {
       id: "g-teoria",
       title: "Teoria",
       description:
-        "Valintakoe G:n omat teoriaosuudet.",
+        "Valintakoe G:n omat teoriaosuudet",
       href:
         "/kurssi/valintakoe-g/teoria",
     },
@@ -24,7 +24,7 @@ export const valintakoeGCourse = {
       id: "g-harjoitukset",
       title: "Harjoitukset",
       description:
-        "Päättely-, aineisto-, taulukko- ja tekstinymmärrystehtävät.",
+        "Erilaiset tehtävät",
       href:
         "/kurssi/valintakoe-g/harjoitukset",
     },

@@ -749,7 +749,7 @@ export default function ProfilePage() {
               <div>
                 <h2 style={styles.cardTitle}>Kurssikohtainen edistyminen</h2>
                 <p style={styles.smallText}>
-                  Monivalintojen ja flashcardien tilanne Supabasesta.
+                 
                 </p>
               </div>
             </div>
