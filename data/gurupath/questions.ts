@@ -65,7 +65,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
     explanation:
       "Annetusta tiedosta seuraa varmasti vain se, että kaikki A:n jäsenet kuuluvat B:hen.",
 
-    points: 35,
+    points: 1,
 
     placements: {
       oikis: 1,
@@ -101,7 +101,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
     explanation:
       "Aineistotehtävässä vastauksen tulee perustua annettuun aineistoon, ellei tehtävänannossa nimenomaisesti muuta edellytetä.",
 
-    points: 35,
+    points: 1,
 
     placements: {
       oikis: 2,
@@ -145,10 +145,10 @@ export const guruGameQuestions: GuruGameQuestion[] = [
     explanation:
       "Tekstissä Aurora-ryhmän ensisijaiseksi tavoitteeksi asetettiin hakemusten käsittelyajan lyhentäminen.",
 
-    points: 50,
+    points: 1,
 
     reading: {
-      seconds: 75,
+      seconds: 30,
 
       answerMode: "multiple-choice",
 
@@ -190,10 +190,10 @@ export const guruGameQuestions: GuruGameQuestion[] = [
     explanation:
       "Helmikuussa asiakkaita oli 145 ja maaliskuussa 138.",
 
-    points: 50,
+    points: 1,
 
     reading: {
-      seconds: 60,
+      seconds: 30,
 
       answerMode: "true-false",
 
@@ -238,10 +238,10 @@ export const guruGameQuestions: GuruGameQuestion[] = [
     explanation:
       "Tekstin mukaan ryhmä päätti jatkaa samaa toimintamallia myös seuraavan tarkastelujakson ajan.",
 
-    points: 50,
+    points: 1,
 
     reading: {
-      seconds: 90,
+      seconds: 30,
 
       answerMode: "statement",
 

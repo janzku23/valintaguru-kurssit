@@ -69,7 +69,7 @@ export default async function GuruPathPage() {
           </h1>
 
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-            Valitse peli. Oikiksella on yksi yhteinen polku ja Valintakoe G:llä yksi yhteinen polku riippumatta siitä, mikä kyseisen kurssiperheen paketti sinulla on.
+         Viisi ensimmäistä kysymystä ovat harjoitus kysymyksiä, joka auttaa ymmärtämään pelin kulkua
           </p>
         </div>
 

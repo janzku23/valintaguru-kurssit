@@ -26,7 +26,7 @@ export const guruGameDefinitions: Record<
     id: "oikis",
     title: "Oikis",
     description:
-      "Yksi yhteinen Oikis GuruPeli kaikille Oikis-kurssipaketeille.",
+      "",
     productCourseIds: [
       "oikis",
       "oikis-tiivis",
@@ -39,7 +39,7 @@ export const guruGameDefinitions: Record<
     id: "valintakoe-g",
     title: "Valintakoe G",
     description:
-      "Yksi yhteinen Valintakoe G GuruPeli kaikille G-kurssipaketeille.",
+      "",
     productCourseIds: [
       "valintakoe-g",
       "valintakoe-g-etaope",
