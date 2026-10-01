@@ -1,32 +1,18 @@
-import type {
-  CourseId,
-} from "@/data/courses";
-import type {
-  GuruGameId,
-} from "./types";
+import type { CourseId } from "@/data/courses";
+import type { GuruGameId, GuruGameViewId } from "./types";
 
-export type GuruGameDefinition = {
+type GuruGameDefinition = {
   id: GuruGameId;
   title: string;
   description: string;
-
-  /**
-   * Mikä tahansa näistä kurssioikeuksista
-   * avaa saman yhden GuruPelin.
-   */
-  productCourseIds:
-    readonly CourseId[];
+  productCourseIds: readonly CourseId[];
 };
 
-export const guruGameDefinitions: Record<
-  GuruGameId,
-  GuruGameDefinition
-> = {
+export const guruGameDefinitions: Record<GuruGameId, GuruGameDefinition> = {
   oikis: {
     id: "oikis",
-    title: "Oikis",
-    description:
-      "",
+    title: "Oikeustiede",
+    description: "Oikeustieteen GuruPeli.",
     productCourseIds: [
       "oikis",
       "oikis-tiivis",
@@ -34,35 +20,25 @@ export const guruGameDefinitions: Record<
       "oikis-teho-etaope",
     ],
   },
-
   "valintakoe-g": {
     id: "valintakoe-g",
     title: "Valintakoe G",
-    description:
-      "",
-    productCourseIds: [
-      "valintakoe-g",
-      "valintakoe-g-etaope",
-    ],
+    description: "Valintakoe G:n GuruPeli.",
+    productCourseIds: ["valintakoe-g", "valintakoe-g-etaope"],
   },
 };
 
-export const guruGameIds: GuruGameId[] = [
-  "oikis",
-  "valintakoe-g",
-];
+export const guruGameIds: GuruGameId[] = ["oikis", "valintakoe-g"];
+export const guruGameViewIds: GuruGameViewId[] = ["oikis", "valintakoe-g", "combined"];
 
-export function isGuruGameId(
-  value: string
-): value is GuruGameId {
-  return (
-    value === "oikis" ||
-    value === "valintakoe-g"
-  );
+export function isGuruGameId(value: string): value is GuruGameId {
+  return guruGameIds.includes(value as GuruGameId);
 }
 
-export function getGuruGameDefinition(
-  gameId: GuruGameId
-): GuruGameDefinition {
+export function isGuruGameViewId(value: string): value is GuruGameViewId {
+  return guruGameViewIds.includes(value as GuruGameViewId);
+}
+
+export function getGuruGameDefinition(gameId: GuruGameId) {
   return guruGameDefinitions[gameId];
 }

@@ -1,26 +1,11 @@
 import type { CourseId } from "@/data/courses";
 
-export type GuruGameId =
-  | "oikis"
-  | "valintakoe-g";
-
-export type GuruPathNodeType =
-  | "challenge"
-  | "vault";
-
-export type GuruQuestionSource =
-  | "course"
-  | "shared";
-
-export type GuruGameQuestionType =
-  | "multiple-choice"
-  | "true-false"
-  | "reading-comprehension";
-
-export type GuruGameAnswerMode =
-  | "multiple-choice"
-  | "true-false"
-  | "statement";
+export type GuruGameId = "oikis" | "valintakoe-g";
+export type GuruGameViewId = GuruGameId | "combined";
+export type GuruPathNodeType = "challenge" | "vault";
+export type GuruQuestionCategory = "oikis" | "shared" | "valintakoe-g";
+export type GuruGameQuestionType = "multiple-choice" | "true-false" | "reading-comprehension";
+export type GuruGameAnswerMode = "multiple-choice" | "true-false" | "statement";
 
 export type GuruGameAnswer = {
   id: string;
@@ -28,95 +13,63 @@ export type GuruGameAnswer = {
 };
 
 export type GuruGameQuestion = {
-  /**
-   * Pysyvä tehtävän ID.
-   * Älä vaihda tätä julkaisun jälkeen.
-   */
+  /** Pysyvä ID. Sama id = sama tehtävä kaikissa GuruPeli-näkymissä. */
   id: string;
-
   type: GuruGameQuestionType;
-
-  /**
-   * Kartalla näkyvä lyhyt nimi.
-   */
   title: string;
-
-  /**
-   * Varsinainen kysymys.
-   */
   prompt: string;
-
   answers: GuruGameAnswer[];
   correctAnswerIds: string[];
   explanation: string;
-
-  /**
-   * Oikeasta vastauksesta saatavat pisteet.
-   */
   points?: number;
 
   /**
-   * Vain luetun ymmärtämisen tehtävissä.
+   * Kurssikohtainen järjestys.
+   * Vain oikis -> vain Oikis.
+   * Vain valintakoe-g -> vain Valintakoe G.
+   * Molemmat -> yhteinen kysymys.
    */
+  placements: Partial<Record<GuruGameId, number>>;
+
+  /**
+   * Sijainti yhdistetyssä pelissä.
+   * Oikis-, yhteiset- ja G-kysymykset voivat olla täysin sekaisin.
+   * Jos puuttuu, järjestys päätellään placements-numeroista.
+   */
+  combinedOrder?: number;
+
   reading?: {
     text: string;
     seconds: number;
     answerMode: GuruGameAnswerMode;
   };
-
-  /**
-   * Mille GuruPelille kysymys kuuluu ja millä tasolla.
-   *
-   * Esimerkki:
-   * placements: {
-   *   oikis: 40,
-   *   "valintakoe-g": 32,
-   * }
-   */
-  placements: Partial<
-    Record<GuruGameId, number>
-  >;
 };
 
 export type GuruPathNode = {
-  /**
-   * Pysyvä tason ID.
-   */
   id: string;
-
   questionId: string;
-
-  /**
-   * course = vanha courseContent.quizQuestions-kysymys
-   * shared = questions.ts:n yhteinen GuruPeli-kysymys
-   */
-  questionSource:
-    | GuruQuestionSource;
-
   title: string;
-
-  /**
-   * Tason järjestys pelissä.
-   * 1 = ensimmäinen taso.
-   */
   order: number;
-
   type?: GuruPathNodeType;
-
   points: number;
+  category: GuruQuestionCategory;
 };
 
 export type GuruPathCourse = {
-  gameId: GuruGameId;
+  viewId: GuruGameViewId;
   title: string;
   description: string;
   levels: GuruPathNode[];
 };
 
-/**
- * GuruGameId on tarkoituksella CourseId:n alijoukko:
- * molemmat canonical-pelit tallentavat edistymisen nykyisiin
- * course_id-arvoihin "oikis" ja "valintakoe-g".
- */
-export type GuruGameCourseId =
-  Extract<CourseId, GuruGameId>;
+export type GuruGameAccessSlot = {
+  hasAccess: boolean;
+  /** Todellinen kaupallinen courseId, jolla käyttöoikeus löytyi. */
+  accessCourseId: CourseId | null;
+};
+
+export type GuruGameAccessState = {
+  oikis: GuruGameAccessSlot;
+  valintakoeG: GuruGameAccessSlot;
+  viewId: GuruGameViewId | null;
+};

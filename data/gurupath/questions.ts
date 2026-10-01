@@ -1,305 +1,182 @@
 import type {
   GuruGameId,
   GuruGameQuestion,
+  GuruGameViewId,
+  GuruQuestionCategory,
 } from "./types";
 
 /**
- * ============================================================
  * GURUPELI – AINOA KYSYMYSPANKKI
- * ============================================================
  *
- * GuruPeli hakee kaikki kysymykset vain tästä tiedostosta.
+ * Vain Oikis:
+ * placements: { oikis: 10 }
  *
- * EI enää:
- * - data/courseContent
- * - quizQuestions
- * - questionSource: "course"
- * - vanhoja oikis-q1 / g-q1 -viittauksia
+ * Vain Valintakoe G:
+ * placements: { "valintakoe-g": 10 }
  *
- * Uuden tehtävän lisääminen:
+ * Yhteinen:
+ * placements: { oikis: 10, "valintakoe-g": 8 }
  *
- * placements: {
- *   oikis: 12,
- *   "valintakoe-g": 8,
- * }
+ * Yhdistetyn pelin sijainti:
+ * combinedOrder: 1, 2, 3...
  *
- * tarkoittaa:
- * - sama tehtävä on Oikiksessa taso 12
- * - sama tehtävä on Valintakoe G:ssä taso 8
+ * Kategoriat saavat olla täysin sekaisin yhdistetyllä polulla.
  */
-
 export const guruGameQuestions: GuruGameQuestion[] = [
-  /**
-   * 1. TAVALLINEN MONIVALINTA
-   */
   {
     id: "guru-demo-mc-001",
     type: "multiple-choice",
-
     title: "Johtopäätös aineistosta",
-
-    prompt:
-      "Kaikki ryhmän A jäsenet kuuluvat ryhmään B. Mikä seuraavista voidaan päätellä varmasti?",
-
+    prompt: "Kaikki ryhmän A jäsenet kuuluvat ryhmään B. Mikä seuraavista voidaan päätellä varmasti?",
     answers: [
-      {
-        id: "a",
-        text: "Kaikki ryhmän A jäsenet kuuluvat ryhmään B.",
-      },
-      {
-        id: "b",
-        text: "Kaikki ryhmän B jäsenet kuuluvat ryhmään A.",
-      },
-      {
-        id: "c",
-        text: "Ryhmät A ja B ovat yhtä suuria.",
-      },
-      {
-        id: "d",
-        text: "Ryhmällä B ei voi olla muita jäseniä.",
-      },
+      { id: "a", text: "Kaikki ryhmän A jäsenet kuuluvat ryhmään B." },
+      { id: "b", text: "Kaikki ryhmän B jäsenet kuuluvat ryhmään A." },
+      { id: "c", text: "Ryhmät A ja B ovat yhtä suuria." },
+      { id: "d", text: "Ryhmällä B ei voi olla muita jäseniä." },
     ],
-
     correctAnswerIds: ["a"],
-
-    explanation:
-      "Annetusta tiedosta seuraa varmasti vain se, että kaikki A:n jäsenet kuuluvat B:hen.",
-
+    explanation: "Annetusta tiedosta seuraa varmasti vain se, että kaikki A:n jäsenet kuuluvat B:hen.",
     points: 1,
-
-    placements: {
-      oikis: 1,
-      "valintakoe-g": 1,
-    },
+    placements: { oikis: 1, "valintakoe-g": 1 },
+    combinedOrder: 1,
   },
-
-  /**
-   * 2. TAVALLINEN OIKEIN / VÄÄRIN
-   */
   {
     id: "guru-demo-tf-001",
     type: "true-false",
-
     title: "Oikein vai väärin",
-
-    prompt:
-      "Aineistotehtävässä vastaus voidaan perustaa myös sellaiseen tietoon, jota aineistossa ei ole annettu.",
-
+    prompt: "Oikeudellisessa päättelyssä johtopäätöksen tulee perustua käytettävissä oleviin oikeuslähteisiin ja annettuihin tosiseikkoihin.",
     answers: [
-      {
-        id: "true",
-        text: "Oikein",
-      },
-      {
-        id: "false",
-        text: "Väärin",
-      },
+      { id: "true", text: "Oikein" },
+      { id: "false", text: "Väärin" },
     ],
-
-    correctAnswerIds: ["false"],
-
-    explanation:
-      "Aineistotehtävässä vastauksen tulee perustua annettuun aineistoon, ellei tehtävänannossa nimenomaisesti muuta edellytetä.",
-
+    correctAnswerIds: ["true"],
+    explanation: "Oikeudellinen argumentaatio perustuu relevantteihin oikeuslähteisiin ja tapauksessa käytettävissä oleviin tosiseikkoihin.",
     points: 1,
-
-    placements: {
-      oikis: 2,
-      "valintakoe-g": 2,
-    },
+    placements: { oikis: 2 },
+    combinedOrder: 2,
   },
-
-  /**
-   * 3. LUETUN YMMÄRTÄMINEN + MONIVALINTA
-   */
   {
     id: "guru-demo-reading-mc-001",
     type: "reading-comprehension",
-
     title: "Luetun ymmärtäminen",
-
-    prompt:
-      "Mikä oli Aurora-ryhmän ensisijainen tavoite?",
-
+    prompt: "Mikä oli Aurora-ryhmän ensisijainen tavoite?",
     answers: [
-      {
-        id: "a",
-        text: "Lyhentää hakemusten käsittelyaikaa.",
-      },
-      {
-        id: "b",
-        text: "Lisätä kokousten määrää.",
-      },
-      {
-        id: "c",
-        text: "Vähentää hakemusten määrää.",
-      },
-      {
-        id: "d",
-        text: "Keskeyttää toiminta tarkastelujakson jälkeen.",
-      },
+      { id: "a", text: "Lyhentää hakemusten käsittelyaikaa." },
+      { id: "b", text: "Lisätä kokousten määrää." },
+      { id: "c", text: "Vähentää hakemusten määrää." },
+      { id: "d", text: "Keskeyttää toiminta tarkastelujakson jälkeen." },
     ],
-
     correctAnswerIds: ["a"],
-
-    explanation:
-      "Tekstissä Aurora-ryhmän ensisijaiseksi tavoitteeksi asetettiin hakemusten käsittelyajan lyhentäminen.",
-
+    explanation: "Tekstissä Aurora-ryhmän ensisijaiseksi tavoitteeksi asetettiin hakemusten käsittelyajan lyhentäminen.",
     points: 1,
-
     reading: {
       seconds: 30,
-
       answerMode: "multiple-choice",
-
-      text:
-        "Aurora-ryhmä aloitti toimintansa keväällä. Ryhmän ensisijaiseksi tavoitteeksi asetettiin hakemusten käsittelyajan lyhentäminen ilman, että arvioinnin laatua heikennetään. Ryhmä päätti kokoontua kerran viikossa ja seurata käsittelyaikoja kuukausittain. Ensimmäisen kolmen kuukauden aikana hakemusten määrä kasvoi, mutta keskimääräinen käsittelyaika lyheni. Ryhmä päätti jatkaa samaa toimintamallia seuraavan tarkastelujakson ajan.",
+      text: "Aurora-ryhmä aloitti toimintansa keväällä. Ryhmän ensisijaiseksi tavoitteeksi asetettiin hakemusten käsittelyajan lyhentäminen ilman, että arvioinnin laatua heikennetään. Ryhmä päätti kokoontua kerran viikossa ja seurata käsittelyaikoja kuukausittain. Ensimmäisen kolmen kuukauden aikana hakemusten määrä kasvoi, mutta keskimääräinen käsittelyaika lyheni. Ryhmä päätti jatkaa samaa toimintamallia seuraavan tarkastelujakson ajan.",
     },
-
-    placements: {
-      oikis: 3,
-      "valintakoe-g": 3,
-    },
+    placements: { oikis: 3, "valintakoe-g": 2 },
+    combinedOrder: 3,
   },
-
-  /**
-   * 4. LUETUN YMMÄRTÄMINEN + OIKEIN / VÄÄRIN
-   */
   {
     id: "guru-demo-reading-tf-001",
     type: "reading-comprehension",
-
     title: "Muista yksityiskohta",
-
-    prompt:
-      "Tekstin mukaan helmikuun asiakasmäärä oli suurempi kuin maaliskuun asiakasmäärä.",
-
+    prompt: "Tekstin mukaan helmikuun asiakasmäärä oli suurempi kuin maaliskuun asiakasmäärä.",
     answers: [
-      {
-        id: "true",
-        text: "Oikein",
-      },
-      {
-        id: "false",
-        text: "Väärin",
-      },
+      { id: "true", text: "Oikein" },
+      { id: "false", text: "Väärin" },
     ],
-
     correctAnswerIds: ["true"],
-
-    explanation:
-      "Helmikuussa asiakkaita oli 145 ja maaliskuussa 138.",
-
+    explanation: "Helmikuussa asiakkaita oli 145 ja maaliskuussa 138.",
     points: 1,
-
     reading: {
       seconds: 30,
-
       answerMode: "true-false",
-
-      text:
-        "Yksikön asiakasmäärä oli tammikuussa 120. Helmikuussa määrä nousi 145 asiakkaaseen. Maaliskuussa määrä laski 138 asiakkaaseen. Huhtikuun asiakasmäärää ei vielä ollut raportin laatimishetkellä vahvistettu.",
+      text: "Yksikön asiakasmäärä oli tammikuussa 120. Helmikuussa määrä nousi 145 asiakkaaseen. Maaliskuussa määrä laski 138 asiakkaaseen. Huhtikuun asiakasmäärää ei vielä ollut raportin laatimishetkellä vahvistettu.",
     },
-
-    placements: {
-      oikis: 4,
-      "valintakoe-g": 4,
-    },
+    placements: { "valintakoe-g": 3 },
+    combinedOrder: 4,
   },
-
-  /**
-   * 5. LUETUN YMMÄRTÄMINEN + VÄITTÄMÄ
-   *
-   * Käyttöliittymä on vastaava kuin oikein/väärin,
-   * mutta sanamuoto on väittämätyylinen.
-   */
   {
     id: "guru-demo-reading-statement-001",
     type: "reading-comprehension",
-
     title: "Arvioi väittämä",
-
-    prompt:
-      "Väittämä: Ryhmän toimintamallia päätettiin muuttaa heti ensimmäisen tarkastelujakson jälkeen.",
-
+    prompt: "Väittämä: Ryhmän toimintamallia päätettiin muuttaa heti ensimmäisen tarkastelujakson jälkeen.",
     answers: [
-      {
-        id: "true",
-        text: "Väittämä pitää paikkansa",
-      },
-      {
-        id: "false",
-        text: "Väittämä ei pidä paikkaansa",
-      },
+      { id: "true", text: "Väittämä pitää paikkansa" },
+      { id: "false", text: "Väittämä ei pidä paikkaansa" },
     ],
-
     correctAnswerIds: ["false"],
-
-    explanation:
-      "Tekstin mukaan ryhmä päätti jatkaa samaa toimintamallia myös seuraavan tarkastelujakson ajan.",
-
+    explanation: "Tekstin mukaan ryhmä päätti jatkaa samaa toimintamallia myös seuraavan tarkastelujakson ajan.",
     points: 1,
-
     reading: {
       seconds: 30,
-
       answerMode: "statement",
-
-      text:
-        "Seurantaryhmä otti tammikuussa käyttöön uuden toimintamallin. Ensimmäisen tarkastelujakson aikana käsittelyajat lyhenivät ja keskeneräisten asioiden määrä väheni. Ryhmä arvioi tulokset maaliskuun lopussa. Tulosten perusteella toimintamallia ei muutettu, vaan sitä päätettiin jatkaa samanlaisena myös seuraavan tarkastelujakson ajan.",
+      text: "Seurantaryhmä otti tammikuussa käyttöön uuden toimintamallin. Ensimmäisen tarkastelujakson aikana käsittelyajat lyhenivät ja keskeneräisten asioiden määrä väheni. Ryhmä arvioi tulokset maaliskuun lopussa. Tulosten perusteella toimintamallia ei muutettu, vaan sitä päätettiin jatkaa samanlaisena myös seuraavan tarkastelujakson ajan.",
     },
-
-    placements: {
-      oikis: 5,
-      "valintakoe-g": 5,
-    },
+    placements: { oikis: 4, "valintakoe-g": 4 },
+    combinedOrder: 5,
   },
 ];
 
-/**
- * Hakee yhden kysymyksen ID:n perusteella.
- */
-export function getGuruGameQuestion(
-  questionId: string
-): GuruGameQuestion | null {
-  return (
-    guruGameQuestions.find(
-      (question) =>
-        question.id === questionId
-    ) ?? null
-  );
+function isPositiveOrder(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
 
-/**
- * Hakee kaikki tietylle GuruPelille kuuluvat kysymykset
- * ja järjestää ne placements-numeron perusteella.
- */
-export function getGuruGameQuestionsForGame(
-  gameId: GuruGameId
-): Array<{
-  question: GuruGameQuestion;
-  order: number;
-}> {
-  return guruGameQuestions
-    .flatMap((question) => {
-      const order =
-        question.placements[gameId];
+export function getGuruQuestionCategory(question: GuruGameQuestion): GuruQuestionCategory {
+  const hasOikis = isPositiveOrder(question.placements.oikis);
+  const hasG = isPositiveOrder(question.placements["valintakoe-g"]);
+  if (hasOikis && hasG) return "shared";
+  if (hasOikis) return "oikis";
+  return "valintakoe-g";
+}
 
-      if (
-        typeof order !== "number"
-      ) {
-        return [];
-      }
+function automaticCombinedOrder(question: GuruGameQuestion) {
+  const values = [
+    question.placements.oikis,
+    question.placements["valintakoe-g"],
+  ].filter(isPositiveOrder);
+  return values.length ? Math.min(...values) : Number.MAX_SAFE_INTEGER;
+}
 
-      return [
-        {
-          question,
-          order,
-        },
-      ];
+export function getGuruGameQuestion(questionId: string): GuruGameQuestion | null {
+  return guruGameQuestions.find((q) => q.id === questionId) ?? null;
+}
+
+export function getGuruQuestionSourceId(questionId: string) {
+  return `gurupeli:${questionId}`;
+}
+
+/** Tunnistaa sekä uuden että vanhan GuruPath-suorituksen samalle kysymykselle. */
+export function isCompletedSourceForQuestion(sourceId: string, questionId: string) {
+  return sourceId === getGuruQuestionSourceId(questionId) || sourceId.endsWith(`:${questionId}`);
+}
+
+export function getGuruGameQuestionsForView(viewId: GuruGameViewId) {
+  const seen = new Set<string>();
+  const selected = guruGameQuestions
+    .filter((question) => {
+      if (seen.has(question.id)) return false;
+      const belongs =
+        viewId === "combined"
+          ? isPositiveOrder(question.placements.oikis) || isPositiveOrder(question.placements["valintakoe-g"])
+          : isPositiveOrder(question.placements[viewId as GuruGameId]);
+      if (belongs) seen.add(question.id);
+      return belongs;
     })
-    .sort(
-      (a, b) =>
-        a.order - b.order
-    );
+    .map((question) => ({
+      question,
+      category: getGuruQuestionCategory(question),
+      sortOrder:
+        viewId === "combined"
+          ? isPositiveOrder(question.combinedOrder)
+            ? question.combinedOrder
+            : automaticCombinedOrder(question)
+          : question.placements[viewId as GuruGameId]!,
+    }));
+
+  return selected.sort((a, b) => {
+    if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+    return a.question.id.localeCompare(b.question.id, "fi");
+  });
 }

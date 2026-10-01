@@ -886,7 +886,14 @@ export default function Home() {
       <p className="mt-4 max-w-sm leading-7 text-slate-600">
         Valmennuskurssit valintakoe G:hen ja oikeustieteen
         eriytyvään osioon.
-        Sivu Päivitetty : 24.9 klo 21.51
+   
+      </p>
+
+        <p className="mt-4 max-w-sm leading-7 text-slate-600">
+        Versio 1.0.0
+      </p>
+      <p className="mt-4 max-w-sm leading-7 text-slate-600">
+        Päivitetty: 1.10 klo 19.47 
       </p>
     </div>
 

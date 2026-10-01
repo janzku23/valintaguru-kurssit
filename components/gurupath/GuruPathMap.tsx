@@ -12,14 +12,21 @@ import {
 import GuruPathChallenge from "./GuruPathChallenge";
 
 import {
-  getGuruPath,
   getGuruGameQuestion,
+  getGuruPath,
+  isCompletedSourceForQuestion,
 } from "@/data/gurupath";
 
 import type {
-  GuruGameId,
+  GuruGameViewId,
+  GuruGameQuestion,
   GuruPathNode,
+  GuruQuestionCategory,
 } from "@/data/gurupath";
+
+import type {
+  CourseId,
+} from "@/data/courses";
 
 type NodeStatus =
   | "done"
@@ -28,7 +35,12 @@ type NodeStatus =
   | "missing";
 
 type Props = {
-  gameId: GuruGameId;
+  viewId: GuruGameViewId;
+  progressCourseIds: CourseId[];
+  storageCourseIds: {
+    oikis: CourseId | null;
+    "valintakoe-g": CourseId | null;
+  };
 };
 
 type CompletedEntry = {
@@ -65,12 +77,27 @@ function sourceForNode(
     : "path-node";
 }
 
-function sourceIdForNode(
-  node: GuruPathNode
+
+
+function categoryLabel(
+  category: GuruQuestionCategory
 ) {
-  return `gurupath:${node.id}:${node.questionId}`;
+  if (category === "oikis") return "Oikis";
+  if (category === "valintakoe-g") return "Valintakoe G";
+  return "Yhteinen";
 }
 
+function categoryClasses(
+  category: GuruQuestionCategory
+) {
+  if (category === "oikis") return "bg-sky-50 text-sky-700 border-sky-100";
+  if (category === "valintakoe-g") return "bg-amber-50 text-amber-700 border-amber-100";
+  return "bg-violet-50 text-violet-700 border-violet-100";
+}
+
+/**
+ * index 0 = taso 1 = kartan alin taso.
+ */
 function positionForLevel(
   index: number,
   total: number
@@ -93,19 +120,32 @@ function positionForLevel(
 }
 
 export default function GuruPathMap({
-  gameId,
+  viewId,
+  progressCourseIds,
+  storageCourseIds,
 }: Props) {
   const path =
     useMemo(
       () =>
         getGuruPath(
-          gameId
+          viewId
         ),
-      [gameId]
+      [viewId]
     );
 
   const levels =
     path.levels;
+
+  const uniqueProgressCourseIds =
+    useMemo(
+      () =>
+        Array.from(
+          new Set(
+            progressCourseIds
+          )
+        ),
+      [progressCourseIds]
+    );
 
   const [
     completedEntries,
@@ -133,6 +173,10 @@ export default function GuruPathMap({
     string | null
   >(null);
 
+  /**
+   * Kun tämä on false, kartta voidaan näyttää normaalisti.
+   * Ensin pakotetaan oikea scrollTop.
+   */
   const [
     positioningMap,
     setPositioningMap,
@@ -158,6 +202,10 @@ export default function GuruPathMap({
       null
     );
 
+  /**
+   * Estää sen, että automaattikeskitys yliajaa käyttäjän
+   * manuaalisen scrollauksen jatkuvasti.
+   */
   const lastAutoCenteredIndexRef =
     useRef<number | null>(
       null
@@ -168,62 +216,68 @@ export default function GuruPathMap({
       false;
 
     async function loadProgress() {
-      setLoadingProgress(
-        true
-      );
-
-      setPositioningMap(
-        true
-      );
-
-      setProgressError(
-        null
-      );
+      setLoadingProgress(true);
+      setPositioningMap(true);
+      setProgressError(null);
 
       try {
-        const response =
-          await fetch(
-            `/api/gurupath/course-progress?courseId=${encodeURIComponent(
-              gameId
-            )}`,
-            {
-              cache:
-                "no-store",
-            }
+        const responses =
+          await Promise.all(
+            uniqueProgressCourseIds.map(
+              async (courseId) => {
+                const response =
+                  await fetch(
+                    `/api/gurupath/course-progress?courseId=${encodeURIComponent(
+                      courseId
+                    )}`,
+                    { cache: "no-store" }
+                  );
+
+                const data =
+                  await response.json();
+
+                if (!response.ok) {
+                  throw new Error(
+                    data?.error ??
+                      "GuruPeli-edistymistä ei voitu hakea."
+                  );
+                }
+
+                return (
+                  data.completed ?? []
+                ) as CompletedEntry[];
+              }
+            )
           );
 
-        const data =
-          await response.json();
+        const merged =
+          new Map<string, CompletedEntry>();
 
-        if (
-          !response.ok
-        ) {
-          throw new Error(
-            data?.error ??
-              "GuruPeli-edistymistä ei voitu hakea."
-          );
+        for (const entries of responses) {
+          for (const entry of entries) {
+            merged.set(
+              entry.sourceId,
+              entry
+            );
+          }
         }
 
         if (!cancelled) {
           setCompletedEntries(
-            data.completed ??
-              []
+            Array.from(merged.values())
           );
         }
       } catch (caught) {
         if (!cancelled) {
           setProgressError(
-            caught instanceof
-              Error
+            caught instanceof Error
               ? caught.message
               : "GuruPeli-edistymistä ei voitu hakea."
           );
         }
       } finally {
         if (!cancelled) {
-          setLoadingProgress(
-            false
-          );
+          setLoadingProgress(false);
         }
       }
     }
@@ -233,37 +287,50 @@ export default function GuruPathMap({
     return () => {
       cancelled = true;
     };
-  }, [gameId]);
-
-  const completedSourceIds =
-    useMemo(
-      () =>
-        new Set(
-          completedEntries.map(
-            (entry) =>
-              entry.sourceId
-          )
-        ),
-      [completedEntries]
-    );
+  }, [uniqueProgressCourseIds]);
 
   function isNodeDone(
     node: GuruPathNode
   ) {
-    return completedSourceIds.has(
-      sourceIdForNode(node)
+    return completedEntries.some(
+      (entry) =>
+        isCompletedSourceForQuestion(
+          entry.sourceId,
+          node.questionId
+        )
     );
   }
 
-  /**
-   * AINOA kysymyslähde:
-   * data/gurupath/questions.ts
-   */
   function resolveQuestion(
     node: GuruPathNode
-  ) {
+  ): GuruGameQuestion | null {
     return getGuruGameQuestion(
       node.questionId
+    );
+  }
+
+  function courseIdForNode(
+    node: GuruPathNode
+  ): CourseId | null {
+    if (node.category === "oikis") {
+      return storageCourseIds.oikis;
+    }
+
+    if (node.category === "valintakoe-g") {
+      return storageCourseIds["valintakoe-g"];
+    }
+
+    if (viewId === "oikis") {
+      return storageCourseIds.oikis;
+    }
+
+    if (viewId === "valintakoe-g") {
+      return storageCourseIds["valintakoe-g"];
+    }
+
+    return (
+      storageCourseIds.oikis ??
+      storageCourseIds["valintakoe-g"]
     );
   }
 
@@ -367,6 +434,9 @@ export default function GuruPathMap({
       ROW_HEIGHT +
     BOTTOM_PADDING;
 
+  /**
+   * Laskee tarkalleen scrollTopin, jolla taso on viewportin keskellä.
+   */
   const getTargetScrollTop =
     useCallback(
       (
@@ -411,6 +481,12 @@ export default function GuruPathMap({
       ]
     );
 
+  /**
+   * Pakotettu keskitys.
+   *
+   * Ei käytetä pelkästään scrollTo():ta, vaan asetetaan myös
+   * scrollTop suoraan. Tämä toimii luotettavasti myös heti mountissa.
+   */
   const centerLevel =
     useCallback(
       (
@@ -437,6 +513,10 @@ export default function GuruPathMap({
               "smooth",
           });
         } else {
+          /**
+           * Suora assignment on tarkoituksellinen.
+           * Se ei jää selaimen smooth-scroll / mount timingin varaan.
+           */
           scroller.scrollTop =
             target;
         }
@@ -455,6 +535,12 @@ export default function GuruPathMap({
       ]
     );
 
+  /**
+   * TÄRKEIN KORJAUS:
+   *
+   * useLayoutEffect ajetaan DOM-muutoksen jälkeen mutta ennen maalausta.
+   * Kartta keskitetään nykyiseen tasoon ennen kuin käyttäjä näkee sen.
+   */
   useLayoutEffect(() => {
     if (
       loadingProgress ||
@@ -480,6 +566,10 @@ export default function GuruPathMap({
           return;
         }
 
+        /**
+         * Kaksi framea varmistaa, että elementin korkeus ja scrollHeight
+         * ovat varmasti muodostuneet myös dev/hot reload -tilanteessa.
+         */
         frame1 =
           window.requestAnimationFrame(
             () => {
@@ -527,6 +617,9 @@ export default function GuruPathMap({
     centerLevel,
   ]);
 
+  /**
+   * Kun uusi taso aukeaa, keskitetään se vain kerran.
+   */
   useEffect(() => {
     if (
       loadingProgress ||
@@ -680,6 +773,10 @@ export default function GuruPathMap({
         }
       }
 
+      /**
+       * Nykyinen taso renderöidään aina varmuuden vuoksi,
+       * vaikka scroll-state olisi yhden framen jäljessä.
+       */
       if (
         levels.length > 0 &&
         !result.includes(
@@ -805,19 +902,12 @@ export default function GuruPathMap({
     );
   }
 
-  if (
-    levels.length === 0
-  ) {
+  if (levels.length === 0) {
     return (
       <section className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
-          <h1 className="text-2xl font-black">
-            Ei GuruPeli-kysymyksiä
-          </h1>
-
-          <p className="mt-3 text-slate-600">
-            Lisää kysymykset tiedostoon data/gurupath/questions.ts.
-          </p>
+          <h1 className="text-2xl font-black">Ei GuruPeli-kysymyksiä</h1>
+          <p className="mt-3 text-slate-600">Lisää kysymykset tiedostoon data/gurupath/questions.ts.</p>
         </div>
       </section>
     );
@@ -827,18 +917,31 @@ export default function GuruPathMap({
     selectedNode &&
     selectedQuestion
   ) {
+    const storageCourseId =
+      courseIdForNode(
+        selectedNode
+      );
+
+    if (!storageCourseId) {
+      return (
+        <section className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+          <div className="rounded-[2rem] border border-red-200 bg-red-50 p-6 text-red-800">
+            Tälle tehtävälle ei löytynyt aktiivista kurssioikeutta.
+          </div>
+        </section>
+      );
+    }
+
     return (
       <section className="px-4 py-7 sm:px-6 sm:py-10">
         <GuruPathChallenge
           key={
             selectedNode.id
           }
-          gameId={
-            gameId
+          courseId={
+            storageCourseId
           }
-          nodeId={
-            selectedNode.id
-          }
+          nodeId={`gurupeli:${selectedQuestion.id}`}
           levelNumber={
             selectedIndex +
             1
@@ -860,6 +963,11 @@ export default function GuruPathMap({
             handleCompleted
           }
           onAdvance={() => {
+            /**
+             * Palataan kartalle.
+             * completedEntries on jo päivittynyt -> focusIndex muuttuu.
+             * useLayoutEffect/useEffect keskittää uuden tason.
+             */
             setPositioningMap(
               true
             );
@@ -895,7 +1003,7 @@ export default function GuruPathMap({
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-600">
-                GuruPeli
+                {viewId === "combined" ? "Yhdistetty GuruPeli" : "GuruPeli"}
               </p>
 
               <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
@@ -913,6 +1021,14 @@ export default function GuruPathMap({
                   }
                 </strong>
               </p>
+
+              {viewId === "combined" && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-black text-sky-700">Oikis</span>
+                  <span className="rounded-full border border-violet-100 bg-violet-50 px-3 py-1 text-xs font-black text-violet-700">Yhteinen</span>
+                  <span className="rounded-full border border-amber-100 bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">Valintakoe G</span>
+                </div>
+              )}
             </div>
 
             <div className="w-full max-w-[250px]">
@@ -975,12 +1091,16 @@ export default function GuruPathMap({
               {showReturnToCurrent && (
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={() => {
+                    /**
+                     * Painikkeessa käytetään suoraa keskitystä.
+                     * Ei odoteta mitään effectiä.
+                     */
                     centerLevel(
                       focusIndex,
                       true
-                    )
-                  }
+                    );
+                  }}
                   className="absolute right-4 top-4 z-30 rounded-full border border-violet-200 bg-white/95 px-4 py-2.5 text-xs font-black text-violet-700 shadow-lg backdrop-blur transition hover:bg-violet-50 sm:right-5 sm:top-5 sm:text-sm"
                 >
                   ◎ Nykyiseen tasoon{" "}
@@ -1019,9 +1139,7 @@ export default function GuruPathMap({
                   }}
                 >
                   <div className="pointer-events-none absolute left-[-100px] top-[8%] h-72 w-72 rounded-full bg-violet-200/35 blur-3xl" />
-
                   <div className="pointer-events-none absolute right-[-100px] top-[42%] h-80 w-80 rounded-full bg-sky-200/30 blur-3xl" />
-
                   <div className="pointer-events-none absolute left-[-120px] top-[75%] h-80 w-80 rounded-full bg-emerald-200/35 blur-3xl" />
 
                   <svg
@@ -1196,6 +1314,13 @@ export default function GuruPathMap({
                                 ? "!"
                                 : index +
                                   1}
+
+                            {node.type ===
+                              "vault" && (
+                              <span className="absolute -right-2 -top-2 grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-amber-400 text-sm text-amber-950 shadow">
+                                ★
+                              </span>
+                            )}
                           </button>
 
                           <div className="absolute left-1/2 top-[104px] w-[170px] -translate-x-1/2 text-center sm:w-[190px]">
@@ -1209,7 +1334,18 @@ export default function GuruPathMap({
                                 " "
                               )}
                             >
-                              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
+                              <div className="flex justify-center">
+                                <span
+                                  className={[
+                                    "rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.08em]",
+                                    categoryClasses(node.category),
+                                  ].join(" ")}
+                                >
+                                  {categoryLabel(node.category)}
+                                </span>
+                              </div>
+
+                              <p className="mt-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
                                 {isCurrent
                                   ? "Nykyinen taso"
                                   : `Taso ${index + 1}`}
@@ -1248,7 +1384,6 @@ export default function GuruPathMap({
                 <div className="absolute inset-0 z-20 grid place-items-center bg-white">
                   <div className="text-center">
                     <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-violet-200 border-t-violet-600" />
-
                     <p className="mt-3 text-sm font-black text-slate-500">
                       Siirrytään nykyiseen tasoon…
                     </p>

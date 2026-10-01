@@ -1,83 +1,50 @@
-import {
-  notFound,
-} from "next/navigation";
-
+import { notFound, redirect } from "next/navigation";
 import GuruPathMap from "@/components/gurupath/GuruPathMap";
+import { isGuruGameViewId } from "@/data/gurupath";
+import { getGuruGameAccessState } from "@/lib/gurupath/hasGuruGameAccess";
+import type { CourseId } from "@/data/courses";
 
-import {
-  getGuruGameDefinition,
-  isGuruGameId,
-} from "@/data/gurupath";
-
-import {
-  hasGuruGameAccess,
-} from "@/lib/gurupath/hasGuruGameAccess";
-
-export const dynamic =
-  "force-dynamic";
+export const dynamic = "force-dynamic";
 
 export default async function GuruPathCoursePage({
   params,
 }: {
-  params: Promise<{
-    courseId: string;
-  }>;
+  params: Promise<{ courseId: string }>;
 }) {
-  const {
-    courseId,
-  } = await params;
+  const { courseId } = await params;
+  if (!isGuruGameViewId(courseId)) notFound();
 
-  /**
-   * URL:ssa sallitaan vain kaksi canonical-peliä:
-   * /gurupath/oikis
-   * /gurupath/valintakoe-g
-   */
-  if (
-    !isGuruGameId(
-      courseId
-    )
-  ) {
-    notFound();
+  const access = await getGuruGameAccessState();
+  if (!access.viewId) redirect("/gurupath");
+
+  if (access.viewId === "combined" && courseId !== "combined") {
+    redirect("/gurupath/combined");
   }
 
-  const definition =
-    getGuruGameDefinition(
-      courseId
-    );
-
-  const hasAccess =
-    await hasGuruGameAccess(
-      courseId
-    );
-
-  if (!hasAccess) {
-    return (
-      <main className="min-h-[calc(100vh-4rem)] bg-[#f8fafc] px-4 py-10 text-slate-950 sm:px-6">
-        <section className="mx-auto max-w-3xl">
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-600">
-              GuruPeli
-            </p>
-
-            <h1 className="mt-2 text-3xl font-black">
-              Kurssioikeus vaaditaan
-            </h1>
-
-            <p className="mt-4 leading-7 text-slate-600">
-              {definition.title} GuruPeli avautuu, kun käyttäjällä on jokin tämän kurssiperheen aktiivisista kurssipaketeista.
-            </p>
-          </div>
-        </section>
-      </main>
-    );
+  if (courseId === "combined" && access.viewId !== "combined") {
+    redirect(`/gurupath/${access.viewId}`);
   }
+
+  if (access.viewId !== "combined" && courseId !== access.viewId) {
+    redirect(`/gurupath/${access.viewId}`);
+  }
+
+  const progressCourseIds = [
+    access.oikis.accessCourseId,
+    access.valintakoeG.accessCourseId,
+  ].filter((value): value is CourseId => Boolean(value));
+
+  if (!progressCourseIds.length) redirect("/gurupath");
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-[#f8fafc] text-slate-950">
+    <main className="min-h-screen bg-[#f5f8ff] text-slate-950">
       <GuruPathMap
-        gameId={
-          courseId
-        }
+        viewId={courseId}
+        progressCourseIds={progressCourseIds}
+        storageCourseIds={{
+          oikis: access.oikis.accessCourseId,
+          "valintakoe-g": access.valintakoeG.accessCourseId,
+        }}
       />
     </main>
   );

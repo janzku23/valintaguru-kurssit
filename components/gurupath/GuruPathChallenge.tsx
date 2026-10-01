@@ -18,17 +18,24 @@ import {
   awardGuruPath,
 } from "@/lib/gurupath/awardGuruPath";
 
+import {
+  getGuruQuestionSourceId,
+} from "@/data/gurupath";
+
 import type {
-  GuruGameId,
   GuruGameQuestion,
 } from "@/data/gurupath";
+
+import type {
+  CourseId,
+} from "@/data/courses";
 
 type RewardSource =
   | "path-node"
   | "vault";
 
 type Props = {
-  gameId: GuruGameId;
+  courseId: CourseId;
   nodeId: string;
   levelNumber: number;
   question: GuruGameQuestion;
@@ -82,7 +89,7 @@ function typeLabel(
 }
 
 export default function GuruPathChallenge({
-  gameId,
+  courseId,
   nodeId,
   levelNumber,
   question,
@@ -225,10 +232,10 @@ export default function GuruPathChallenge({
     }
 
     const deadlineKey =
-      `gurupeli:reading-deadline:${gameId}:${nodeId}`;
+      `gurupeli:reading-deadline:${nodeId}`;
 
     const consumedKey =
-      `gurupeli:reading-consumed:${gameId}:${nodeId}`;
+      `gurupeli:reading-consumed:${nodeId}`;
 
     const consumed =
       window.sessionStorage.getItem(
@@ -326,7 +333,6 @@ export default function GuruPathChallenge({
       );
     };
   }, [
-    gameId,
     nodeId,
     isReadingTask,
     question.reading,
@@ -349,7 +355,7 @@ export default function GuruPathChallenge({
         const response =
           await fetch(
             `/api/gurupath/wrong-answer?courseId=${encodeURIComponent(
-              gameId
+              courseId
             )}&nodeId=${encodeURIComponent(
               nodeId
             )}`,
@@ -406,7 +412,7 @@ export default function GuruPathChallenge({
       cancelled = true;
     };
   }, [
-    gameId,
+    courseId,
     nodeId,
   ]);
 
@@ -511,11 +517,11 @@ export default function GuruPathChallenge({
             user.id,
 
           /**
-           * Canonical game id:
-           * kaikki Oikis-paketit tallentavat samaan "oikis"-peliin.
+           * Todellinen kurssi-ID, jolla käyttäjän käyttöoikeus löytyi.
+           * Varsinainen GuruPeli-suoritus tunnistetaan erikseen sourceId:llä.
            */
           course_id:
-            gameId,
+            courseId,
 
           question_id:
             question.id,
@@ -562,7 +568,7 @@ export default function GuruPathChallenge({
           body:
             JSON.stringify({
               courseId:
-                gameId,
+                courseId,
 
               nodeId,
             }),
@@ -624,7 +630,7 @@ export default function GuruPathChallenge({
       const cooldownResponse =
         await fetch(
           `/api/gurupath/wrong-answer?courseId=${encodeURIComponent(
-            gameId
+            courseId
           )}&nodeId=${encodeURIComponent(
             nodeId
           )}`,
@@ -676,7 +682,9 @@ export default function GuruPathChallenge({
       await saveCorrectAttempt();
 
       const sourceId =
-        `gurupath:${nodeId}:${question.id}`;
+        getGuruQuestionSourceId(
+          question.id
+        );
 
       /**
        * Backendin nykyiset xp-kentät säilyvät sisäisesti.
@@ -685,7 +693,7 @@ export default function GuruPathChallenge({
       const award =
         await awardGuruPath({
           courseId:
-            gameId,
+            courseId,
           source,
           sourceId,
           xp:
