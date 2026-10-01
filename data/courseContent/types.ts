@@ -4,6 +4,7 @@ export type TheoryEmbed = {
   type: "canva" | "pdf";
   title: string;
   url: string;
+  paddingTop?: string;
 };
 
 export type TheoryImage = {

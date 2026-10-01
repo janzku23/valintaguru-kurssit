@@ -1,121 +1,134 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
-import { courses } from "@/data/courses";
-import { hasCourseAccess } from "@/lib/courseAccess";
+import {
+  redirect,
+} from "next/navigation";
 
-export const dynamic = "force-dynamic";
+import {
+  createClient,
+} from "@/utils/supabase/server";
+
+import {
+  guruGameIds,
+  getGuruGameDefinition,
+} from "@/data/gurupath";
+
+import {
+  hasGuruGameAccess,
+} from "@/lib/gurupath/hasGuruGameAccess";
+
+export const dynamic =
+  "force-dynamic";
 
 export default async function GuruPathPage() {
-  const supabase = await createClient();
+  const supabase =
+    await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } =
+    await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/kirjaudu?next=/gurupath");
+    redirect(
+      "/kirjaudu?next=/gurupath"
+    );
   }
 
-  const accessResults = await Promise.all(
-    courses.map(async (course) => ({
-      course,
-      hasAccess: await hasCourseAccess(course.id),
-    }))
-  );
+  const games =
+    await Promise.all(
+      guruGameIds.map(
+        async (gameId) => ({
+          definition:
+            getGuruGameDefinition(
+              gameId
+            ),
 
-  const availableCourses = accessResults
-    .filter((item) => item.hasAccess)
-    .map((item) => item.course);
+          hasAccess:
+            await hasGuruGameAccess(
+              gameId
+            ),
+        })
+      )
+    );
+
+  const availableGames =
+    games.filter(
+      (game) =>
+        game.hasAccess
+    );
 
   return (
-    <main className="min-h-screen bg-[#f5f8ff] px-4 py-8 text-slate-950 sm:px-6">
-      <section className="mx-auto w-full max-w-5xl">
-        <a
-          href="/"
-          className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:border-violet-300 hover:text-violet-700"
-        >
-          ← Takaisin etusivulle
-        </a>
+    <main className="min-h-[calc(100vh-4rem)] bg-[#f8fafc] text-slate-950">
+      <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+        <div className="rounded-[2.25rem] border border-violet-100 bg-gradient-to-br from-violet-50 via-white to-indigo-50 p-6 shadow-sm sm:p-9">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-600">
+            ValintaGuru
+          </p>
 
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-9">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-sm font-black uppercase tracking-[0.18em] text-violet-700">
-                ValintaGuru
-              </p>
+          <h1 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">
+            GuruPeli
+          </h1>
 
-              <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight">
-                GuruPeli
-              </h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
+            Valitse peli. Oikiksella on yksi yhteinen polku ja Valintakoe G:llä yksi yhteinen polku riippumatta siitä, mikä kyseisen kurssiperheen paketti sinulla on.
+          </p>
+        </div>
 
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-                Etene vain niiden kurssien poluilla, joihin sinulla on
-                aktiivinen käyttöoikeus. Kaikista kursseista kertyy sama
-                Guru Level ja yhteinen ranking.
-              </p>
-            </div>
-
-            <a
-              href="/gurupath/ranking"
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-violet-700"
-            >
-              Avaa ranking
-            </a>
-          </div>
-
-          {availableCourses.length > 0 ? (
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {availableCourses.map((course, index) => (
+        {availableGames.length >
+        0 ? (
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {availableGames.map(
+              ({
+                definition,
+              }) => (
                 <a
-                  key={course.id}
-                  href={`/gurupath/${course.id}`}
-                  className="group relative overflow-hidden rounded-2xl border border-slate-200 p-5 transition hover:border-violet-300 hover:bg-violet-50/40"
+                  key={
+                    definition.id
+                  }
+                  href={`/gurupath/${definition.id}`}
+                  className="group rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-violet-300 hover:shadow-lg"
                 >
-                  <div className="absolute right-4 top-4 text-5xl font-black text-slate-100 transition group-hover:text-violet-100">
-                    {String(index + 1).padStart(2, "0")}
-                  </div>
+                  <div className="flex items-start justify-between gap-5">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.14em] text-violet-600">
+                        GuruPeli
+                      </p>
 
-                  <div className="relative">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-violet-700">
-                      Kurssipolku
-                    </p>
+                      <h2 className="mt-2 text-2xl font-black">
+                        {
+                          definition.title
+                        }
+                      </h2>
 
-                    <h2 className="mt-2 pr-12 text-2xl font-black">
-                      {course.title}
-                    </h2>
+                      <p className="mt-3 max-w-md text-sm leading-6 text-slate-600">
+                        {
+                          definition.description
+                        }
+                      </p>
+                    </div>
 
-                    <p className="mt-3 text-sm leading-6 text-slate-600">
-                      Ratkaise haasteita, avaa reittejä ja kerää pisteitä
-                    </p>
-
-                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-black text-violet-700">
-                      Avaa polku
-                      <span className="transition group-hover:translate-x-1">
-                        →
-                      </span>
+                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-violet-100 text-xl font-black text-violet-700 transition group-hover:bg-violet-600 group-hover:text-white">
+                      ↑
                     </span>
                   </div>
+
+                  <span className="mt-6 inline-flex rounded-full bg-slate-950 px-5 py-2.5 text-sm font-black text-white transition group-hover:bg-violet-700">
+                    Avaa peli
+                  </span>
                 </a>
-              ))}
-            </div>
-          ) : (
-            <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <h2 className="text-xl font-black text-slate-950">
-                Ei aktiivisia GuruPeli-kursseja
-              </h2>
-              <p className="mt-2 leading-7 text-slate-600">
-                GuruPeli näyttää vain ne kurssit, joihin käyttäjätililläsi
-                on aktiivinen käyttöoikeus.
-              </p>
-              <a
-                href="/"
-                className="mt-5 inline-flex rounded-full bg-slate-950 px-5 py-3 text-sm font-black text-white"
-              >
-                Takaisin etusivulle
-              </a>
-            </div>
-          )}
-        </div>
+              )
+            )}
+          </div>
+        ) : (
+          <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-black">
+              Ei aktiivisia GuruPelejä
+            </h2>
+
+            <p className="mt-2 leading-7 text-slate-600">
+              GuruPeli avautuu, kun käyttäjätililläsi on Oikis- tai Valintakoe G -kurssiperheen aktiivinen käyttöoikeus.
+            </p>
+          </div>
+        )}
       </section>
     </main>
   );

@@ -1,5 +1,3 @@
-"use client";
-
 import type {
   TheoryBlock,
   TheorySection,
@@ -8,22 +6,6 @@ import type {
 type Props = {
   section: TheorySection;
 };
-
-function buildImageCandidates(fileName: string): string[] {
-  const trimmed = fileName.trim();
-  const hasKnownExtension = /\.(png|jpe?g|webp)$/i.test(trimmed);
-  const baseName = trimmed.replace(/\.(png|jpe?g|webp)$/i, "");
-
-  const candidates = [
-    ...(hasKnownExtension ? [`/theory/biologia/${trimmed}`] : []),
-    `/theory/biologia/${baseName}.png`,
-    `/theory/biologia/${baseName}.jpg`,
-    `/theory/biologia/${baseName}.jpeg`,
-    `/theory/biologia/${baseName}.webp`,
-  ];
-
-  return Array.from(new Set(candidates));
-}
 
 function TheoryImage({
   fileName,
@@ -36,32 +18,14 @@ function TheoryImage({
   description?: string;
   alt?: string;
 }) {
-  const candidates = buildImageCandidates(fileName);
-
   return (
     <figure className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
       <div className="flex min-h-[220px] items-center justify-center bg-white p-3 sm:p-5">
         <img
-          src={candidates[0]}
+          src={`/theory/biologia/${fileName}.png`}
           alt={alt || title || fileName}
           loading="lazy"
-          data-fallback-index="0"
           className="max-h-[680px] w-full object-contain"
-          onError={(event) => {
-            const image = event.currentTarget;
-            const currentIndex = Number(
-              image.dataset.fallbackIndex ?? "0"
-            );
-            const nextIndex = currentIndex + 1;
-
-            if (nextIndex < candidates.length) {
-              image.dataset.fallbackIndex = String(nextIndex);
-              image.src = candidates[nextIndex];
-              return;
-            }
-
-            image.style.display = "none";
-          }}
         />
       </div>
 
@@ -150,7 +114,7 @@ export default function TheoryCard({ section }: Props) {
             <div
               className="relative w-full"
               style={{
-                paddingTop: "56.25%",
+                paddingTop: section.embed.paddingTop ?? "56.25%",
               }}
             >
               <iframe

@@ -1,40 +1,33 @@
-import type { CourseId } from "@/data/courses";
-import type { GuruPathCourse } from "./types";
+import type {
+  GuruGameId,
+  GuruPathCourse,
+} from "./types";
 
-import { oikisGuruPath } from "./oikis";
-import { oikisTiivisGuruPath } from "./oikisTiivis";
-import { oikisTehoGuruPath } from "./oikisTeho";
-import { oikisTehoEtaopetusGuruPath } from "./oikisTehoEtaopetus";
-import { valintakoeGGuruPath } from "./valintakoeG";
-import { valintakoeGEtaopetusGuruPath } from "./valintakoeGEtaopetus";
-import { yoGuruPath } from "./yo";
+import {
+  oikisGuruPath,
+} from "./oikis";
+
+import {
+  valintakoeGGuruPath,
+} from "./valintakoeG";
 
 export * from "./types";
+export * from "./questions";
+export * from "./gameConfig";
 
 export const guruPaths: Record<
-  CourseId,
+  GuruGameId,
   GuruPathCourse
 > = {
   oikis:
     oikisGuruPath,
-  "oikis-tiivis":
-    oikisTiivisGuruPath,
-  "oikis-teho":
-    oikisTehoGuruPath,
-  "oikis-teho-etaope":
-    oikisTehoEtaopetusGuruPath,
+
   "valintakoe-g":
     valintakoeGGuruPath,
-  "valintakoe-g-etaope":
-    valintakoeGEtaopetusGuruPath,
-  yo:
-    yoGuruPath,
 };
 
 export function getGuruPath(
-  courseId: CourseId
+  gameId: GuruGameId
 ): GuruPathCourse {
-  return guruPaths[
-    courseId
-  ];
+  return guruPaths[gameId];
 }

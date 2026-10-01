@@ -1,216 +1,208 @@
-import type { GuruPathCourse } from "./types";
+import {
+  buildGuruPath,
+} from "./buildGuruPath";
+import type {
+  GuruPathNode,
+} from "./types";
 
-export const oikisGuruPath:
-  GuruPathCourse = {
-  courseId: "oikis",
-  title: "Kyssäripankki",
-  description:
-    "Testaa oikeudellista ajattelua, sopimusoikeuden perusteita ja rikosoikeuden keskeisiä käsitteitä.",
-  sections: [
+/**
+ * OIKIS – yksi ja ainoa GuruPeli.
+ *
+ * Nämä ensimmäiset tasot käyttävät nykyisiä
+ * courseContent/oikis-kysymyksiä.
+ *
+ * Uudet GuruPeli-tehtävät lisätään questions.ts:ään.
+ */
+const oikisBaseLevels:
+  GuruPathNode[] = [
     {
-      id: "oikis-ajattelu",
+      id:
+        "oikis-ajattelu-1",
+      questionId:
+        "oikis-q3",
+      questionSource:
+        "course",
       title:
-        "1. Oikeudellinen ajattelu",
-      description:
-        "Ongelman tunnistaminen, oikeuslähteet, perusteleminen ja aineiston tarkka soveltaminen.",
-      nodes: [
-        {
-          id:
-            "oikis-ajattelu-1",
-          questionId:
-            "oikis-q3",
-          title:
-            "Mitä oikeustiede tutkii?",
-          x: 10,
-          y: 52,
-          next: [
-            "oikis-ajattelu-2",
-            "oikis-ajattelu-3",
-          ],
-        },
-        {
-          id:
-            "oikis-ajattelu-2",
-          questionId:
-            "oikis-q4",
-          title:
-            "Oikeudellisen ajattelun vaiheet",
-          x: 40,
-          y: 25,
-          next: [
-            "oikis-ajattelu-vault",
-          ],
-          xp: 40,
-          score: 35,
-        },
-        {
-          id:
-            "oikis-ajattelu-3",
-          questionId:
-            "oikis-q5",
-          title:
-            "Valintakokeen taito",
-          x: 40,
-          y: 76,
-          next: [
-            "oikis-ajattelu-vault",
-          ],
-          xp: 40,
-          score: 35,
-        },
-        {
-          id:
-            "oikis-ajattelu-vault",
-          questionId:
-            "oikis-q12",
-          title:
-            "Ajattelun Vault",
-          type: "vault",
-          x: 82,
-          y: 52,
-          next: [],
-          xp: 100,
-          score: 100,
-        },
-      ],
+        "Mitä oikeustiede tutkii?",
+      order: 1,
+      type:
+        "challenge",
+      points: 35,
     },
 
     {
-      id: "oikis-sopimukset",
+      id:
+        "oikis-ajattelu-2",
+      questionId:
+        "oikis-q4",
+      questionSource:
+        "course",
       title:
-        "2. Sopimusoikeuden perusteet",
-      description:
-        "Sopimusvapaus, sopimuksen kohde ja sopimuksen sitovuus.",
-      requiresSections: [
-        "oikis-ajattelu",
-      ],
-      nodes: [
-        {
-          id:
-            "oikis-sopimus-1",
-          questionId:
-            "oikis-q1",
-          title:
-            "Sopimusvapaus",
-          x: 10,
-          y: 52,
-          next: [
-            "oikis-sopimus-2",
-          ],
-        },
-        {
-          id:
-            "oikis-sopimus-2",
-          questionId:
-            "oikis-q6",
-          title:
-            "Mitä sopimusoikeus käsittelee?",
-          x: 35,
-          y: 28,
-          next: [
-            "oikis-sopimus-3",
-          ],
-        },
-        {
-          id:
-            "oikis-sopimus-3",
-          questionId:
-            "oikis-q7",
-          title:
-            "Mistä voidaan päättää?",
-          x: 60,
-          y: 72,
-          next: [
-            "oikis-sopimus-vault",
-          ],
-          xp: 45,
-          score: 40,
-        },
-        {
-          id:
-            "oikis-sopimus-vault",
-          questionId:
-            "oikis-q8",
-          title:
-            "Sopimusoikeuden Vault",
-          type: "vault",
-          x: 88,
-          y: 46,
-          next: [],
-          xp: 100,
-          score: 100,
-        },
-      ],
+        "Oikeudellisen ajattelun vaiheet",
+      order: 2,
+      type:
+        "challenge",
+      points: 40,
     },
 
     {
-      id: "oikis-rikos",
+      id:
+        "oikis-ajattelu-3",
+      questionId:
+        "oikis-q5",
+      questionSource:
+        "course",
       title:
-        "3. Rikosoikeuden perusteet",
-      description:
-        "Rangaistavuus, tunnusmerkistö sekä rikosoikeuden keskeiset käsitteet.",
-      requiresSections: [
-        "oikis-sopimukset",
-      ],
-      nodes: [
-        {
-          id:
-            "oikis-rikos-1",
-          questionId:
-            "oikis-q9",
-          title:
-            "Rikosoikeuden tehtävä",
-          x: 10,
-          y: 52,
-          next: [
-            "oikis-rikos-2",
-            "oikis-rikos-3",
-          ],
-        },
-        {
-          id:
-            "oikis-rikos-2",
-          questionId:
-            "oikis-q10",
-          title:
-            "Rangaistavuus",
-          x: 42,
-          y: 25,
-          next: [
-            "oikis-rikos-vault",
-          ],
-          xp: 45,
-          score: 40,
-        },
-        {
-          id:
-            "oikis-rikos-3",
-          questionId:
-            "oikis-q11",
-          title: "Syy-yhteys",
-          x: 42,
-          y: 76,
-          next: [
-            "oikis-rikos-vault",
-          ],
-          xp: 45,
-          score: 40,
-        },
-        {
-          id:
-            "oikis-rikos-vault",
-          questionId:
-            "oikis-q2",
-          title:
-            "Rikosoikeuden Vault",
-          type: "vault",
-          x: 84,
-          y: 52,
-          next: [],
-          xp: 125,
-          score: 125,
-        },
-      ],
+        "Valintakokeen taito",
+      order: 3,
+      type:
+        "challenge",
+      points: 40,
     },
-  ],
-};
+
+    {
+      id:
+        "oikis-ajattelu-vault",
+      questionId:
+        "oikis-q12",
+      questionSource:
+        "course",
+      title:
+        "Ajattelun checkpoint",
+      order: 4,
+      type:
+        "vault",
+      points: 100,
+    },
+
+    {
+      id:
+        "oikis-sopimus-1",
+      questionId:
+        "oikis-q1",
+      questionSource:
+        "course",
+      title:
+        "Sopimusvapaus",
+      order: 5,
+      type:
+        "challenge",
+      points: 35,
+    },
+
+    {
+      id:
+        "oikis-sopimus-2",
+      questionId:
+        "oikis-q6",
+      questionSource:
+        "course",
+      title:
+        "Mitä sopimusoikeus käsittelee?",
+      order: 6,
+      type:
+        "challenge",
+      points: 35,
+    },
+
+    {
+      id:
+        "oikis-sopimus-3",
+      questionId:
+        "oikis-q7",
+      questionSource:
+        "course",
+      title:
+        "Mistä voidaan päättää?",
+      order: 7,
+      type:
+        "challenge",
+      points: 45,
+    },
+
+    {
+      id:
+        "oikis-sopimus-vault",
+      questionId:
+        "oikis-q8",
+      questionSource:
+        "course",
+      title:
+        "Sopimusoikeuden checkpoint",
+      order: 8,
+      type:
+        "vault",
+      points: 100,
+    },
+
+    {
+      id:
+        "oikis-rikos-1",
+      questionId:
+        "oikis-q9",
+      questionSource:
+        "course",
+      title:
+        "Rikosoikeuden tehtävä",
+      order: 9,
+      type:
+        "challenge",
+      points: 35,
+    },
+
+    {
+      id:
+        "oikis-rikos-2",
+      questionId:
+        "oikis-q10",
+      questionSource:
+        "course",
+      title:
+        "Rangaistavuus",
+      order: 10,
+      type:
+        "challenge",
+      points: 45,
+    },
+
+    {
+      id:
+        "oikis-rikos-3",
+      questionId:
+        "oikis-q11",
+      questionSource:
+        "course",
+      title:
+        "Syy-yhteys",
+      order: 11,
+      type:
+        "challenge",
+      points: 45,
+    },
+
+    {
+      id:
+        "oikis-rikos-vault",
+      questionId:
+        "oikis-q2",
+      questionSource:
+        "course",
+      title:
+        "Rikosoikeuden checkpoint",
+      order: 12,
+      type:
+        "vault",
+      points: 125,
+    },
+  ];
+
+export const oikisGuruPath =
+  buildGuruPath({
+    gameId: "oikis",
+    title:
+      "Oikis · GuruPeli",
+    description:
+      "Aloita alhaalta ja etene tehtävä kerrallaan kohti seuraavaa tasoa.",
+    baseLevels:
+      oikisBaseLevels,
+  });

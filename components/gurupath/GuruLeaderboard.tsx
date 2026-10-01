@@ -1,51 +1,168 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import type { GuruLeaderboardRow, GuruProfile } from "@/lib/gurupath/types";
-import { xpNeededForLevel } from "@/lib/gurupath/config";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-function Medal({ rank }: { rank: number }) {
-  if (rank === 1) return <span aria-label="1. sija">🥇</span>;
-  if (rank === 2) return <span aria-label="2. sija">🥈</span>;
-  if (rank === 3) return <span aria-label="3. sija">🥉</span>;
-  return <span className="text-slate-500">#{rank}</span>;
+import type {
+  GuruLeaderboardRow,
+  GuruProfile,
+} from "@/lib/gurupath/types";
+
+import {
+  xpNeededForLevel,
+} from "@/lib/gurupath/config";
+
+function Medal({
+  rank,
+}: {
+  rank: number;
+}) {
+  if (rank === 1) {
+    return (
+      <span aria-label="1. sija">
+        🥇
+      </span>
+    );
+  }
+
+  if (rank === 2) {
+    return (
+      <span aria-label="2. sija">
+        🥈
+      </span>
+    );
+  }
+
+  if (rank === 3) {
+    return (
+      <span aria-label="3. sija">
+        🥉
+      </span>
+    );
+  }
+
+  return (
+    <span className="text-slate-500">
+      #{rank}
+    </span>
+  );
 }
 
 export default function GuruLeaderboard() {
-  const [profile, setProfile] = useState<GuruProfile | null>(null);
-  const [rows, setRows] = useState<GuruLeaderboardRow[]>([]);
-  const [name, setName] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
+  const [
+    profile,
+    setProfile,
+  ] = useState<
+    GuruProfile | null
+  >(null);
+
+  const [
+    rows,
+    setRows,
+  ] = useState<
+    GuruLeaderboardRow[]
+  >([]);
+
+  const [
+    name,
+    setName,
+  ] = useState("");
+
+  const [
+    isPublic,
+    setIsPublic,
+  ] = useState(false);
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    saving,
+    setSaving,
+  ] = useState(false);
+
+  const [
+    message,
+    setMessage,
+  ] = useState("");
 
   async function refresh() {
     setLoading(true);
     setMessage("");
 
-    const [profileRes, boardRes] = await Promise.all([
-      fetch("/api/gurupath/profile", { cache: "no-store" }),
-      fetch("/api/gurupath/leaderboard", { cache: "no-store" }),
-    ]);
+    const [
+      profileRes,
+      boardRes,
+    ] =
+      await Promise.all([
+        fetch(
+          "/api/gurupath/profile",
+          {
+            cache:
+              "no-store",
+          }
+        ),
 
-    const profileJson = await profileRes.json();
-    const boardJson = await boardRes.json();
+        fetch(
+          "/api/gurupath/leaderboard",
+          {
+            cache:
+              "no-store",
+          }
+        ),
+      ]);
 
-    if (profileRes.ok && profileJson.profile) {
-      setProfile(profileJson.profile);
-      setName(profileJson.profile.display_name ?? "");
-      setIsPublic(profileJson.profile.is_public ?? false);
+    const profileJson =
+      await profileRes.json();
+
+    const boardJson =
+      await boardRes.json();
+
+    if (
+      profileRes.ok &&
+      profileJson.profile
+    ) {
+      setProfile(
+        profileJson.profile
+      );
+
+      setName(
+        profileJson.profile
+          .display_name ??
+          ""
+      );
+
+      setIsPublic(
+        profileJson.profile
+          .is_public ??
+          false
+      );
     }
 
     if (boardRes.ok) {
-      setRows(boardJson.leaderboard ?? []);
+      setRows(
+        boardJson.leaderboard ??
+          []
+      );
     }
 
     if (!profileRes.ok) {
-      setMessage(profileJson.error ?? "Profiilia ei voitu hakea.");
-    } else if (!boardRes.ok) {
-      setMessage(boardJson.error ?? "Rankingia ei voitu hakea.");
+      setMessage(
+        profileJson.error ??
+          "Profiilia ei voitu hakea."
+      );
+    } else if (
+      !boardRes.ok
+    ) {
+      setMessage(
+        boardJson.error ??
+          "Rankingia ei voitu hakea."
+      );
     }
 
     setLoading(false);
@@ -55,169 +172,277 @@ export default function GuruLeaderboard() {
     void refresh();
   }, []);
 
-  const myRank = useMemo(() => {
-    if (!profile?.display_name || !profile.is_public) return null;
-    return rows.find(
-      (row) =>
-        row.display_name.toLocaleLowerCase("fi") ===
-        profile.display_name?.toLocaleLowerCase("fi")
-    )?.rank ?? null;
-  }, [rows, profile]);
+  const myRank =
+    useMemo(() => {
+      if (
+        !profile?.display_name ||
+        !profile.is_public
+      ) {
+        return null;
+      }
 
-  const nextLevelXp = profile ? xpNeededForLevel(profile.level) : 250;
-  const levelProgress = profile
-    ? Math.min(100, Math.max(0, (profile.xp / nextLevelXp) * 100))
-    : 0;
+      return (
+        rows.find(
+          (row) =>
+            row.display_name.toLocaleLowerCase(
+              "fi"
+            ) ===
+            profile.display_name?.toLocaleLowerCase(
+              "fi"
+            )
+        )?.rank ?? null
+      );
+    }, [
+      rows,
+      profile,
+    ]);
 
-  async function saveProfile(event: React.FormEvent) {
+  const nextLevelPoints =
+    profile
+      ? xpNeededForLevel(
+          profile.level
+        )
+      : 250;
+
+  const levelProgress =
+    profile
+      ? Math.min(
+          100,
+          Math.max(
+            0,
+            (profile.xp /
+              nextLevelPoints) *
+              100
+          )
+        )
+      : 0;
+
+  async function saveProfile(
+    event:
+      React.FormEvent
+  ) {
     event.preventDefault();
+
     setSaving(true);
     setMessage("");
 
-    const response = await fetch("/api/gurupath/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        displayName: name,
-        isPublic,
-      }),
-    });
+    const response =
+      await fetch(
+        "/api/gurupath/profile",
+        {
+          method:
+            "PATCH",
 
-    const data = await response.json();
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body:
+            JSON.stringify({
+              displayName:
+                name,
+              isPublic,
+            }),
+        }
+      );
+
+    const data =
+      await response.json();
 
     if (!response.ok) {
-      setMessage(data?.error ?? "Tallennus epäonnistui.");
+      setMessage(
+        data?.error ??
+          "Tallennus epäonnistui."
+      );
+
       setSaving(false);
       return;
     }
 
-    setProfile(data.profile);
+    setProfile(
+      data.profile
+    );
+
     setMessage(
       data.profile.is_public
         ? "Nimimerkki näkyy nyt rankingissa."
         : "Ranking-näkyvyys on pois päältä."
     );
+
     setSaving(false);
     await refresh();
   }
 
   return (
     <section className="mx-auto w-full max-w-5xl space-y-6">
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
-        <div className="grid gap-6 p-6 md:grid-cols-[1.2fr_.8fr] md:p-8">
-          <div>
-            <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-blue-600">
-              GuruPath
-            </p>
-            <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-950">
-              Ranking
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Rankingissa näkyy vain itse valitsemasi nimimerkki.
-            </p>
+      <div className="overflow-hidden rounded-[2rem] border border-violet-100 bg-white shadow-sm">
+        <div className="bg-gradient-to-br from-violet-50 via-white to-indigo-50 p-6 md:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-600">
+            GuruPeli
+          </p>
 
-            {profile && (
-              <div className="mt-6">
-                <div className="flex flex-wrap items-end justify-between gap-3">
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+            Ranking
+          </h1>
+
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+            Rankingissa näkyy vain itse valitsemasi nimimerkki.
+          </p>
+
+          {profile && (
+            <div className="mt-7 rounded-[1.5rem] border border-violet-100 bg-white p-5 shadow-sm">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <div className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
+                    Oma tasosi
+                  </div>
+
+                  <div className="mt-1 text-5xl font-black text-slate-950">
+                    {
+                      profile.level
+                    }
+                  </div>
+                </div>
+
+                <div className="text-right text-sm font-bold text-slate-600">
                   <div>
-                    <div className="text-sm font-semibold text-slate-500">
-                      Oma tasosi
-                    </div>
-                    <div className="text-4xl font-black text-slate-950">
-                      {profile.level}
-                    </div>
+                    {profile.xp.toLocaleString(
+                      "fi-FI"
+                    )}{" "}
+                    pistettä tällä tasolla
                   </div>
-                  <div className="text-right text-sm text-slate-600">
-                    <div>{profile.xp.toLocaleString("fi-FI")} Pisteitä tällä tasolla</div>
-                    <div>{profile.lifetime_xp.toLocaleString("fi-FI")} Pisteitä yhteensä</div>
+
+                  <div className="mt-1">
+                    {profile.lifetime_xp.toLocaleString(
+                      "fi-FI"
+                    )}{" "}
+                    pistettä yhteensä
                   </div>
-                </div>
-
-                <div
-                  className="mt-3 h-3 overflow-hidden rounded-full bg-slate-100"
-                  aria-label={`Tason eteneminen ${Math.round(levelProgress)} %`}
-                >
-                  <div
-                    className="h-full rounded-full bg-blue-600 transition-[width]"
-                    style={{ width: `${levelProgress}%` }}
-                  />
-                </div>
-
-                <div className="mt-2 flex justify-between text-xs font-semibold text-slate-500">
-                  <span>Taso {profile.level}</span>
-                  <span>{nextLevelXp.toLocaleString("fi-FI")} Pisteitä seuraavaan tasoon</span>
                 </div>
               </div>
-            )}
-          </div>
 
-          <form
-            onSubmit={saveProfile}
-            className="rounded-2xl bg-slate-50 p-5"
-          >
-            <h2 className="text-lg font-black text-slate-950">
-              Ranking-profiili
-            </h2>
+              <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-violet-600 transition-[width]"
+                  style={{
+                    width:
+                      `${levelProgress}%`,
+                  }}
+                />
+              </div>
 
-            <label className="mt-4 block text-sm font-bold text-slate-700">
-              Nimimerkki
+              <div className="mt-2 flex justify-between text-xs font-bold text-slate-400">
+                <span>
+                  Taso{" "}
+                  {
+                    profile.level
+                  }
+                </span>
+
+                <span>
+                  {nextLevelPoints.toLocaleString(
+                    "fi-FI"
+                  )}{" "}
+                  p
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <form
+          onSubmit={
+            saveProfile
+          }
+          className="grid gap-5 border-t border-slate-100 p-6 md:grid-cols-[1fr_auto] md:items-end md:p-8"
+        >
+          <div>
+            <label className="block text-sm font-black text-slate-800">
+              Ranking-nimimerkki
             </label>
+
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(
+                event
+              ) =>
+                setName(
+                  event.target
+                    .value
+                )
+              }
               maxLength={24}
               placeholder="Esim. Guru2026"
-              className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 text-base outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
             />
 
-            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4">
+            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <input
                 type="checkbox"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
+                checked={
+                  isPublic
+                }
+                onChange={(
+                  event
+                ) =>
+                  setIsPublic(
+                    event.target
+                      .checked
+                  )
+                }
                 className="mt-1 h-5 w-5"
               />
+
               <span>
-                <span className="block text-sm font-bold text-slate-900">
+                <span className="block text-sm font-black text-slate-900">
                   Näytä minut rankingissa
                 </span>
+
                 <span className="mt-1 block text-xs leading-5 text-slate-500">
                   Vain nimimerkki, taso ja pisteet julkaistaan.
                 </span>
               </span>
             </label>
+          </div>
 
-            <button
-              type="submit"
-              disabled={saving || loading}
-              className="mt-4 w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {saving ? "Tallennetaan…" : "Tallenna"}
-            </button>
+          <button
+            type="submit"
+            disabled={
+              saving ||
+              loading
+            }
+            className="rounded-full bg-slate-950 px-6 py-3.5 text-sm font-black text-white transition hover:bg-violet-700 disabled:opacity-50"
+          >
+            {saving
+              ? "Tallennetaan…"
+              : "Tallenna profiili"}
+          </button>
 
-            {message && (
-              <p className="mt-3 text-sm font-semibold text-slate-600" role="status">
-                {message}
-              </p>
-            )}
-          </form>
-        </div>
+          {message && (
+            <p className="text-sm font-semibold text-slate-600 md:col-span-2">
+              {message}
+            </p>
+          )}
+        </form>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4 md:px-7">
           <div>
             <h2 className="text-xl font-black text-slate-950">
               Ennätystaulukko
             </h2>
+
             <p className="mt-1 text-sm text-slate-500">
               Suurin saavutettu taso ratkaisee. Pisteet toimivat tasatilanteen ratkaisijana.
             </p>
           </div>
 
           {myRank && (
-            <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-black text-blue-700">
-              Oma sijoitus #{myRank}
+            <div className="rounded-full bg-violet-50 px-4 py-2 text-sm font-black text-violet-700">
+              Oma sijoitus #
+              {myRank}
             </div>
           )}
         </div>
@@ -226,45 +451,85 @@ export default function GuruLeaderboard() {
           <table className="w-full min-w-[560px]">
             <thead>
               <tr className="bg-slate-50 text-left text-xs font-black uppercase tracking-wider text-slate-500">
-                <th className="px-5 py-3 md:px-7">Sija</th>
-                <th className="px-5 py-3">Pelaaja</th>
-                <th className="px-5 py-3 text-right">Ennätystaso</th>
-                <th className="px-5 py-3 text-right md:px-7">Piste</th>
+                <th className="px-5 py-3 md:px-7">
+                  Sija
+                </th>
+
+                <th className="px-5 py-3">
+                  Pelaaja
+                </th>
+
+                <th className="px-5 py-3 text-right">
+                  Ennätystaso
+                </th>
+
+                <th className="px-5 py-3 text-right md:px-7">
+                  Pisteet
+                </th>
               </tr>
             </thead>
+
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-7 py-10 text-center text-sm text-slate-500">
+                  <td
+                    colSpan={
+                      4
+                    }
+                    className="px-7 py-10 text-center text-sm text-slate-500"
+                  >
                     Ladataan rankingia…
                   </td>
                 </tr>
-              ) : rows.length === 0 ? (
+              ) : rows.length ===
+                0 ? (
                 <tr>
-                  <td colSpan={4} className="px-7 py-10 text-center text-sm text-slate-500">
+                  <td
+                    colSpan={
+                      4
+                    }
+                    className="px-7 py-10 text-center text-sm text-slate-500"
+                  >
                     Rankingissa ei ole vielä pelaajia.
                   </td>
                 </tr>
               ) : (
-                rows.map((row) => (
-                  <tr
-                    key={`${row.rank}-${row.display_name}`}
-                    className="border-t border-slate-100"
-                  >
-                    <td className="px-5 py-4 text-sm font-black md:px-7">
-                      <Medal rank={row.rank} />
-                    </td>
-                    <td className="px-5 py-4 font-bold text-slate-900">
-                      {row.display_name}
-                    </td>
-                    <td className="px-5 py-4 text-right font-black text-slate-950">
-                      {row.best_level}
-                    </td>
-                    <td className="px-5 py-4 text-right text-sm font-semibold text-slate-600 md:px-7">
-                      {Number(row.lifetime_xp).toLocaleString("fi-FI")}
-                    </td>
-                  </tr>
-                ))
+                rows.map(
+                  (row) => (
+                    <tr
+                      key={`${row.rank}-${row.display_name}`}
+                      className="border-t border-slate-100"
+                    >
+                      <td className="px-5 py-4 text-sm font-black md:px-7">
+                        <Medal
+                          rank={
+                            row.rank
+                          }
+                        />
+                      </td>
+
+                      <td className="px-5 py-4 font-bold text-slate-900">
+                        {
+                          row.display_name
+                        }
+                      </td>
+
+                      <td className="px-5 py-4 text-right font-black text-slate-950">
+                        {
+                          row.best_level
+                        }
+                      </td>
+
+                      <td className="px-5 py-4 text-right text-sm font-semibold text-slate-600 md:px-7">
+                        {Number(
+                          row.lifetime_xp
+                        ).toLocaleString(
+                          "fi-FI"
+                        )}
+                      </td>
+                    </tr>
+                  )
+                )
               )}
             </tbody>
           </table>

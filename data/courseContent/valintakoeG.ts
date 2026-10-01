@@ -51,6 +51,18 @@ export const valintakoeGContent = {
         url: "https://www.canva.com/design/DAHVi86tdTs/wr7Ukops8Rb_qaCbNIflJg/view?embed",
       },
     },
+      {
+      id: "g-teoria-3-canva",
+      subtitle: "Teoria",
+      title: "3 tapaa suorittaa valintakoe G",
+      content: "",
+      embed: {
+        type: "canva",
+        title: "3 tapaa suorittaa valintakoe G",
+        url: "https://www.canva.com/design/DAHWYEqgCg4/dKkl0xZL4AaYiTjbRRwCXw/view?embed",
+        paddingTop: "175.0842%",
+      },
+    },
   ],
 
   quizQuestions: [
