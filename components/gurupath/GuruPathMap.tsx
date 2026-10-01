@@ -12,23 +12,14 @@ import {
 import GuruPathChallenge from "./GuruPathChallenge";
 
 import {
-  getCourseContent,
-} from "@/data/courseContent";
-
-import {
   getGuruPath,
-  getSharedGuruQuestion,
+  getGuruGameQuestion,
 } from "@/data/gurupath";
 
 import type {
   GuruGameId,
-  GuruGameQuestion,
   GuruPathNode,
 } from "@/data/gurupath";
-
-import type {
-  QuizQuestion,
-} from "@/data/courseContent";
 
 type NodeStatus =
   | "done"
@@ -80,26 +71,6 @@ function sourceIdForNode(
   return `gurupath:${node.id}:${node.questionId}`;
 }
 
-function adaptLegacyQuestion(
-  question: QuizQuestion
-): GuruGameQuestion {
-  return {
-    id: question.id,
-    type: "multiple-choice",
-    title: question.question,
-    prompt: question.question,
-    answers: question.answers,
-    correctAnswerIds:
-      question.correctAnswerIds,
-    explanation:
-      question.explanation,
-    placements: {},
-  };
-}
-
-/**
- * index 0 = taso 1 = kartan alin taso.
- */
 function positionForLevel(
   index: number,
   total: number
@@ -124,15 +95,6 @@ function positionForLevel(
 export default function GuruPathMap({
   gameId,
 }: Props) {
-  const content =
-    useMemo(
-      () =>
-        getCourseContent(
-          gameId
-        ),
-      [gameId]
-    );
-
   const path =
     useMemo(
       () =>
@@ -144,23 +106,6 @@ export default function GuruPathMap({
 
   const levels =
     path.levels;
-
-  const legacyQuestionById =
-    useMemo(
-      () =>
-        new Map<
-          string,
-          QuizQuestion
-        >(
-          content.quizQuestions.map(
-            (question) => [
-              question.id,
-              question,
-            ]
-          )
-        ),
-      [content.quizQuestions]
-    );
 
   const [
     completedEntries,
@@ -188,10 +133,6 @@ export default function GuruPathMap({
     string | null
   >(null);
 
-  /**
-   * Kun tämä on false, kartta voidaan näyttää normaalisti.
-   * Ensin pakotetaan oikea scrollTop.
-   */
   const [
     positioningMap,
     setPositioningMap,
@@ -217,10 +158,6 @@ export default function GuruPathMap({
       null
     );
 
-  /**
-   * Estää sen, että automaattikeskitys yliajaa käyttäjän
-   * manuaalisen scrollauksen jatkuvasti.
-   */
   const lastAutoCenteredIndexRef =
     useRef<number | null>(
       null
@@ -318,30 +255,16 @@ export default function GuruPathMap({
     );
   }
 
+  /**
+   * AINOA kysymyslähde:
+   * data/gurupath/questions.ts
+   */
   function resolveQuestion(
     node: GuruPathNode
-  ): GuruGameQuestion | null {
-    if (
-      node.questionSource ===
-      "shared"
-    ) {
-      return (
-        getSharedGuruQuestion(
-          node.questionId
-        ) ?? null
-      );
-    }
-
-    const legacy =
-      legacyQuestionById.get(
-        node.questionId
-      );
-
-    return legacy
-      ? adaptLegacyQuestion(
-          legacy
-        )
-      : null;
+  ) {
+    return getGuruGameQuestion(
+      node.questionId
+    );
   }
 
   function getNodeStatus(
@@ -444,9 +367,6 @@ export default function GuruPathMap({
       ROW_HEIGHT +
     BOTTOM_PADDING;
 
-  /**
-   * Laskee tarkalleen scrollTopin, jolla taso on viewportin keskellä.
-   */
   const getTargetScrollTop =
     useCallback(
       (
@@ -491,12 +411,6 @@ export default function GuruPathMap({
       ]
     );
 
-  /**
-   * Pakotettu keskitys.
-   *
-   * Ei käytetä pelkästään scrollTo():ta, vaan asetetaan myös
-   * scrollTop suoraan. Tämä toimii luotettavasti myös heti mountissa.
-   */
   const centerLevel =
     useCallback(
       (
@@ -523,10 +437,6 @@ export default function GuruPathMap({
               "smooth",
           });
         } else {
-          /**
-           * Suora assignment on tarkoituksellinen.
-           * Se ei jää selaimen smooth-scroll / mount timingin varaan.
-           */
           scroller.scrollTop =
             target;
         }
@@ -545,12 +455,6 @@ export default function GuruPathMap({
       ]
     );
 
-  /**
-   * TÄRKEIN KORJAUS:
-   *
-   * useLayoutEffect ajetaan DOM-muutoksen jälkeen mutta ennen maalausta.
-   * Kartta keskitetään nykyiseen tasoon ennen kuin käyttäjä näkee sen.
-   */
   useLayoutEffect(() => {
     if (
       loadingProgress ||
@@ -576,10 +480,6 @@ export default function GuruPathMap({
           return;
         }
 
-        /**
-         * Kaksi framea varmistaa, että elementin korkeus ja scrollHeight
-         * ovat varmasti muodostuneet myös dev/hot reload -tilanteessa.
-         */
         frame1 =
           window.requestAnimationFrame(
             () => {
@@ -627,9 +527,6 @@ export default function GuruPathMap({
     centerLevel,
   ]);
 
-  /**
-   * Kun uusi taso aukeaa, keskitetään se vain kerran.
-   */
   useEffect(() => {
     if (
       loadingProgress ||
@@ -783,11 +680,8 @@ export default function GuruPathMap({
         }
       }
 
-      /**
-       * Nykyinen taso renderöidään aina varmuuden vuoksi,
-       * vaikka scroll-state olisi yhden framen jäljessä.
-       */
       if (
+        levels.length > 0 &&
         !result.includes(
           focusIndex
         )
@@ -912,6 +806,24 @@ export default function GuruPathMap({
   }
 
   if (
+    levels.length === 0
+  ) {
+    return (
+      <section className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <h1 className="text-2xl font-black">
+            Ei GuruPeli-kysymyksiä
+          </h1>
+
+          <p className="mt-3 text-slate-600">
+            Lisää kysymykset tiedostoon data/gurupath/questions.ts.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  if (
     selectedNode &&
     selectedQuestion
   ) {
@@ -948,11 +860,6 @@ export default function GuruPathMap({
             handleCompleted
           }
           onAdvance={() => {
-            /**
-             * Palataan kartalle.
-             * completedEntries on jo päivittynyt -> focusIndex muuttuu.
-             * useLayoutEffect/useEffect keskittää uuden tason.
-             */
             setPositioningMap(
               true
             );
@@ -1068,16 +975,12 @@ export default function GuruPathMap({
               {showReturnToCurrent && (
                 <button
                   type="button"
-                  onClick={() => {
-                    /**
-                     * Painikkeessa käytetään suoraa keskitystä.
-                     * Ei odoteta mitään effectiä.
-                     */
+                  onClick={() =>
                     centerLevel(
                       focusIndex,
                       true
-                    );
-                  }}
+                    )
+                  }
                   className="absolute right-4 top-4 z-30 rounded-full border border-violet-200 bg-white/95 px-4 py-2.5 text-xs font-black text-violet-700 shadow-lg backdrop-blur transition hover:bg-violet-50 sm:right-5 sm:top-5 sm:text-sm"
                 >
                   ◎ Nykyiseen tasoon{" "}
@@ -1116,7 +1019,9 @@ export default function GuruPathMap({
                   }}
                 >
                   <div className="pointer-events-none absolute left-[-100px] top-[8%] h-72 w-72 rounded-full bg-violet-200/35 blur-3xl" />
+
                   <div className="pointer-events-none absolute right-[-100px] top-[42%] h-80 w-80 rounded-full bg-sky-200/30 blur-3xl" />
+
                   <div className="pointer-events-none absolute left-[-120px] top-[75%] h-80 w-80 rounded-full bg-emerald-200/35 blur-3xl" />
 
                   <svg
@@ -1291,13 +1196,6 @@ export default function GuruPathMap({
                                 ? "!"
                                 : index +
                                   1}
-
-                            {node.type ===
-                              "vault" && (
-                              <span className="absolute -right-2 -top-2 grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-amber-400 text-sm text-amber-950 shadow">
-                                ★
-                              </span>
-                            )}
                           </button>
 
                           <div className="absolute left-1/2 top-[104px] w-[170px] -translate-x-1/2 text-center sm:w-[190px]">
@@ -1350,6 +1248,7 @@ export default function GuruPathMap({
                 <div className="absolute inset-0 z-20 grid place-items-center bg-white">
                   <div className="text-center">
                     <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-violet-200 border-t-violet-600" />
+
                     <p className="mt-3 text-sm font-black text-slate-500">
                       Siirrytään nykyiseen tasoon…
                     </p>

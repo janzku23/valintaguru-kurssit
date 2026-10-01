@@ -1,6 +1,7 @@
 import {
-  getSharedGuruQuestionsForGame,
+  getGuruGameQuestionsForGame,
 } from "./questions";
+
 import type {
   GuruGameId,
   GuruPathCourse,
@@ -11,52 +12,51 @@ type BuildGuruPathOptions = {
   gameId: GuruGameId;
   title: string;
   description: string;
-  baseLevels?: GuruPathNode[];
 };
 
 function validateLevels(
   gameId: GuruGameId,
   levels: GuruPathNode[]
 ) {
-  const orders =
+  const usedOrders =
     new Map<number, string>();
 
-  const ids =
+  const usedIds =
     new Set<string>();
 
   for (const level of levels) {
     if (
-      !Number.isInteger(
-        level.order
-      ) ||
+      !Number.isInteger(level.order) ||
       level.order < 1
     ) {
       throw new Error(
-        `GuruPeli "${gameId}": virheellinen order tasolla ${level.id}.`
+        `GuruPeli "${gameId}": virheellinen tasonumero kysymyksellä ${level.questionId}.`
       );
     }
 
     const previous =
-      orders.get(level.order);
+      usedOrders.get(level.order);
 
     if (previous) {
       throw new Error(
-        `GuruPeli "${gameId}": taso ${level.order} on määritetty kahdesti (${previous} ja ${level.id}).`
+        `GuruPeli "${gameId}": taso ${level.order} on määritelty kahdesti (${previous} ja ${level.questionId}).`
       );
     }
 
-    if (ids.has(level.id)) {
+    if (
+      usedIds.has(level.id)
+    ) {
       throw new Error(
-        `GuruPeli "${gameId}": level id "${level.id}" on määritetty kahdesti.`
+        `GuruPeli "${gameId}": level id "${level.id}" on määritelty kahdesti.`
       );
     }
 
-    orders.set(
+    usedOrders.set(
       level.order,
-      level.id
+      level.questionId
     );
 
-    ids.add(level.id);
+    usedIds.add(level.id);
   }
 }
 
@@ -64,11 +64,12 @@ export function buildGuruPath({
   gameId,
   title,
   description,
-  baseLevels = [],
 }: BuildGuruPathOptions): GuruPathCourse {
-  const sharedLevels:
-    GuruPathNode[] =
-    getSharedGuruQuestionsForGame(
+  /**
+   * Kaikki tasot muodostetaan AINOASTAAN questions.ts-tiedostosta.
+   */
+  const levels: GuruPathNode[] =
+    getGuruGameQuestionsForGame(
       gameId
     ).map(
       ({
@@ -76,30 +77,26 @@ export function buildGuruPath({
         order,
       }) => ({
         id:
-          `${gameId}-shared-${question.id}`,
+          `${gameId}-${question.id}`,
+
         questionId:
           question.id,
+
         questionSource:
           "shared",
+
         title:
           question.title,
+
         order,
+
         type:
           "challenge",
+
         points:
-          question.points ??
-          35,
+          question.points ?? 35,
       })
     );
-
-  const levels = [
-    ...baseLevels,
-    ...sharedLevels,
-  ].sort(
-    (a, b) =>
-      a.order -
-      b.order
-  );
 
   validateLevels(
     gameId,
