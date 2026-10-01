@@ -6,7 +6,7 @@ const siteUrl =
   "https://www.valintaguru.fi";
 
 export const metadata: Metadata = {
-  title: "Mikä on Valintakoe G?",
+  title: { absolute: "Mikä on Valintakoe G? | ValintaGuru" },
   description:
     "Valintakoe G on useiden yhteiskunnallisten alojen yhteinen yliopistojen valintakoe. Lue, miten koe toteutetaan ja mitä taitoja siinä tarvitaan.",
   alternates: {

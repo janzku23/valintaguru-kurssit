@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Oikeustiede",
+  title: { absolute: "Oikeustiede | ValintaGuru" },
   description:
     "Oikeustieteen esittely on tulossa pian.",
   alternates: {

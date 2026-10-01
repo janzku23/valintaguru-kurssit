@@ -8,7 +8,7 @@ const PAGE_URL =
   "https://www.valintaguru.fi/valintakoe-g-pisterajat";
 
 export const metadata: Metadata = {
-  title: "Valintakoe G pisterajat 2026",
+  title: { absolute: "Valintakoe G pisterajat 2026 | ValintaGuru" },
   description:
     "Katso Valintakoe G:n vuoden 2026 lopulliset pisterajat hallintotieteisiin, yhteiskunta- ja sosiaalitieteisiin, viestintätieteisiin sekä oikeustieteeseen.",
   alternates: {
