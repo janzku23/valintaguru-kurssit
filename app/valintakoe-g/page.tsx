@@ -40,17 +40,38 @@ export const metadata: Metadata = {
 
 const pageJsonLd = {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  name: "Mikä on Valintakoe G?",
-  description:
-    "Tietoa Valintakoe G:stä, sen toteutuksesta ja kokeessa tarvittavista taidoista.",
-  inLanguage: "fi-FI",
-  url: `${siteUrl}/valintakoe-g`,
-  isPartOf: {
-    "@type": "WebSite",
-    name: "ValintaGuru",
-    url: siteUrl,
-  },
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": `${siteUrl}/valintakoe-g#webpage`,
+      name: "Mikä on Valintakoe G?",
+      description:
+        "Tietoa Valintakoe G:stä, sen toteutuksesta ja kokeessa tarvittavista taidoista.",
+      inLanguage: "fi-FI",
+      url: `${siteUrl}/valintakoe-g`,
+      isPartOf: {
+        "@id": `${siteUrl}/#website`,
+      },
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${siteUrl}/valintakoe-g#breadcrumb`,
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Etusivu",
+          item: siteUrl,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Valintakoe G",
+          item: `${siteUrl}/valintakoe-g`,
+        },
+      ],
+    },
+  ],
 };
 
 export default function ValintakoeGPage() {

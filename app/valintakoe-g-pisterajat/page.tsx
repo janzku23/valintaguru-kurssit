@@ -272,17 +272,44 @@ function ScoreTable({
 export default function ValintakoeGPisterajatPage() {
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: "Valintakoe G pisterajat 2026",
-    url: PAGE_URL,
-    description:
-      "Valintakoe G:n vuoden 2026 lopulliset pisterajat.",
-    inLanguage: "fi-FI",
-    isPartOf: {
-      "@type": "WebSite",
-      name: "ValintaGuru",
-      url: "https://www.valintaguru.fi",
-    },
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${PAGE_URL}#webpage`,
+        name: "Valintakoe G pisterajat 2026",
+        url: PAGE_URL,
+        description:
+          "Valintakoe G:n vuoden 2026 lopulliset pisterajat.",
+        inLanguage: "fi-FI",
+        isPartOf: {
+          "@id": "https://www.valintaguru.fi/#website",
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${PAGE_URL}#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Etusivu",
+            item: "https://www.valintaguru.fi",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Valintakoe G",
+            item: "https://www.valintaguru.fi/valintakoe-g",
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Pisterajat 2026",
+            item: PAGE_URL,
+          },
+        ],
+      },
+    ],
   };
 
   return (

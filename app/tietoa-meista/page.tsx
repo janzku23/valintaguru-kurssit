@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.valintaguru.fi";
+
 export const metadata: Metadata = {
   title: "Tietoa meistä",
   description:
@@ -32,9 +35,51 @@ export const metadata: Metadata = {
   },
 };
 
+const pageJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "AboutPage",
+      "@id": `${siteUrl}/tietoa-meista#webpage`,
+      name: "Tietoa meistä",
+      description: "ValintaGurun esittely on tulossa pian.",
+      inLanguage: "fi-FI",
+      url: `${siteUrl}/tietoa-meista`,
+      isPartOf: {
+        "@id": `${siteUrl}/#website`,
+      },
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${siteUrl}/tietoa-meista#breadcrumb`,
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Etusivu",
+          item: siteUrl,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Tietoa meistä",
+          item: `${siteUrl}/tietoa-meista`,
+        },
+      ],
+    },
+  ],
+};
+
 export default function TietoaMeistaPage() {
   return (
-    <main className="min-h-screen bg-[#fffdf8] text-slate-950">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(pageJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <main className="min-h-screen bg-[#fffdf8] text-slate-950">
       <section className="relative flex min-h-[70vh] items-center overflow-hidden px-4 py-16 sm:px-6 lg:px-8">
         <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-indigo-100" />
         <div className="pointer-events-none absolute -bottom-20 -left-12 h-44 w-44 rounded-[3rem] border-[10px] border-amber-200" />
@@ -74,6 +119,7 @@ export default function TietoaMeistaPage() {
           </div>
         </div>
       </section>
-    </main>
+      </main>
+    </>
   );
 }
