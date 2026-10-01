@@ -6,7 +6,7 @@ const siteUrl =
   "https://www.valintaguru.fi";
 
 export const metadata: Metadata = {
-  title: "Mikä on Valintakoe G? | ValintaGuru",
+  title: "Mikä on Valintakoe G?",
   description:
     "Valintakoe G on useiden yhteiskunnallisten alojen yhteinen yliopistojen valintakoe. Lue, miten koe toteutetaan ja mitä taitoja siinä tarvitaan.",
   alternates: {
@@ -20,16 +20,21 @@ export const metadata: Metadata = {
     title: "Mikä on Valintakoe G? | ValintaGuru",
     description:
       "Tietoa Valintakoe G:stä, vuoden 2027 koepäivästä, digitaalisesta toteutuksesta ja kokeessa tarvittavista taidoista.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ValintaGuru – Valintakoe G",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Mikä on Valintakoe G? | ValintaGuru",
     description:
       "Tietoa Valintakoe G:stä ja kokeessa tarvittavista taidoista.",
-  },
-  robots: {
-    index: true,
-    follow: true,
+    images: ["/og-image.png"],
   },
 };
 

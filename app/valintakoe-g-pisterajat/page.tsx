@@ -8,26 +8,35 @@ const PAGE_URL =
   "https://www.valintaguru.fi/valintakoe-g-pisterajat";
 
 export const metadata: Metadata = {
-  title:
-    "Valintakoe G pisterajat 2026 | ValintaGuru",
+  title: "Valintakoe G pisterajat 2026",
   description:
     "Katso Valintakoe G:n vuoden 2026 lopulliset pisterajat hallintotieteisiin, yhteiskunta- ja sosiaalitieteisiin, viestintätieteisiin sekä oikeustieteeseen.",
   alternates: {
     canonical: PAGE_URL,
   },
   openGraph: {
-    title:
-      "Valintakoe G pisterajat 2026 | ValintaGuru",
+    title: "Valintakoe G pisterajat 2026 | ValintaGuru",
     description:
       "Valintakoe G:n lopulliset pisterajat 2026 hallintotieteisiin, yhteiskunta- ja sosiaalitieteisiin, viestintätieteisiin sekä oikeustieteeseen.",
     url: PAGE_URL,
     siteName: "ValintaGuru",
     locale: "fi_FI",
     type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Valintakoe G pisterajat 2026 – ValintaGuru",
+      },
+    ],
   },
-  robots: {
-    index: true,
-    follow: true,
+  twitter: {
+    card: "summary_large_image",
+    title: "Valintakoe G pisterajat 2026 | ValintaGuru",
+    description:
+      "Valintakoe G:n lopulliset pisterajat 2026 hallintotieteisiin, yhteiskunta- ja sosiaalitieteisiin, viestintätieteisiin sekä oikeustieteeseen.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -268,7 +277,7 @@ export default function ValintakoeGPisterajatPage() {
     url: PAGE_URL,
     description:
       "Valintakoe G:n vuoden 2026 lopulliset pisterajat.",
-    inLanguage: "fi",
+    inLanguage: "fi-FI",
     isPartOf: {
       "@type": "WebSite",
       name: "ValintaGuru",

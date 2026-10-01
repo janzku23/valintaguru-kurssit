@@ -49,7 +49,7 @@ export const metadata: Metadata = {
       "Valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon. Teoria, harjoitukset ja opiskelun seuranta yhdessä palvelussa.",
     images: [
       {
-        url: "/Etusivulogo.png",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
       "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
     description:
       "Valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
-    images: ["/Etusivulogo.png"],
+    images: ["/og-image.png"],
   },
 
   robots: {
@@ -125,8 +125,15 @@ const organizationJsonLd = {
   "@type": "EducationalOrganization",
   "@id": `${siteUrl}/#organization`,
   name: siteName,
+  legalName: "ValintaGuru Oy",
   alternateName: "ValintaGuru.fi",
   url: siteUrl,
+  email: "info@valintaguru.com",
+  taxID: "3573013-4",
+  sameAs: [
+    "https://www.instagram.com/valintaguru/",
+    "https://www.tiktok.com/@valintaguru",
+  ],
   logo: {
     "@type": "ImageObject",
     url: `${siteUrl}/logo.png`,

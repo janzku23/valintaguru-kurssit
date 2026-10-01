@@ -2,15 +2,33 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Tietoa meistä | ValintaGuru",
+  title: "Tietoa meistä",
   description:
     "ValintaGurun esittely on tulossa pian.",
   alternates: {
     canonical: "/tietoa-meista",
   },
-  robots: {
-    index: true,
-    follow: true,
+  openGraph: {
+    type: "website",
+    locale: "fi_FI",
+    siteName: "ValintaGuru",
+    url: "/tietoa-meista",
+    title: "Tietoa meistä | ValintaGuru",
+    description: "ValintaGurun esittely on tulossa pian.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Tietoa ValintaGurusta",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tietoa meistä | ValintaGuru",
+    description: "ValintaGurun esittely on tulossa pian.",
+    images: ["/og-image.png"],
   },
 };
 

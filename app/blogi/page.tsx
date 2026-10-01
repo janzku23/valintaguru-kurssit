@@ -22,6 +22,14 @@ export const metadata: Metadata = {
     title: "ValintaGurun blogi",
     description:
       "Tietoa valintakokeista, opiskelutekniikoista ja tehokkaasta valmistautumisesta.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ValintaGurun blogi – valintakokeet ja opiskeluvinkit",
+      },
+    ],
   },
 
   twitter: {
@@ -29,12 +37,44 @@ export const metadata: Metadata = {
     title: "ValintaGurun blogi",
     description:
       "Valintakokeet, opiskeluvinkit ja tehokas valmistautuminen.",
+    images: ["/og-image.png"],
   },
+};
 
-  robots: {
-    index: true,
-    follow: true,
-  },
+
+const blogJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": `${siteUrl}/blogi#webpage`,
+      url: `${siteUrl}/blogi`,
+      name: "ValintaGurun blogi",
+      description:
+        "Tietoa valintakokeista, opiskelusta ja tehokkaasta valmistautumisesta.",
+      inLanguage: "fi-FI",
+      isPartOf: {
+        "@id": `${siteUrl}/#website`,
+      },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Etusivu",
+          item: siteUrl,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Blogi",
+          item: `${siteUrl}/blogi`,
+        },
+      ],
+    },
+  ],
 };
 
 const upcomingArticles = [
@@ -60,7 +100,14 @@ const upcomingArticles = [
 
 export default function BlogPage() {
   return (
-    <main className="min-h-screen bg-[#f5f8ff] text-slate-950">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(blogJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <main className="min-h-screen bg-[#f5f8ff] text-slate-950">
       <section className="px-5 py-16 sm:px-6 lg:py-24">
         <div className="mx-auto max-w-6xl">
           {/* HERO */}
@@ -231,6 +278,7 @@ export default function BlogPage() {
           </div>
         </div>
       </section>
-    </main>
+      </main>
+    </>
   );
 }

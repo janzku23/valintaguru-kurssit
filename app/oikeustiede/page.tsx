@@ -2,15 +2,33 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Oikeustiede | ValintaGuru",
+  title: "Oikeustiede",
   description:
     "Oikeustieteen esittely on tulossa pian.",
   alternates: {
     canonical: "/oikeustiede",
   },
-  robots: {
-    index: true,
-    follow: true,
+  openGraph: {
+    type: "website",
+    locale: "fi_FI",
+    siteName: "ValintaGuru",
+    url: "/oikeustiede",
+    title: "Oikeustiede | ValintaGuru",
+    description: "Oikeustieteen esittely on tulossa pian.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Oikeustiede – ValintaGuru",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Oikeustiede | ValintaGuru",
+    description: "Oikeustieteen esittely on tulossa pian.",
+    images: ["/og-image.png"],
   },
 };
 
