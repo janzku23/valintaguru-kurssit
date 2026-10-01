@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
-import HomeClient from "./HomeClient";
+import { HomeAuthProvider } from "./home/HomeAuthProvider";
+import HomeHeaderClient from "./home/HomeHeaderClient";
+import HomeHero from "./home/HomeHero";
+import OwnedCoursesClient from "./home/OwnedCoursesClient";
+import CoursesClient from "./home/CoursesClient";
+import HomeWhy from "./home/HomeWhy";
+import HomeScoreLimits from "./home/HomeScoreLimits";
+import HomeSocialClient from "./home/HomeSocialClient";
+import HomeFooterClient from "./home/HomeFooterClient";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.valintaguru.fi";
@@ -65,6 +73,7 @@ const homePageJsonLd = {
   ],
 };
 
+
 export default function HomePage() {
   return (
     <>
@@ -74,7 +83,19 @@ export default function HomePage() {
           __html: JSON.stringify(homePageJsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <HomeClient />
+
+      <HomeAuthProvider>
+        <main className="min-h-screen overflow-x-hidden bg-[#fffdf8] text-slate-950">
+          <HomeHeaderClient />
+          <HomeHero />
+          <OwnedCoursesClient />
+          <CoursesClient />
+          <HomeWhy />
+          <HomeScoreLimits />
+          <HomeSocialClient />
+          <HomeFooterClient />
+        </main>
+      </HomeAuthProvider>
     </>
   );
 }
