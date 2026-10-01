@@ -40,6 +40,17 @@ export const valintakoeGContent = {
         url: "https://www.canva.com/design/DAHVn_7CioE/snFTxZEvj9bwKSLS29b71A/view?embed",
       },
     },
+    {
+      id: "g-teoria-2-canva",
+      subtitle: "Teoria",
+      title: "Valintakoe G 2027",
+      content: "",
+      embed: {
+        type: "canva",
+        title: "Valintakoe G 2027",
+        url: "https://www.canva.com/design/DAHVi86tdTs/wr7Ukops8Rb_qaCbNIflJg/view?embed",
+      },
+    },
   ],
 
   quizQuestions: [

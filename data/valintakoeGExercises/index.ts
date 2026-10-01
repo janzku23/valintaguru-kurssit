@@ -10,6 +10,11 @@ import { valintakoeGExercise7Base } from "./exercise7";
 import { valintakoeGExercise8Base } from "./exercise8";
 import { valintakoeGExercise9Base } from "./exercise9";
 import { valintakoeGExercise10Base } from "./exercise10";
+
+import { valintakoeGMediumExercise1Base } from "./mediumExercise1";
+import { valintakoeGMediumExercise2Base } from "./mediumExercise2";
+import { valintakoeGMediumExercise3Base } from "./mediumExercise3";
+
 import type {
   PublicValintakoeGExercise,
   ValintakoeGCourseId,
@@ -28,16 +33,22 @@ export function isValintakoeGCourseId(
 }
 
 const baseExercises = [
+  // Helpot harjoitukset
   valintakoeGExercise1Base,
   valintakoeGExercise2Base,
   valintakoeGExercise3Base,
   valintakoeGExercise4Base,
-  //valintakoeGExercise5Base,
+  valintakoeGExercise5Base,
   valintakoeGExercise6Base,
-  //valintakoeGExercise7Base,
-  //valintakoeGExercise8Base,
-  //valintakoeGExercise9Base,
-  //valintakoeGExercise10Base,
+  valintakoeGExercise7Base,
+  valintakoeGExercise8Base,
+  valintakoeGExercise9Base,
+  valintakoeGExercise10Base,
+
+  // Keskivaikeat harjoitukset
+  valintakoeGMediumExercise1Base,
+  valintakoeGMediumExercise2Base,
+  valintakoeGMediumExercise3Base,
 ];
 
 export function getValintakoeGExercises(
