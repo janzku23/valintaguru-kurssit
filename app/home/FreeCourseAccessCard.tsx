@@ -54,7 +54,7 @@ export default function FreeCourseAccessCard() {
               </h2>
               <p className="mt-3 max-w-2xl leading-7 text-slate-600">
                 Käyttäjätunnuksellasi pääset automaattisesti maksuttomaan
-                webinaariin ja harjoituskokeisiin ilman erillistä kurssioikeutta.
+                webinaariin ja harjoituskokeeseen
               </p>
             </div>
             <div className="flex flex-wrap gap-3">

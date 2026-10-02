@@ -13,33 +13,63 @@ type SummaryResponse = {
   unreadCount?: number;
 };
 
-export default function InquiryStatusLink({ mobile = false, onNavigate }: Props) {
+export default function InquiryStatusLink({
+  mobile = false,
+  onNavigate,
+}: Props) {
   const [count, setCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let active = true;
 
-    void fetch("/api/inquiries/mine?summary=1", { cache: "no-store" })
-      .then(async (response) => {
-        if (!response.ok) return null;
-        return response.json() as Promise<SummaryResponse>;
-      })
-      .then((data) => {
-        if (!active || !data) return;
+    async function loadSummary() {
+      try {
+        const response = await fetch("/api/inquiries/mine?summary=1", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = (await response.json()) as SummaryResponse;
+
+        if (!active) {
+          return;
+        }
 
         const admin = Boolean(data.isAdmin);
+
         setIsAdmin(admin);
         setCount(admin ? data.openCount ?? 0 : data.unreadCount ?? 0);
-      })
-      .catch(() => undefined);
+      } catch {
+        // Navigaatiolinkki toimii myös ilman ilmoitusmäärää.
+      }
+    }
+
+    void loadSummary();
+
+    const refresh = () => {
+      void loadSummary();
+    };
+
+    window.addEventListener("valintaguru:inquiry-created", refresh);
+    window.addEventListener("valintaguru:inquiry-read", refresh);
 
     return () => {
       active = false;
+      window.removeEventListener("valintaguru:inquiry-created", refresh);
+      window.removeEventListener("valintaguru:inquiry-read", refresh);
     };
   }, []);
 
-  const href = isAdmin ? "/admin/tiedustelut" : "/kysy";
+  /*
+   * Admin käyttää nyt samaa /kysy-sivua kuin muutkin.
+   * /kysy tunnistaa admin@valintaguru.fi-käyttäjän ja näyttää
+   * suoraan AdminInquiryPanelin.
+   */
+  const href = "/kysy";
   const label = isAdmin ? "Tiedustelut" : "Kysy";
 
   if (mobile) {
@@ -50,12 +80,14 @@ export default function InquiryStatusLink({ mobile = false, onNavigate }: Props)
         className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
       >
         <span>{label}</span>
+
         <span className="flex items-center gap-2">
           {count > 0 && (
             <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-black text-white">
               ({count})
             </span>
           )}
+
           <span className="text-xl text-slate-400">›</span>
         </span>
       </a>
@@ -63,8 +95,12 @@ export default function InquiryStatusLink({ mobile = false, onNavigate }: Props)
   }
 
   return (
-    <a href={href} className="inline-flex items-center gap-1.5 transition hover:text-[#3f51e7]">
+    <a
+      href={href}
+      className="inline-flex items-center gap-1.5 transition hover:text-[#3f51e7]"
+    >
       <span>{label}</span>
+
       {count > 0 && (
         <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-black text-white">
           ({count})

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 import {
   freeExam2026Questions,
   freeExamTaskArticles,
@@ -11,6 +12,21 @@ type AnswerState = Record<string, string[]>;
 type NumberAnswerState = Record<string, string>;
 type SkippedState = Record<string, boolean>;
 
+type SavedExamAttempt = {
+  id: string;
+  exam_id: string;
+  score: number;
+  correct_count: number;
+  wrong_count: number;
+  unanswered_count: number;
+  time_used_seconds: number;
+  finished_by_time: boolean;
+  answers: AnswerState;
+  number_answers: NumberAnswerState;
+  skipped: SkippedState;
+  submitted_at: string;
+};
+
 type ScoreLimit = {
   name: string;
   firstTime: number;
@@ -18,6 +34,7 @@ type ScoreLimit = {
 };
 
 const EXAM_DURATION_SECONDS = 2 * 60 * 60;
+const EXAM_ID = "valintakoe-g-2026";
 
 const SCORE_LIMITS_2026: ScoreLimit[] = [
   { name: "Lapin yliopisto – hallintotieteet", firstTime: 23, allApplicants: 32 },
@@ -102,6 +119,35 @@ function correctAnswerText(question: FreeExamQuestion) {
     .join(" • ");
 }
 
+function userAnswerText(
+  question: FreeExamQuestion,
+  answers: AnswerState,
+  numberAnswers: NumberAnswerState,
+  skipped: SkippedState,
+) {
+  if (skipped[question.id]) return "Vastaamatta";
+
+  if (question.type === "number") {
+    const value = (numberAnswers[question.id] ?? "").trim();
+    return value ? `${value.replace("%", "").trim()} %` : "Vastaamatta";
+  }
+
+  const selected = answers[question.id] ?? [];
+  if (selected.length === 0) return "Vastaamatta";
+
+  return question.options
+    .filter((option) => selected.includes(option.id))
+    .map((option) => option.text)
+    .join(" • ");
+}
+
+function formatAttemptDate(value: string) {
+  return new Intl.DateTimeFormat("fi-FI", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
 function formatTime(totalSeconds: number) {
   const safe = Math.max(0, totalSeconds);
   const hours = Math.floor(safe / 3600);
@@ -114,6 +160,9 @@ function formatTime(totalSeconds: number) {
 }
 
 export default function FreeCoursePracticeClient() {
+  const supabase = useMemo(() => createClient(), []);
+  const submissionInProgress = useRef(false);
+
   const [answers, setAnswers] = useState<AnswerState>({});
   const [numberAnswers, setNumberAnswers] = useState<NumberAnswerState>({});
   const [skipped, setSkipped] = useState<SkippedState>({});
@@ -121,6 +170,11 @@ export default function FreeCoursePracticeClient() {
   const [submitted, setSubmitted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(EXAM_DURATION_SECONDS);
   const [finishedByTime, setFinishedByTime] = useState(false);
+  const [history, setHistory] = useState<SavedExamAttempt[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveError, setSaveError] = useState("");
+  const [viewingAttemptId, setViewingAttemptId] = useState<string | null>(null);
 
   const tasks = useMemo(
     () =>
@@ -162,6 +216,139 @@ export default function FreeCoursePracticeClient() {
   }, [result.score]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function loadHistory() {
+      setHistoryLoading(true);
+
+      const { data: authData } = await supabase.auth.getUser();
+      const user = authData.user;
+
+      if (!user) {
+        if (!cancelled) {
+          setHistory([]);
+          setHistoryLoading(false);
+        }
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("free_course_exam_attempts")
+        .select(
+          "id, exam_id, score, correct_count, wrong_count, unanswered_count, time_used_seconds, finished_by_time, answers, number_answers, skipped, submitted_at",
+        )
+        .eq("user_id", user.id)
+        .eq("exam_id", EXAM_ID)
+        .order("submitted_at", { ascending: false })
+        .limit(20);
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Koesuoritusten haku epäonnistui:", error);
+        setHistory([]);
+      } else {
+        setHistory((data ?? []) as SavedExamAttempt[]);
+      }
+
+      setHistoryLoading(false);
+    }
+
+    void loadHistory();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase]);
+
+  async function saveAttempt(finishedByTimer: boolean) {
+    setSaveStatus("saving");
+    setSaveError("");
+
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const user = authData.user;
+
+    if (authError || !user) {
+      setSaveStatus("error");
+      setSaveError("Koesuoritusta ei voitu tallentaa, koska kirjautumista ei löytynyt.");
+      return;
+    }
+
+    const payload = {
+      user_id: user.id,
+      exam_id: EXAM_ID,
+      score: result.score,
+      correct_count: result.correct,
+      wrong_count: result.wrong,
+      unanswered_count: result.unanswered,
+      time_used_seconds: EXAM_DURATION_SECONDS - timeLeft,
+      finished_by_time: finishedByTimer,
+      answers,
+      number_answers: numberAnswers,
+      skipped,
+    };
+
+    const { data, error } = await supabase
+      .from("free_course_exam_attempts")
+      .insert(payload)
+      .select(
+        "id, exam_id, score, correct_count, wrong_count, unanswered_count, time_used_seconds, finished_by_time, answers, number_answers, skipped, submitted_at",
+      )
+      .single();
+
+    if (error || !data) {
+      console.error("Koesuorituksen tallennus epäonnistui:", error);
+      setSaveStatus("error");
+      setSaveError(
+        "Koesuorituksen tallennus epäonnistui. Tarkista, että free_course_exam_attempts-taulu ja RLS-politiikat on luotu Supabaseen.",
+      );
+      return;
+    }
+
+    const saved = data as SavedExamAttempt;
+    setHistory((current) => [saved, ...current.filter((row) => row.id !== saved.id)]);
+    setViewingAttemptId(saved.id);
+    setSaveStatus("saved");
+  }
+
+  async function finishExam(finishedByTimer: boolean) {
+    if (!started || submitted || submissionInProgress.current) return;
+
+    submissionInProgress.current = true;
+    setFinishedByTime(finishedByTimer);
+    setSubmitted(true);
+    await saveAttempt(finishedByTimer);
+    submissionInProgress.current = false;
+
+    window.setTimeout(() => {
+      document
+        .getElementById("koetulos")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }
+
+  function openSavedAttempt(attempt: SavedExamAttempt) {
+    setAnswers(attempt.answers ?? {});
+    setNumberAnswers(attempt.number_answers ?? {});
+    setSkipped(attempt.skipped ?? {});
+    setTimeLeft(
+      Math.max(0, EXAM_DURATION_SECONDS - Math.max(0, attempt.time_used_seconds)),
+    );
+    setFinishedByTime(attempt.finished_by_time);
+    setStarted(true);
+    setSubmitted(true);
+    setViewingAttemptId(attempt.id);
+    setSaveStatus("saved");
+    setSaveError("");
+
+    window.setTimeout(() => {
+      document
+        .getElementById("koetulos")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }
+
+  useEffect(() => {
     if (!started || submitted) return;
 
     const timer = window.setInterval(() => {
@@ -173,15 +360,7 @@ export default function FreeCoursePracticeClient() {
 
   useEffect(() => {
     if (!started || submitted || timeLeft > 0) return;
-
-    setFinishedByTime(true);
-    setSubmitted(true);
-
-    window.setTimeout(() => {
-      document
-        .getElementById("koetulos")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
+    void finishExam(true);
   }, [started, submitted, timeLeft]);
 
   function choose(question: FreeExamQuestion, optionId: string) {
@@ -220,6 +399,10 @@ export default function FreeCoursePracticeClient() {
     setSubmitted(false);
     setFinishedByTime(false);
     setTimeLeft(EXAM_DURATION_SECONDS);
+    setViewingAttemptId(null);
+    setSaveStatus("idle");
+    setSaveError("");
+    submissionInProgress.current = false;
     setStarted(true);
 
     window.setTimeout(() => {
@@ -236,6 +419,10 @@ export default function FreeCoursePracticeClient() {
     setSubmitted(false);
     setFinishedByTime(false);
     setTimeLeft(EXAM_DURATION_SECONDS);
+    setViewingAttemptId(null);
+    setSaveStatus("idle");
+    setSaveError("");
+    submissionInProgress.current = false;
     setStarted(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -249,14 +436,7 @@ export default function FreeCoursePracticeClient() {
 
     if (!confirmed) return;
 
-    setFinishedByTime(false);
-    setSubmitted(true);
-
-    window.setTimeout(() => {
-      document
-        .getElementById("koetulos")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
+    void finishExam(false);
   }
 
   if (!started) {
@@ -303,6 +483,59 @@ export default function FreeCoursePracticeClient() {
           >
             Aloita koe
           </button>
+
+          <div className="mt-9 border-t border-slate-200 pt-7">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-700">
+                  Omat suoritukset
+                </p>
+                <h3 className="mt-1 text-xl font-black text-slate-950">
+                  Aiemmat Valintakoe G 2026 -kokeet
+                </h3>
+              </div>
+              {!historyLoading && history.length > 0 && (
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-600">
+                  {history.length} tallennettua
+                </span>
+              )}
+            </div>
+
+            {historyLoading ? (
+              <p className="mt-4 text-sm font-semibold text-slate-500">
+                Haetaan aiempia suorituksia...
+              </p>
+            ) : history.length === 0 ? (
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                Ei vielä tallennettuja suorituksia. Ensimmäinen palautettu koe ilmestyy tähän automaattisesti.
+              </div>
+            ) : (
+              <div className="mt-4 space-y-3">
+                {history.map((attempt) => (
+                  <div
+                    key={attempt.id}
+                    className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <p className="font-black text-slate-950">
+                        {attempt.score} / 70 pistettä
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600">
+                        {formatAttemptDate(attempt.submitted_at)} · käytetty aika {formatTime(attempt.time_used_seconds)}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => openSavedAttempt(attempt)}
+                      className="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-black text-slate-800 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
+                    >
+                      Tarkastele suoritusta
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     );
@@ -323,14 +556,16 @@ export default function FreeCoursePracticeClient() {
 
           <div className="text-right">
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
-              Aikaa jäljellä
+              {submitted ? "Käytetty aika" : "Aikaa jäljellä"}
             </p>
             <p
               className={`mt-0.5 font-mono text-2xl font-black tabular-nums ${
-                timeLeft <= 10 * 60 ? "text-rose-600" : "text-slate-950"
+                !submitted && timeLeft <= 10 * 60 ? "text-rose-600" : "text-slate-950"
               }`}
             >
-              {formatTime(timeLeft)}
+              {formatTime(
+                submitted ? EXAM_DURATION_SECONDS - timeLeft : timeLeft,
+              )}
             </p>
           </div>
         </div>
@@ -344,6 +579,11 @@ export default function FreeCoursePracticeClient() {
           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
             Yksi koe
           </span>
+          {viewingAttemptId && submitted && (
+            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-800">
+              Tallennettu suoritus
+            </span>
+          )}
         </div>
         <h2 className="mt-4 text-2xl font-black text-slate-950 sm:text-3xl">
           Yhteinen osio
@@ -497,7 +737,10 @@ export default function FreeCoursePracticeClient() {
 
                   {submitted && (
                     <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="font-bold text-slate-950">
+                      <p className="text-sm font-bold text-slate-600">
+                        Oma vastaus: {userAnswerText(question, answers, numberAnswers, skipped)}
+                      </p>
+                      <p className="mt-1 font-bold text-slate-950">
                         Oikea vastaus: {correctAnswerText(question)}
                       </p>
                       {question.sourceNote && (
@@ -543,6 +786,22 @@ export default function FreeCoursePracticeClient() {
           {finishedByTime && (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 font-bold text-amber-900">
               Koeaika päättyi ja koe palautettiin automaattisesti.
+            </div>
+          )}
+
+          {saveStatus === "saving" && (
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 font-bold text-blue-900">
+              Tallennetaan koesuoritusta...
+            </div>
+          )}
+          {saveStatus === "saved" && (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 font-bold text-emerald-900">
+              ✓ Koesuoritus on tallennettu. Voit avata sen myöhemmin samalta sivulta kohdasta Omat suoritukset.
+            </div>
+          )}
+          {saveStatus === "error" && (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold leading-6 text-rose-900">
+              {saveError}
             </div>
           )}
 
@@ -660,13 +919,22 @@ export default function FreeCoursePracticeClient() {
             </a>
           </div>
 
-          <button
-            type="button"
-            onClick={resetExam}
-            className="rounded-full border border-slate-300 px-5 py-3 font-bold text-slate-800 transition hover:border-blue-400 hover:text-blue-700"
-          >
-            Tee Valintakoe G 2026 uudelleen
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={resetExam}
+              className="rounded-full bg-[#3f51e7] px-5 py-3 font-bold text-white transition hover:bg-[#3142d6]"
+            >
+              Tee Valintakoe G 2026 uudelleen
+            </button>
+            <button
+              type="button"
+              onClick={resetExam}
+              className="rounded-full border border-slate-300 px-5 py-3 font-bold text-slate-800 transition hover:border-blue-400 hover:text-blue-700"
+            >
+              Takaisin omiin suorituksiin
+            </button>
+          </div>
         </section>
       )}
     </div>
