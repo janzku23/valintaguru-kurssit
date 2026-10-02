@@ -146,6 +146,11 @@ export default function ProfilePage() {
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+  const [newsletterSaving, setNewsletterSaving] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+  const [newsletterError, setNewsletterError] = useState("");
+
   useEffect(() => {
     void loadProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -168,18 +173,20 @@ export default function ProfilePage() {
 
       setUser(user);
 
-      const [profileData, courseData, quizData, flashcardData] =
+      const [profileData, courseData, quizData, flashcardData, newsletterEnabled] =
         await Promise.all([
           fetchProfile(user),
           fetchCourseAccess(user),
           fetchQuizAttempts(user),
           fetchFlashcardProgress(user),
+          fetchNewsletterPreference(),
         ]);
 
       setProfile(profileData);
       setCourses(courseData);
       setQuizAttempts(quizData);
       setFlashcardProgress(flashcardData);
+      setNewsletterSubscribed(newsletterEnabled);
     } catch (error) {
       console.error("Profile loading failed:", error);
       setPageError("Profiilin lataaminen epäonnistui. Yritä päivittää sivu.");
@@ -281,6 +288,19 @@ export default function ProfilePage() {
       unique.set(key, item);
     });
 
+    // Ilmainen kurssi kuuluu automaattisesti kaikille kirjautuneille.
+    // Sille ei luoda student_courses-riviä.
+    unique.set("ilmais-kurssi", {
+      id: "virtual-ilmais-kurssi",
+      user_id: user.id,
+      email: user.email?.toLowerCase(),
+      course_id: "ilmais-kurssi",
+      course_slug: "ilmais-kurssi",
+      course_title: "Ilmainen kurssi",
+      title: "Ilmainen kurssi",
+      status: "käytössä",
+    });
+
     return Array.from(unique.values());
   }
 
@@ -323,6 +343,78 @@ export default function ProfilePage() {
     } catch (error) {
       console.warn("Flashcard progress fetch failed:", error);
       return [];
+    }
+  }
+
+  async function fetchNewsletterPreference(): Promise<boolean> {
+    try {
+      const response = await fetch("/api/newsletter-preference", {
+        method: "GET",
+        cache: "no-store",
+      });
+
+      const result = (await response.json()) as {
+        subscribed?: boolean;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        console.warn(
+          "Newsletter preference fetch failed:",
+          result.error ?? response.statusText
+        );
+        return false;
+      }
+
+      return result.subscribed === true;
+    } catch (error) {
+      console.warn("Newsletter preference fetch failed:", error);
+      return false;
+    }
+  }
+
+  async function handleNewsletterToggle() {
+    if (newsletterSaving) return;
+
+    const nextValue = !newsletterSubscribed;
+    setNewsletterSaving(true);
+    setNewsletterMessage("");
+    setNewsletterError("");
+
+    try {
+      const response = await fetch("/api/newsletter-preference", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ subscribed: nextValue }),
+      });
+
+      const result = (await response.json()) as {
+        subscribed?: boolean;
+        message?: string;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        setNewsletterError(
+          result.error ?? "Uutiskirjeasetuksen tallentaminen epäonnistui."
+        );
+        return;
+      }
+
+      setNewsletterSubscribed(result.subscribed === true);
+      setNewsletterMessage(
+        result.message ??
+          (nextValue
+            ? "Uutiskirje on nyt käytössä."
+            : "Uutiskirje on poistettu käytöstä.")
+      );
+    } catch (error) {
+      console.error("Newsletter preference update failed:", error);
+      setNewsletterError("Uutiskirjeasetuksen tallentaminen epäonnistui.");
+    } finally {
+      setNewsletterSaving(false);
     }
   }
 
@@ -768,6 +860,109 @@ export default function ProfilePage() {
       </div>
 
 {isAdmin && <AdminUserPanel />}
+
+        <article
+          className="profile-card"
+          style={{
+            ...styles.card,
+            marginBottom: 18,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 22,
+            flexWrap: "wrap",
+            border: newsletterSubscribed
+              ? "1px solid rgba(36,107,255,0.30)"
+              : "1px solid rgba(20,60,130,0.12)",
+            background: newsletterSubscribed
+              ? "linear-gradient(135deg, #F4F7FF 0%, #FFFFFF 100%)"
+              : "#FFFFFF",
+          }}
+        >
+          <div style={{ maxWidth: 760 }}>
+            <p style={{ ...styles.eyebrow, color: "#3F51E7" }}>
+              Sähköpostiasetukset
+            </p>
+            <h2 style={{ ...styles.cardTitle, marginTop: 6 }}>
+              ValintaGurun uutiskirje
+            </h2>
+            <p style={{ ...styles.smallText, marginTop: 8, lineHeight: 1.65 }}>
+              Saat halutessasi sähköpostitse ValintaGurun uutisia,
+              opiskeluvinkkejä sekä tietoa tulevista webinaareista ja
+              tapahtumista. Asetuksen voi muuttaa milloin tahansa.
+            </p>
+
+            {newsletterError && (
+              <p style={{ ...styles.error, marginTop: 12 }}>
+                {newsletterError}
+              </p>
+            )}
+
+            {newsletterMessage && (
+              <p style={{ ...styles.success, marginTop: 12 }}>
+                {newsletterMessage}
+              </p>
+            )}
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              flexShrink: 0,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 13,
+                fontWeight: 900,
+                color: newsletterSubscribed ? "#15803D" : "#687894",
+              }}
+            >
+              {newsletterSubscribed ? "Käytössä" : "Pois päältä"}
+            </span>
+
+            <button
+              type="button"
+              role="switch"
+              aria-checked={newsletterSubscribed}
+              aria-label="ValintaGurun uutiskirje"
+              disabled={newsletterSaving}
+              onClick={() => void handleNewsletterToggle()}
+              style={{
+                position: "relative",
+                width: 58,
+                height: 32,
+                padding: 0,
+                border: 0,
+                borderRadius: 999,
+                background: newsletterSubscribed ? "#3F51E7" : "#CBD5E1",
+                cursor: newsletterSaving ? "wait" : "pointer",
+                opacity: newsletterSaving ? 0.65 : 1,
+                transition: "background 160ms ease",
+                boxShadow: newsletterSubscribed
+                  ? "0 8px 18px rgba(63,81,231,0.24)"
+                  : "none",
+              }}
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  top: 4,
+                  left: newsletterSubscribed ? 30 : 4,
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: "#FFFFFF",
+                  boxShadow: "0 2px 8px rgba(15,23,42,0.18)",
+                  transition: "left 160ms ease",
+                }}
+              />
+            </button>
+          </div>
+        </article>
 
 <section className="profile-grid" style={styles.grid}>
           <article className="profile-card" style={styles.card}>

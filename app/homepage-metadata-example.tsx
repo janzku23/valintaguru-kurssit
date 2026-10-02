@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: {
     absolute:
-      "ValintaGuru – Valmennuskurssit, valintakokeet ja YO-harjoittelu",
+      "ValintaGuru – Valmennuskurssit valintakoe G ja oikeustieteen eriytyvä osio",
   },
   description:
-    "ValintaGuru auttaa valmistautumaan valintakokeisiin ja ylioppilaskirjoituksiin. Teoriaa, harjoituksia, monivalintoja ja opiskelun seurantaa yhdessä palvelussa.",
+    "ValintaGuru auttaa valmistautumaan valintakokeisiin. Teoria, harjoituksia, monivalintoja ja opiskelun seurantaa yhdessä palvelussa.",
   alternates: {
     canonical: "/",
   },

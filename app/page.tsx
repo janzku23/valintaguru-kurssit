@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { HomeAuthProvider } from "./home/HomeAuthProvider";
 import HomeHeaderClient from "./home/HomeHeaderClient";
 import HomeHero from "./home/HomeHero";
+import FreeCoursePromoBar from "./home/FreeCoursePromoBar";
+import FreeCourseSignup from "./home/FreeCourseSignup";
+import FreeCourseAccessCard from "./home/FreeCourseAccessCard";
 import OwnedCoursesClient from "./home/OwnedCoursesClient";
 import CoursesClient from "./home/CoursesClient";
 import HomeWhy from "./home/HomeWhy";
@@ -87,9 +90,12 @@ export default function HomePage() {
       <HomeAuthProvider>
         <main className="min-h-screen overflow-x-hidden bg-[#fffdf8] text-slate-950">
           <HomeHeaderClient />
+          <FreeCoursePromoBar />
           <HomeHero />
           <OwnedCoursesClient />
+          <FreeCourseAccessCard />
           <CoursesClient />
+          <FreeCourseSignup />
           <HomeWhy />
           <HomeScoreLimits />
           <HomeSocialClient />
