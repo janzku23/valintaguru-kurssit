@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import {
   FormEvent,
   useEffect,
@@ -283,13 +285,43 @@ export default function KirjauduClient() {
 
   if (checkingSession) {
     return (
-      <main className="min-h-screen bg-[#f5f8ff] px-5 py-8">
-        <div className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="min-h-screen bg-[#f5f8ff]">
+      <header className="border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center px-5">
+          <Link
+            href="/"
+            aria-label="Takaisin ValintaGurun etusivulle"
+            className="inline-flex items-center"
+          >
+            <Image
+              src="/logo.png"
+              alt="ValintaGuru"
+              width={150}
+              height={44}
+              priority
+              className="h-10 w-auto object-contain"
+            />
+          </Link>
+        </div>
+      </header>
+        <main className="px-5 py-8">
+          <div className="mx-auto grid min-h-[calc(100vh-8rem)] w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
           <section className="mx-auto w-full max-w-md">
             <div className="rounded-[2rem] border border-slate-200 bg-white p-7 text-center shadow-xl shadow-slate-200/70 sm:p-8">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-xl font-black text-white">
-                VG
-              </div>
+              <Link
+                  href="/"
+                  aria-label="Takaisin ValintaGurun etusivulle"
+                  className="mx-auto flex w-fit items-center justify-center"
+                >
+                  <Image
+                    src="/logo.png"
+                    alt="ValintaGuru"
+                    width={150}
+                    height={52}
+                    priority
+                    className="h-12 w-auto object-contain"
+                  />
+                </Link>
 
               <p className="mt-5 text-sm font-bold uppercase tracking-[0.25em] text-blue-700">
                 ValintaGuru
@@ -305,8 +337,9 @@ export default function KirjauduClient() {
               </p>
             </div>
           </section>
-        </div>
-      </main>
+          </div>
+        </main>
+      </div>
     );
   }
 
@@ -321,14 +354,30 @@ export default function KirjauduClient() {
       : "Syötä käyttäjän sähköpostiosoite, niin saat uuden salasanan asetuslinkin.";
 
   return (
-    <main className="min-h-screen bg-[#f5f8ff] px-5 py-8">
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+    <div className="min-h-screen bg-[#f5f8ff]">
+      <header className="border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center px-5">
+          <Link
+            href="/"
+            aria-label="Takaisin ValintaGurun etusivulle"
+            className="inline-flex items-center"
+          >
+            <Image
+              src="/logo.png"
+              alt="ValintaGuru"
+              width={150}
+              height={44}
+              priority
+              className="h-10 w-auto object-contain"
+            />
+          </Link>
+        </div>
+      </header>
+      <main className="px-5 py-8">
+        <div className="mx-auto grid min-h-[calc(100vh-8rem)] w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
         <section className="hidden lg:block">
           <div className="rounded-[2.5rem] bg-gradient-to-br from-blue-700 via-blue-600 to-sky-500 p-10 text-white shadow-2xl shadow-blue-200">
-            <div className="inline-flex rounded-full bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur">
-              ValintaGuru
-            </div>
-
+  
             <h1 className="mt-8 max-w-xl text-5xl font-black leading-tight">
               Jatka opintoja siitä, mihin
               viimeksi jäit.
@@ -369,9 +418,20 @@ export default function KirjauduClient() {
         <section className="mx-auto w-full max-w-md">
           <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-xl shadow-slate-200/70 sm:p-8">
             <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-xl font-black text-white">
-                VG
-              </div>
+              <Link
+                  href="/"
+                  aria-label="Takaisin ValintaGurun etusivulle"
+                  className="mx-auto flex w-fit items-center justify-center"
+                >
+                  <Image
+                    src="/logo.png"
+                    alt="ValintaGuru"
+                    width={150}
+                    height={52}
+                    priority
+                    className="h-12 w-auto object-contain"
+                  />
+                </Link>
 
               <p className="mt-5 text-sm font-bold uppercase tracking-[0.25em] text-blue-700">
                 ValintaGuru
@@ -546,7 +606,8 @@ export default function KirjauduClient() {
             kirjautumissivulta.
           </p>
         </section>
-      </div>
-    </main>
+        </div>
+      </main>
+    </div>
   );
 }

@@ -39,10 +39,10 @@ export default function HomeFooterClient() {
       </p>
 
         <p className="mt-4 max-w-sm leading-7 text-slate-600">
-        Versio 1.0.0
+        Versio 1.0.1
       </p>
       <p className="mt-4 max-w-sm leading-7 text-slate-600">
-        Päivitetty: 2.10 klo 18.07
+        Päivitetty: 6.10 klo 19.49
       </p>
     </div>
 
