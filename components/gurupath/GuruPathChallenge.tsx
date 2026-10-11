@@ -2,29 +2,10 @@
 
 import {
   useEffect,
-  useMemo,
   useState,
 } from "react";
 
-import {
-  createClient,
-} from "@/utils/supabase/client";
-
-import {
-  getAuthenticatedUser,
-} from "@/lib/getAuthenticatedUser";
-
-import {
-  awardGuruPath,
-} from "@/lib/gurupath/awardGuruPath";
-
-import {
-  getGuruQuestionSourceId,
-} from "@/data/gurupath";
-
-import type {
-  GuruGameQuestion,
-} from "@/data/gurupath";
+import type { GuruPublicQuestion } from "@/data/gurupath/types";
 
 import type {
   CourseId,
@@ -38,7 +19,7 @@ type Props = {
   courseId: CourseId;
   nodeId: string;
   levelNumber: number;
-  question: GuruGameQuestion;
+  question: GuruPublicQuestion;
   source: RewardSource;
   pointReward: number;
   hasNextLevel: boolean;
@@ -53,7 +34,7 @@ type Props = {
 };
 
 function typeLabel(
-  question: GuruGameQuestion
+  question: GuruPublicQuestion
 ) {
   if (
     question.type ===
@@ -100,12 +81,6 @@ export default function GuruPathChallenge({
   onAdvance,
   onClose,
 }: Props) {
-  const supabase =
-    useMemo(
-      () => createClient(),
-      []
-    );
-
   const isReadingTask =
     question.type ===
       "reading-comprehension" &&
@@ -187,32 +162,8 @@ export default function GuruPathChallenge({
     setPenaltyPoints,
   ] = useState(0);
 
-  const isCorrect =
-    useMemo(() => {
-      const selected = [
-        ...selectedAnswerIds,
-      ].sort();
-
-      const correct = [
-        ...question.correctAnswerIds,
-      ].sort();
-
-      return (
-        selected.length ===
-          correct.length &&
-        selected.every(
-          (
-            id,
-            index
-          ) =>
-            id ===
-            correct[index]
-        )
-      );
-    }, [
-      question.correctAnswerIds,
-      selectedAnswerIds,
-    ]);
+  const [verifiedExplanation, setVerifiedExplanation] = useState("");
+  const [verifiedPoints, setVerifiedPoints] = useState(0);
 
   /**
    * LUETUN YMMÄRTÄMINEN
@@ -460,9 +411,7 @@ export default function GuruPathChallenge({
     }
 
     if (
-      question
-        .correctAnswerIds
-        .length === 1
+      question.selectionMode === "single"
     ) {
       setSelectedAnswerIds(
         [answerId]
@@ -487,242 +436,41 @@ export default function GuruPathChallenge({
     );
   }
 
-  async function saveCorrectAttempt() {
-    const {
-      user,
-      error: authError,
-    } =
-      await getAuthenticatedUser();
-
-    if (
-      authError ||
-      !user
-    ) {
-      throw new Error(
-        authError?.message ??
-          "Kirjaudu sisään, jotta vastaus voidaan tallentaa."
-      );
-    }
-
-    const {
-      error:
-        attemptError,
-    } =
-      await supabase
-        .from(
-          "student_progress_attempts"
-        )
-        .insert({
-          user_id:
-            user.id,
-
-          /**
-           * Todellinen kurssi-ID, jolla käyttäjän käyttöoikeus löytyi.
-           * Varsinainen GuruPeli-suoritus tunnistetaan erikseen sourceId:llä.
-           */
-          course_id:
-            courseId,
-
-          question_id:
-            question.id,
-
-          question:
-            question.prompt,
-
-          area:
-            "GuruPeli",
-
-          selected_answer_ids:
-            selectedAnswerIds,
-
-          correct_answer_ids:
-            question.correctAnswerIds,
-
-          is_correct:
-            true,
-
-          answered_at:
-            new Date().toISOString(),
-        });
-
-    if (attemptError) {
-      throw new Error(
-        `Vastauksen tallennus epäonnistui: ${attemptError.message}`
-      );
-    }
-  }
-
-  async function applyWrongPenalty() {
-    const response =
-      await fetch(
-        "/api/gurupath/wrong-answer",
-        {
-          method:
-            "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body:
-            JSON.stringify({
-              courseId:
-                courseId,
-
-              nodeId,
-            }),
-        }
-      );
-
-    const data =
-      await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data?.error ??
-          "Väärän vastauksen käsittely epäonnistui."
-      );
-    }
-
-    setCooldown(
-      Math.max(
-        0,
-        Number(
-          data.cooldownSeconds ??
-            15
-        )
-      )
-    );
-
-    setPenaltyPoints(
-      Boolean(
-        data.applied
-      )
-        ? Number(
-            data.penaltyPoints ??
-              data.xpLost ??
-              5
-          )
-        : 0
-    );
-  }
-
   async function checkAnswer() {
     if (
-      phase !==
-        "answering" ||
-      !cooldownLoaded ||
-      cooldown > 0 ||
-      selectedAnswerIds.length ===
-        0 ||
-      saving ||
-      result !== "idle"
-    ) {
-      return;
-    }
+      phase !== "answering" || !cooldownLoaded || cooldown > 0 ||
+      selectedAnswerIds.length === 0 || saving || result !== "idle"
+    ) return;
 
     setSaving(true);
     setError(null);
     setPenaltyPoints(0);
-
     try {
-      const cooldownResponse =
-        await fetch(
-          `/api/gurupath/wrong-answer?courseId=${encodeURIComponent(
-            courseId
-          )}&nodeId=${encodeURIComponent(
-            nodeId
-          )}`,
-          {
-            cache:
-              "no-store",
-          }
-        );
-
-      const cooldownData =
-        await cooldownResponse.json();
-
-      if (
-        !cooldownResponse.ok
-      ) {
-        throw new Error(
-          cooldownData?.error ??
-            "Jäähyn tarkistus epäonnistui."
-        );
+      const response = await fetch("/api/gurupath/answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courseId, nodeId, selectedAnswerIds }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        if (response.status === 429 && data.cooldownSeconds) {
+          setCooldown(Math.max(0, Number(data.cooldownSeconds)));
+        }
+        throw new Error(data?.error ?? "Vastauksen tarkistaminen epäonnistui.");
       }
-
-      const remaining =
-        Math.max(
-          0,
-          Number(
-            cooldownData.cooldownSeconds ??
-              0
-          )
-        );
-
-      if (
-        remaining > 0
-      ) {
-        setCooldown(
-          remaining
-        );
+      if (!data.correct) {
+        setResult("wrong");
+        setCooldown(Math.max(0, Number(data.cooldownSeconds ?? 15)));
+        setPenaltyPoints(Number(data.penaltyPoints ?? 0));
         return;
       }
-
-      if (!isCorrect) {
-        setResult(
-          "wrong"
-        );
-
-        await applyWrongPenalty();
-        return;
-      }
-
-      await saveCorrectAttempt();
-
-      const sourceId =
-        getGuruQuestionSourceId(
-          question.id
-        );
-
-      /**
-       * Backendin nykyiset xp-kentät säilyvät sisäisesti.
-       * UI:ssa nämä ovat pisteitä.
-       */
-      const award =
-        await awardGuruPath({
-          courseId:
-            courseId,
-          source,
-          sourceId,
-          xp:
-            pointReward,
-          score:
-            pointReward,
-        });
-
-      setResult(
-        "correct"
-      );
-
-      setRewarded(
-        Boolean(
-          award.awarded
-        )
-      );
-
-      onCompleted(
-        sourceId,
-        source
-      );
+      setVerifiedExplanation(String(data.explanation ?? ""));
+      setVerifiedPoints(Number(data.pointsAwarded ?? 0));
+      setResult("correct");
+      setRewarded(Boolean(data.awarded));
+      onCompleted(`gurupeli:${question.id}`, source);
     } catch (caught) {
-      setError(
-        caught instanceof
-          Error
-          ? caught.message
-          : "Vastauksen käsittely epäonnistui."
-      );
+      setError(caught instanceof Error ? caught.message : "Vastauksen käsittely epäonnistui.");
     } finally {
       setSaving(false);
     }
@@ -1039,13 +787,13 @@ export default function GuruPathChallenge({
               <p className="text-lg font-black text-emerald-950">
                 Oikein
                 {rewarded
-                  ? ` · +${pointReward} pistettä`
+                  ? ` · +${verifiedPoints} pistettä`
                   : ""}
               </p>
 
               <p className="mt-2 leading-7 text-emerald-900">
                 {
-                  question.explanation
+                  verifiedExplanation
                 }
               </p>
             </div>

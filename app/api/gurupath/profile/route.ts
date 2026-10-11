@@ -1,178 +1,72 @@
+import "server-only";
 import { NextResponse } from "next/server";
 import { createSupabaseServerUser } from "@/lib/supabase/server-user";
+import { createSupabaseAdmin } from "@/lib/supabase/server-admin";
+import { getGuruGameAccessState } from "@/lib/gurupath/hasGuruGameAccess";
 import { validateGuruName } from "@/lib/gurupath/moderation";
 
 export const dynamic = "force-dynamic";
 
-const PROFILE_SELECT =
-  "user_id,display_name,is_public,level,xp,lifetime_xp,best_level,total_score";
+const PROFILE_SELECT = "user_id,display_name,is_public,level,xp,lifetime_xp,best_level,total_score";
+
+async function authenticatedPaidUser() {
+  const supabase = await createSupabaseServerUser();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return { user: null, status: 401 as const };
+  const access = await getGuruGameAccessState();
+  if (!access.viewId) return { user: null, status: 403 as const };
+  return { user, status: 200 as const };
+}
+
+async function ensureProfile(userId: string) {
+  const admin = createSupabaseAdmin();
+  const { error } = await admin.from("guru_game_profiles")
+    .upsert({ user_id: userId }, { onConflict: "user_id", ignoreDuplicates: true });
+  return { admin, error };
+}
 
 export async function GET() {
-  const supabase = await createSupabaseServerUser();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json(
-      { error: "Kirjautuminen vaaditaan." },
-      { status: 401 }
-    );
-  }
-
-  // Ensimmäinen haku.
-  const { data: existing, error: existingError } = await supabase
-    .from("guru_game_profiles")
-    .select(PROFILE_SELECT)
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (existingError) {
-    return NextResponse.json(
-      { error: existingError.message },
-      { status: 500 }
-    );
-  }
-
-  if (existing) {
-    return NextResponse.json({ profile: existing });
-  }
-
-  /*
-   * TÄRKEÄ KORJAUS:
-   * Vanha versio teki tavallisen insertin. Jos samaan aikaan
-   * esimerkiksi ranking- ja profiilikomponentti pyysivät profiilia,
-   * kaksi GET-pyyntöä saattoi molemmat yrittää luoda saman user_id:n.
-   *
-   * Käytetään upsertia + onConflict=user_id, jolloin profiilin luonti
-   * on idempotentti eikä duplicate primary key -virhettä synny.
-   */
-  const { error: createError } = await supabase
-    .from("guru_game_profiles")
-    .upsert(
-      {
-        user_id: user.id,
-        updated_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "user_id",
-        ignoreDuplicates: true,
-      }
-    );
-
-  if (createError && createError.code !== "23505") {
-    return NextResponse.json(
-      { error: createError.message },
-      { status: 500 }
-    );
-  }
-
-  // Haetaan lopullinen rivi riippumatta siitä, kumpi rinnakkainen pyyntö loi sen.
-  const { data: profile, error: profileError } = await supabase
-    .from("guru_game_profiles")
-    .select(PROFILE_SELECT)
-    .eq("user_id", user.id)
-    .single();
-
-  if (profileError) {
-    return NextResponse.json(
-      { error: profileError.message },
-      { status: 500 }
-    );
-  }
-
-  return NextResponse.json({ profile });
+  const auth = await authenticatedPaidUser();
+  if (!auth.user) return NextResponse.json({ error: "Ei pelioikeutta." }, { status: auth.status });
+  const { admin, error } = await ensureProfile(auth.user.id);
+  if (error) return NextResponse.json({ error: "Profiilin alustaminen epäonnistui." }, { status: 500 });
+  const { data, error: selectError } = await admin.from("guru_game_profiles")
+    .select(PROFILE_SELECT).eq("user_id", auth.user.id).single();
+  if (selectError) return NextResponse.json({ error: "Profiilin lukeminen epäonnistui." }, { status: 500 });
+  return NextResponse.json({ profile: data }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function PATCH(request: Request) {
-  const supabase = await createSupabaseServerUser();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json(
-      { error: "Kirjautuminen vaaditaan." },
-      { status: 401 }
-    );
+  const auth = await authenticatedPaidUser();
+  if (!auth.user) return NextResponse.json({ error: "Ei pelioikeutta." }, { status: auth.status });
+  const body: unknown = await request.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Virheellinen profiilipyyntö." }, { status: 400 });
   }
-
-  const body = await request.json().catch(() => ({}));
-  const isPublic = Boolean(body.isPublic);
-
-  let displayName: string | null = null;
-  let normalized: string | null = null;
-
-  if (isPublic || typeof body.displayName === "string") {
-    const result = validateGuruName(body.displayName);
-
-    if (!result.ok) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 400 }
-      );
-    }
-
-    displayName = result.name;
-    normalized = result.normalized;
+  const input = body as Record<string, unknown>;
+  if (typeof input.isPublic !== "boolean") {
+    return NextResponse.json({ error: "Virheellinen näkyvyysasetus." }, { status: 400 });
   }
-
-  /*
-   * Varmistetaan ensin, että profiili on olemassa.
-   * ignoreDuplicates tekee tästä turvallisen myös rinnakkaisissa pyynnöissä.
-   */
-  const { error: ensureError } = await supabase
-    .from("guru_game_profiles")
-    .upsert(
-      {
-        user_id: user.id,
-        updated_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "user_id",
-        ignoreDuplicates: true,
-      }
-    );
-
-  if (ensureError && ensureError.code !== "23505") {
-    return NextResponse.json(
-      { error: ensureError.message },
-      { status: 500 }
-    );
+  if (input.displayName !== undefined && typeof input.displayName !== "string") {
+    return NextResponse.json({ error: "Virheellinen nimimerkki." }, { status: 400 });
   }
-
-  const patch: Record<string, unknown> = {
-    is_public: isPublic,
-    updated_at: new Date().toISOString(),
+  const patch: { is_public: boolean; display_name?: string; display_name_normalized?: string } = {
+    is_public: input.isPublic,
   };
-
-  if (displayName) {
-    patch.display_name = displayName;
-    patch.display_name_normalized = normalized;
+  if (input.isPublic || input.displayName !== undefined) {
+    const validation = validateGuruName(input.displayName);
+    if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
+    patch.display_name = validation.name;
+    patch.display_name_normalized = validation.normalized;
   }
 
-  const { data, error } = await supabase
-    .from("guru_game_profiles")
-    .update(patch)
-    .eq("user_id", user.id)
-    .select(PROFILE_SELECT)
-    .single();
-
-  if (error) {
-    if (error.code === "23505") {
-      return NextResponse.json(
-        { error: "Tämä nimimerkki on jo käytössä." },
-        { status: 409 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+  const { admin, error: ensureError } = await ensureProfile(auth.user.id);
+  if (ensureError) return NextResponse.json({ error: "Profiilin alustaminen epäonnistui." }, { status: 500 });
+  const { data, error } = await admin.from("guru_game_profiles")
+    .update(patch).eq("user_id", auth.user.id).select(PROFILE_SELECT).single();
+  if (error?.code === "23505") {
+    return NextResponse.json({ error: "Tämä nimimerkki on jo käytössä." }, { status: 409 });
   }
-
-  return NextResponse.json({ profile: data });
+  if (error) return NextResponse.json({ error: "Profiilin tallennus epäonnistui." }, { status: 500 });
+  return NextResponse.json({ profile: data }, { headers: { "Cache-Control": "no-store" } });
 }

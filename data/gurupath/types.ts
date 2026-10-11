@@ -73,3 +73,6 @@ export type GuruGameAccessState = {
   valintakoeG: GuruGameAccessSlot;
   viewId: GuruGameViewId | null;
 };
+
+/** Public question DTO: the answer key and explanation are server-only. */
+export type GuruPublicQuestion = Omit<GuruGameQuestion, "correctAnswerIds" | "explanation"> & { selectionMode: "single" | "multiple" };

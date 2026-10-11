@@ -11,18 +11,13 @@ import {
 
 import GuruPathChallenge from "./GuruPathChallenge";
 
-import {
-  getGuruGameQuestion,
-  getGuruPath,
-  isCompletedSourceForQuestion,
-} from "@/data/gurupath";
-
 import type {
   GuruGameViewId,
-  GuruGameQuestion,
+  GuruPublicQuestion,
   GuruPathNode,
+  GuruPathCourse,
   GuruQuestionCategory,
-} from "@/data/gurupath";
+} from "@/data/gurupath/types";
 
 import type {
   CourseId,
@@ -36,6 +31,8 @@ type NodeStatus =
 
 type Props = {
   viewId: GuruGameViewId;
+  path: GuruPathCourse;
+  publicQuestions: Record<string, GuruPublicQuestion>;
   progressCourseIds: CourseId[];
   storageCourseIds: {
     oikis: CourseId | null;
@@ -121,18 +118,11 @@ function positionForLevel(
 
 export default function GuruPathMap({
   viewId,
+  path,
+  publicQuestions,
   progressCourseIds,
   storageCourseIds,
 }: Props) {
-  const path =
-    useMemo(
-      () =>
-        getGuruPath(
-          viewId
-        ),
-      [viewId]
-    );
-
   const levels =
     path.levels;
 
@@ -294,19 +284,14 @@ export default function GuruPathMap({
   ) {
     return completedEntries.some(
       (entry) =>
-        isCompletedSourceForQuestion(
-          entry.sourceId,
-          node.questionId
-        )
+        (entry.sourceId === `gurupeli:${node.questionId}` || entry.sourceId.endsWith(`:${node.questionId}`))
     );
   }
 
   function resolveQuestion(
     node: GuruPathNode
-  ): GuruGameQuestion | null {
-    return getGuruGameQuestion(
-      node.questionId
-    );
+  ): GuruPublicQuestion | null {
+    return publicQuestions[node.questionId] ?? null;
   }
 
   function courseIdForNode(
