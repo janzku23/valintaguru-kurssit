@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { courses } from "@/data/courses";
-import { hasCourseAccess } from "@/lib/courseAccess";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Tarkistetaan oikeus palvelimella aina kalenteriin siirryttäessä.
+ * Supabasen RLS tekee erillisen lopullisen tietorajoituksen.
+ */
 export default async function CalendarAccessLayout({
   children,
 }: {
@@ -14,19 +16,18 @@ export default async function CalendarAccessLayout({
   const supabase = await createClient();
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (userError || !user) {
     redirect("/kirjaudu?next=/kalenteri");
   }
 
-  const accessResults = await Promise.all(
-    courses.map((course) => hasCourseAccess(course.id))
+  const { data: allowed, error: accessError } = await supabase.rpc(
+    "has_valintaguru_calendar_access",
   );
 
-  const hasPaidCourseAccess = accessResults.some(Boolean);
-
-  if (!hasPaidCourseAccess) {
+  if (accessError || allowed !== true) {
     return (
       <main className="min-h-screen bg-[#f5f8ff] px-4 py-12 text-slate-950 sm:px-6">
         <section className="mx-auto max-w-3xl rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-10">
@@ -34,25 +35,18 @@ export default async function CalendarAccessLayout({
             ValintaGuru kalenteri
           </p>
           <h1 className="mt-3 text-3xl font-black sm:text-4xl">
-            Kalenteri kuuluu maksullisiin valmennuskursseihin
+            Kalenteri kuuluu maksulliseen valmennukseen
           </h1>
           <p className="mt-4 leading-7 text-slate-600">
-            Ilmaiskurssi ei avaa Kalenteria. Saat Kalenterin käyttöön, kun tililläsi on vähintään yksi aktiivinen maksullisen kurssin käyttöoikeus.
+            Kalenteri on käytössä vain, jos tilillä on aktiivinen maksullinen
+            kurssioikeus tai erikseen myönnetty kalenterioikeus.
           </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <a
-              href="/kurssi/ilmais-kurssi"
-              className="rounded-full bg-[#3f51e7] px-5 py-3 text-sm font-black text-white"
-            >
-              Takaisin ilmaiskurssille
-            </a>
-            <a
-              href="/"
-              className="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-700"
-            >
-              Etusivulle
-            </a>
-          </div>
+          <a
+            href="/"
+            className="mt-7 inline-flex rounded-full bg-[#3f51e7] px-5 py-3 text-sm font-black text-white"
+          >
+            Etusivulle
+          </a>
         </section>
       </main>
     );

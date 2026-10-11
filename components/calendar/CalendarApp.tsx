@@ -15,8 +15,6 @@ import type {
   CalendarCategory,
   CalendarEvent,
   CalendarGroup,
-  CalendarInvite,
-  CalendarMember,
   CalendarNote,
   CalendarRepeat,
 } from "./types";
@@ -232,22 +230,6 @@ function monthLabel(date: Date) {
   });
 }
 
-function memberLabel(
-  ownerId: string,
-  currentUserId: string,
-  members: CalendarMember[],
-) {
-  if (ownerId === currentUserId) return "Sinä";
-
-  const member = members.find((item) => item.user_id === ownerId);
-
-  return (
-    member?.display_name ||
-    member?.email?.split("@")[0] ||
-    "Perheenjäsen"
-  );
-}
-
 function recurrenceLabel(event: CalendarEvent) {
   const start = new Date(event.start_at);
   const time = event.all_day
@@ -318,11 +300,9 @@ export default function CalendarApp() {
   const [anchor, setAnchor] = useState(new Date());
 
   const [groups, setGroups] = useState<CalendarGroup[]>([]);
-  const [members, setMembers] = useState<CalendarMember[]>([]);
   const [categories, setCategories] = useState<CalendarCategory[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [notes, setNotes] = useState<CalendarNote[]>([]);
-  const [invites, setInvites] = useState<CalendarInvite[]>([]);
   const [visibleCalendars, setVisibleCalendars] = useState<Set<string>>(
     new Set(),
   );
@@ -334,10 +314,6 @@ export default function CalendarApp() {
   const [notesOpen, setNotesOpen] = useState(false);
   const [newNote, setNewNote] = useState("");
 
-  const [familyOpen, setFamilyOpen] = useState(false);
-  const [familyName, setFamilyName] = useState("Perhe");
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [familyBusy, setFamilyBusy] = useState(false);
 
   const currentUserId = user?.id ?? "";
 
@@ -345,83 +321,73 @@ export default function CalendarApp() {
     if (!user) return;
 
     setError("");
-
     try {
-      const [
-        groupsResult,
-        membersResult,
-        categoriesResult,
-        eventsResult,
-        notesResult,
-        invitesResult,
-      ] = await Promise.all([
-        supabase
-          .from("calendar_groups")
-          .select("*")
-          .order("kind", { ascending: false })
-          .order("created_at", { ascending: true }),
-        supabase.from("calendar_member_directory").select("*"),
-        supabase
-          .from("calendar_categories")
-          .select("*")
-          .order("created_at", { ascending: true }),
-        supabase
-          .from("calendar_events_visible")
-          .select("*")
-          .order("start_at", { ascending: true }),
-        supabase
-          .from("calendar_notes")
-          .select("*")
-          .order("completed", { ascending: true })
-          .order("important", { ascending: false })
-          .order("created_at", { ascending: false }),
-    supabase
-  .from("calendar_invites")
-  .select("*, calendar_groups(name)")
-  .eq("status", "pending")
-  .eq("invitee_email", user.email?.trim().toLowerCase() ?? "")
-          .order("created_at", { ascending: false }),
-      ]);
+      // Haetaan vain kirjautuneen käyttäjän omistamat kalenterit ja tiedot.
+      // RLS toteuttaa varsinaisen tietoturvarajauksen tietokannassa.
+      const [groupsResult, categoriesResult, eventsResult, notesResult] =
+        await Promise.all([
+          supabase
+            .from("calendar_groups")
+            .select("*")
+            .eq("owner_id", user.id)
+            .order("kind", { ascending: false })
+            .order("created_at", { ascending: true }),
+          supabase
+            .from("calendar_categories")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: true }),
+          supabase
+            .from("calendar_events")
+            .select("*")
+            .eq("owner_id", user.id)
+            .order("start_at", { ascending: true }),
+          supabase
+            .from("calendar_notes")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("completed", { ascending: true })
+            .order("important", { ascending: false })
+            .order("created_at", { ascending: false }),
+        ]);
 
       const loadError =
         groupsResult.error ||
-        membersResult.error ||
         categoriesResult.error ||
         eventsResult.error ||
-        notesResult.error ||
-        invitesResult.error;
+        notesResult.error;
 
       if (loadError) throw loadError;
 
       const loadedGroups = (groupsResult.data || []) as CalendarGroup[];
+      const ownedIds = new Set(loadedGroups.map((item) => item.id));
 
       setGroups(loadedGroups);
-      setMembers((membersResult.data || []) as CalendarMember[]);
       setCategories((categoriesResult.data || []) as CalendarCategory[]);
-      setEvents((eventsResult.data || []) as CalendarEvent[]);
-      setNotes((notesResult.data || []) as CalendarNote[]);
-      setInvites((invitesResult.data || []) as CalendarInvite[]);
-
-      setVisibleCalendars((previous) => {
-        if (previous.size) return previous;
-        return new Set(loadedGroups.map((item) => item.id));
-      });
-
-      if (!draft.calendar_id && loadedGroups[0]) {
-        setDraft((previous) => ({
-          ...previous,
-          calendar_id: loadedGroups[0].id,
-        }));
-      }
-    } catch (loadError) {
-      console.error(loadError);
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : "Kalenterin tietojen lataaminen epäonnistui.",
+      setEvents(
+        ((eventsResult.data || []) as CalendarEvent[]).filter((item) =>
+          ownedIds.has(item.calendar_id),
+        ),
       );
+      setNotes((notesResult.data || []) as CalendarNote[]);
+      setVisibleCalendars((previous) => {
+        if (previous.size === 0) return new Set(ownedIds);
+        const valid = [...previous].filter((id) => ownedIds.has(id));
+        return valid.length ? new Set(valid) : new Set(ownedIds);
+      });
+      setDraft((previous) => {
+        if (ownedIds.has(previous.calendar_id)) return previous;
+        const personal = loadedGroups.find((group) => group.kind === "personal");
+        return {
+          ...previous,
+          calendar_id: personal?.id || loadedGroups[0]?.id || "",
+        };
+      });
+    } catch (loadError) {
+      console.error("Kalenterin lataus epäonnistui", loadError);
+      setError("Kalenterin tietojen lataaminen epäonnistui. Yritä uudelleen.");
     }
-  }, [draft.calendar_id, supabase, user]);
+  }, [supabase, user]);
 
   useEffect(() => {
     async function initialize() {
@@ -454,7 +420,7 @@ export default function CalendarApp() {
         if (!allowed) return;
 
         const { error: setupError } = await supabase.rpc(
-          "ensure_calendar_setup",
+          "ensure_private_calendar_setup",
           {
             p_display_name:
               currentUser.user_metadata?.full_name ||
@@ -464,7 +430,7 @@ export default function CalendarApp() {
           },
         );
 
-        if (setupError) throw setupError;
+        if (setupError) throw new Error("Kalenterin valmistelu epäonnistui. Varmista tietokannan tietoturvapäivitys.");
       } catch (initializeError) {
         console.error(initializeError);
         setError(
@@ -493,11 +459,6 @@ export default function CalendarApp() {
           group.kind === "personal" && group.owner_id === currentUserId,
       ) || groups[0],
     [currentUserId, groups],
-  );
-
-  const familyCalendars = useMemo(
-    () => groups.filter((group) => group.kind === "family"),
-    [groups],
   );
 
   const categoryById = useMemo(
@@ -606,7 +567,7 @@ export default function CalendarApp() {
       const current =
         totals.get(ownerId) || {
           ownerId,
-          label: memberLabel(ownerId, currentUserId, members),
+          label: "Sinä",
           count: 0,
           minutes: 0,
         };
@@ -621,11 +582,7 @@ export default function CalendarApp() {
       if (b.ownerId === currentUserId) return 1;
       return b.minutes - a.minutes;
     });
-  }, [
-    currentUserId,
-    importantWeekOccurrences,
-    members,
-  ]);
+  }, [currentUserId, importantWeekOccurrences]);
 
   const upcomingImportantEvents = useMemo(() => {
     const today = startOfDay(new Date());
@@ -652,11 +609,7 @@ export default function CalendarApp() {
         day: new Date(event.start_at),
         start: new Date(event.start_at),
         end: new Date(event.end_at),
-        ownerLabel: memberLabel(
-          event.owner_id,
-          currentUserId,
-          members,
-        ),
+        ownerLabel: "Sinä",
         recurring: true,
       }));
 
@@ -686,11 +639,7 @@ export default function CalendarApp() {
             event,
             day: new Date(day),
             ...occurrence,
-            ownerLabel: memberLabel(
-              event.owner_id,
-              currentUserId,
-              members,
-            ),
+            ownerLabel: "Sinä",
             recurring: false,
           });
         }
@@ -700,11 +649,7 @@ export default function CalendarApp() {
     return [...singleOccurrences, ...recurring]
       .sort((a, b) => a.start.getTime() - b.start.getTime())
       .slice(0, 12);
-  }, [
-    currentUserId,
-    filteredEvents,
-    members,
-  ]);
+  }, [filteredEvents]);
 
   const suggestions = useMemo(() => {
     const result: string[] = [];
@@ -871,6 +816,12 @@ export default function CalendarApp() {
       if (!draft.title.trim()) {
         throw new Error("Anna tapahtumalle nimi.");
       }
+      if (!groups.some((group) => group.id === draft.calendar_id && group.owner_id === user.id)) {
+        throw new Error("Valittu kalenteri ei kuulu käyttäjälle.");
+      }
+      if (draft.category_id && !categories.some((cat) => cat.id === draft.category_id && cat.user_id === user.id)) {
+        throw new Error("Valittu kategoria ei kuulu käyttäjälle.");
+      }
 
       const start = combineLocal(
         draft.date,
@@ -899,7 +850,7 @@ export default function CalendarApp() {
         start_at: start.toISOString(),
         end_at: end.toISOString(),
         all_day: draft.all_day,
-        visibility: "shared" as const,
+        visibility: "private" as const,
         importance: draft.important ? ("important" as const) : ("normal" as const),
         recurrence: draft.recurrence,
         recurrence_until:
@@ -919,6 +870,9 @@ export default function CalendarApp() {
             .from("calendar_events")
             .update(payload)
             .eq("id", draft.id)
+            .eq("owner_id", user.id)
+            .select("id")
+            .single()
         : await supabase.from("calendar_events").insert(payload);
 
       if (result.error) throw result.error;
@@ -950,13 +904,16 @@ export default function CalendarApp() {
 
     setError("");
 
-    const { error: deleteError } = await supabase.rpc(
-      "delete_calendar_event",
-      { p_event_id: draft.id },
-    );
+    if (!user) return;
+    const { data: deleted, error: deleteError } = await supabase
+      .from("calendar_events")
+      .delete()
+      .eq("id", draft.id)
+      .eq("owner_id", user.id)
+      .select("id");
 
-    if (deleteError) {
-      setError(deleteError.message);
+    if (deleteError || !deleted?.length) {
+      setError("Tapahtuman poistaminen epäonnistui tai sitä ei löytynyt.");
       return;
     }
 
@@ -1031,81 +988,6 @@ export default function CalendarApp() {
     );
   }
 
-  async function ensureFamilyCalendar() {
-    if (!user) return null;
-    if (familyCalendars[0]) return familyCalendars[0];
-
-    const { data, error: createError } = await supabase.rpc(
-      "create_family_calendar",
-      {
-        p_name: familyName.trim() || "Perhe",
-      },
-    );
-
-    if (createError) throw createError;
-
-    const created = Array.isArray(data) ? data[0] : data;
-
-    if (!created?.id) {
-      throw new Error("Yhteistä kalenteria ei voitu luoda.");
-    }
-
-    return created as CalendarGroup;
-  }
-
-  async function sendFamilyInvite(event: FormEvent) {
-    event.preventDefault();
-
-    if (!user || !inviteEmail.trim()) return;
-
-    setFamilyBusy(true);
-    setError("");
-
-    try {
-      const family = await ensureFamilyCalendar();
-
-      if (!family) {
-        throw new Error("Yhteistä kalenteria ei voitu luoda.");
-      }
-
-      const { error: inviteError } = await supabase.rpc(
-        "create_calendar_invite",
-        {
-          p_calendar_id: family.id,
-          p_invitee_email: inviteEmail.trim().toLowerCase(),
-        },
-      );
-
-      if (inviteError) throw inviteError;
-
-      setInviteEmail("");
-      await loadAll();
-    } catch (inviteError) {
-      setError(
-        inviteError instanceof Error
-          ? inviteError.message
-          : "Kutsun lähetys epäonnistui.",
-      );
-    } finally {
-      setFamilyBusy(false);
-    }
-  }
-
-  async function respondInvite(
-    invite: CalendarInvite,
-    action: "accept" | "decline",
-  ) {
-    const { error: inviteError } = await supabase.rpc(
-      action === "accept"
-        ? "accept_calendar_invite"
-        : "decline_calendar_invite",
-      { p_invite_id: invite.id },
-    );
-
-    if (inviteError) setError(inviteError.message);
-    else await loadAll();
-  }
-
   const todayKey = toLocalDateInput(new Date());
 
   if (loading) {
@@ -1164,6 +1046,9 @@ export default function CalendarApp() {
               <h1 className="truncate text-lg font-black sm:text-xl">
                 Kalenteri
               </h1>
+              <p className="text-[11px] font-semibold text-emerald-700">
+                Yksityinen · vain sinulle
+              </p>
             </div>
           </div>
 
@@ -1181,13 +1066,6 @@ export default function CalendarApp() {
               )}
             </button>
 
-            <button
-              type="button"
-              onClick={() => setFamilyOpen(true)}
-              className="hidden rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold md:inline-flex"
-            >
-              Perhe
-            </button>
 
             <button
               type="button"
@@ -1247,10 +1125,9 @@ export default function CalendarApp() {
                           : "border-slate-200 bg-white text-slate-400"
                       }`}
                     >
-                      {group.kind === "personal" &&
-                      group.owner_id === currentUserId
+                      {group.kind === "personal"
                         ? "Oma"
-                        : group.name}
+                        : `Oma · ${group.name}`}
                     </button>
                   );
                 })}
@@ -1284,33 +1161,6 @@ export default function CalendarApp() {
       {error && (
         <div className="mx-3 mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 sm:mx-5 lg:mx-6">
           {error}
-        </div>
-      )}
-
-      {invites.length > 0 && (
-        <div className="mx-3 mt-3 flex flex-wrap items-center gap-3 rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 sm:mx-5 lg:mx-6">
-          <span className="text-sm font-bold text-indigo-950">
-            Sinulla on kutsu yhteiseen kalenteriin.
-          </span>
-
-          {invites.map((invite) => (
-            <div key={invite.id} className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => respondInvite(invite, "accept")}
-                className="rounded-full bg-[#3f51e7] px-3 py-1.5 text-xs font-bold text-white"
-              >
-                Hyväksy
-              </button>
-              <button
-                type="button"
-                onClick={() => respondInvite(invite, "decline")}
-                className="rounded-full border border-indigo-200 bg-white px-3 py-1.5 text-xs font-bold"
-              >
-                Hylkää
-              </button>
-            </div>
-          ))}
         </div>
       )}
 
@@ -1576,7 +1426,7 @@ export default function CalendarApp() {
                   </h2>
 
                   <p className="mt-1 text-sm text-slate-500">
-                    Näet erikseen omat ja perheenjäsenten tärkeiksi merkityt menot.
+                    Näet kalenteriin merkitsemäsi tärkeät menot.
                   </p>
 
                   <div className="mt-5 space-y-3">
@@ -1630,11 +1480,7 @@ export default function CalendarApp() {
                                   ★ {item.event.title}
                                 </p>
                                 <p className="mt-1 text-xs font-semibold text-slate-500">
-                                  {memberLabel(
-                                    item.event.owner_id,
-                                    currentUserId,
-                                    members,
-                                  )}{" "}
+                                  Sinä{" "}
                                   ·{" "}
                                   {item.start.toLocaleDateString(
                                     "fi-FI",
@@ -1673,7 +1519,7 @@ export default function CalendarApp() {
                   </h2>
 
                   <p className="mt-1 text-sm text-slate-500">
-                    Seuraavat tärkeiksi merkityt menot omasta ja yhteisistä kalentereista.
+                    Seuraavat tärkeiksi merkityt menot omista kalentereistasi.
                   </p>
 
                   <div className="mt-5 space-y-2">
@@ -1840,13 +1686,6 @@ export default function CalendarApp() {
           Muistiinpanot
         </button>
 
-        <button
-          type="button"
-          onClick={() => setFamilyOpen(true)}
-          className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold shadow-lg"
-        >
-          Perhe
-        </button>
       </div>
 
       {eventModalOpen && (
@@ -1911,10 +1750,9 @@ export default function CalendarApp() {
                 >
                   {groups.map((group) => (
                     <option key={group.id} value={group.id}>
-                      {group.kind === "personal" &&
-                      group.owner_id === currentUserId
+                      {group.kind === "personal"
                         ? "Oma"
-                        : group.name}
+                        : `Oma · ${group.name}`}
                     </option>
                   ))}
                 </select>
@@ -2167,91 +2005,6 @@ export default function CalendarApp() {
         </Modal>
       )}
 
-      {familyOpen && (
-        <Modal
-          title="Perhekalenteri"
-          onClose={() => setFamilyOpen(false)}
-          small
-        >
-          <div className="space-y-5">
-            {familyCalendars.length === 0 && (
-              <Field label="Yhteisen kalenterin nimi">
-                <input
-                  value={familyName}
-                  onChange={(event) =>
-                    setFamilyName(event.target.value)
-                  }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-3"
-                />
-              </Field>
-            )}
-
-            <form
-              onSubmit={sendFamilyInvite}
-              className="space-y-3"
-            >
-              <Field label="Lisää käyttäjä sähköpostilla">
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(event) =>
-                    setInviteEmail(event.target.value)
-                  }
-                  placeholder="nimi@email.fi"
-                  className="w-full rounded-xl border border-slate-300 px-3 py-3"
-                />
-              </Field>
-
-              <button
-                type="submit"
-                disabled={familyBusy}
-                className="w-full rounded-full bg-[#3f51e7] px-5 py-3 font-black text-white disabled:opacity-60"
-              >
-                {familyBusy
-                  ? "Lisätään…"
-                  : "Lähetä kutsu"}
-              </button>
-            </form>
-
-            {familyCalendars.map((family) => {
-              const familyMembers = members.filter(
-                (member) =>
-                  member.calendar_id === family.id,
-              );
-
-              return (
-                <div
-                  key={family.id}
-                  className="rounded-xl border border-slate-200 p-4"
-                >
-                  <p className="font-black">{family.name}</p>
-
-                  <div className="mt-3 space-y-2">
-                    {familyMembers.map((member) => (
-                      <div
-                        key={`${member.calendar_id}-${member.user_id}`}
-                        className="flex items-center justify-between gap-3 text-sm"
-                      >
-                        <span className="truncate font-semibold">
-                          {member.display_name ||
-                            member.email ||
-                            "Käyttäjä"}
-                        </span>
-
-                        <span className="text-xs text-slate-400">
-                          {member.user_id === currentUserId
-                            ? "Sinä"
-                            : "Jäsen"}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Modal>
-      )}
     </main>
   );
 }

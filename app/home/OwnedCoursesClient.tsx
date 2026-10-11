@@ -80,8 +80,7 @@ export default function OwnedCoursesClient() {
 
                           <p className="mt-3 leading-7 text-slate-600">
                             Suunnittele tulevat viikot, seuraa opiskeluaikaasi,
-                            hallitse toistuvia menoja ja yhdistä halutessasi
-                            perheen yhteinen kalenteri.
+                            hallitse toistuvia menoja
                           </p>
                         </div>
                       </div>
@@ -93,9 +92,7 @@ export default function OwnedCoursesClient() {
                         <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
                           Opiskelutilastot
                         </span>
-                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
-                          Perhekalenteri
-                        </span>
+                       
                       </div>
 
                       <div className="mt-auto pt-6">
@@ -139,7 +136,7 @@ export default function OwnedCoursesClient() {
 
                           <p className="mt-3 leading-7 text-slate-600">
                             Ratkaise polun haasteita, avaa uusia polkuja ja tavoittele
-                            kärkisijaa !
+                            kärkisijaa 
                           </p>
                         </div>
                       </div>
