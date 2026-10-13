@@ -42,6 +42,10 @@ export default function HomeHero() {
         tekstianalyysiä ja ajankäyttöä.
       </p>
 
+      <p className="mt-6 max-w-2xl text-base leading-7 text-slate-700 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl">
+        Kurssimme auttavat sinua valmistautumaan valintakoe G:hen ja oikeustieteen erityvään osioon asiantuntevien opettajien avulla.
+      </p>
+
       <div className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap">
         <HeroPrimaryAction />
 
