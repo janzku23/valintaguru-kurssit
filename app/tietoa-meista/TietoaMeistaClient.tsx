@@ -30,10 +30,17 @@ type TeamMember = {
  */
 const team: TeamMember[] = [
   {
+    id: "henkilo-3",
+    name: "Iina Lindholm",
+    role: "ValintaGurun tiimi",
+    description: "ValintaGurun opettaja. Oikeustieteiden maisteri ja tradenomi.",
+    // image: "/tiimi/henkilo-3.webp",
+  },
+  {
     id: "henkilo-1",
     name: "Jani Tuomaala",
     role: "ValintaGurun tiimi",
-    description: "Sairaanhoitaja, käynnissä Yamk terveysteknologian tutkinto-ohjelma, Tekninen tuki, vastaa myös alustasta ja kehityksestä",
+    description: "Tekninen tuki, vastaa myös alustasta ja kehityksestä",
      image: "/tiimi/jani.jpeg",
   },
   {
@@ -43,29 +50,23 @@ const team: TeamMember[] = [
     description: "Vastaa myynnistä, asiakaspalvelusta ja markkinoinnista.",
     // image: "/tiimi/henkilo-2.webp",
   },
-  {
-    id: "henkilo-3",
-    name: "Iina Lindholm",
-    role: "ValintaGurun tiimi",
-    description: "ValintaGurun opettaja. Oikeustieteiden maisteri ja tradenomi.",
-    // image: "/tiimi/henkilo-3.webp",
-  },
-  /*
+  
+  
   {
     id: "henkilo-4",
-    name: "Henkilö 4",
-    role: "ValintaGurun tiimi",
-    description: "Esittele tässä henkilön työ, tausta ja yksi asia, joka tekee hänestä tärkeän osan tiimiä.",
+    name: "Opettaja",
+    role: "ValintaGurun opettaja",
+    description: "Vastaustekniikkoihin erikoistunut opettaja",
     // image: "/tiimi/henkilo-4.webp",
   },
   {
     id: "henkilo-5",
-    name: "Henkilö 5",
-    role: "ValintaGurun tiimi",
-    description: "Kirjoita tähän muutama helposti lähestyttävä lause henkilöstä ja hänen tehtävästään.",
+    name: "Opettaja",
+    role: "ValintaGurun opettaja",
+    description: "Viestintätieteiden ammattilainen",
     // image: "/tiimi/henkilo-5.webp",
   },
-  */
+  
 ];
 
 const navLinks = [
