@@ -367,7 +367,7 @@ export default function ValintakoeGPisterajatPage() {
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-700 sm:text-xl">
               Tälle sivulle on koottu{" "}
               <strong className="font-extrabold text-slate-950">
-                valintakoe Gä käyttäneiden hakukohteiden lopulliset pisterajat vuodelta 2026
+                valintakoe G:n käyttäneiden hakukohteiden lopulliset pisterajat vuodelta 2026
               </strong>
               . Pisterajat ovat 7.8.2026 tilanteen mukaisia.
             </p>
