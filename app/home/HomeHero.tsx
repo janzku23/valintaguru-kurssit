@@ -30,7 +30,7 @@ export default function HomeHero() {
      
 
     <h1 className="mt-5 max-w-3xl break-words font-serif text-[2rem] font-semibold leading-[1.02] tracking-tight sm:mt-2 sm:text-4xl md:text-6xl">
-  Valmennuskurssit oikeustieteen eriytyvään osioon ja valintakoe G:hen
+  Valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon
 </h1>
 
  <div className="mt-6 inline-flex max-w-full items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-bold leading-5 text-[#3f51e7] sm:px-4 sm:text-sm">
