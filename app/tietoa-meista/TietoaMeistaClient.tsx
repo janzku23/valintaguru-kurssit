@@ -47,7 +47,7 @@ const team: TeamMember[] = [
     id: "henkilo-3",
     name: "Iina Lindholm",
     role: "ValintaGurun tiimi",
-    description: "ValintaGurun opettaja. Iina on koulutukseltaan oikeustieteiden maisteri ja tradenomi, ja hän tuntee uuden valintakokeen rakenteen sekä vaatimustason erinomaisesti.",
+    description: "ValintaGurun opettaja. Oikeustieteiden maisteri ja tradenomi.",
     // image: "/tiimi/henkilo-3.webp",
   },
   /*
