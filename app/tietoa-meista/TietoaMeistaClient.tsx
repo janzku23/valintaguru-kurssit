@@ -115,7 +115,7 @@ function PersonPortrait({ person }: { person: TeamMember }) {
             <circle cx="70" cy="52" r="24" fill="#AAB3FF" />
             <path d="M24 121c4-27 22-41 46-41s42 14 46 41" fill="#7989F2" />
           </svg>
-          <span>Henkilökuva tähän</span>
+          <span></span>
         </span>
       )}
       <span className={styles.portraitBadge} aria-hidden="true">
