@@ -56,7 +56,7 @@ const team: TeamMember[] = [
     id: "henkilo-4",
     name: "Opettaja",
     role: "ValintaGurun opettaja",
-    description: "Vastaustekniikkoihin erikoistunut opettaja",
+    description: "Tieteellisten tekstien tulkinta, tilastollinen päättely ja vastaustekniikka",
     // image: "/tiimi/henkilo-4.webp",
   },
   {
