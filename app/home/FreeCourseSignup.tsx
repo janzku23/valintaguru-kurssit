@@ -119,7 +119,7 @@ export default function FreeCourseSignup() {
             <div className="mt-7 grid gap-3 text-sm font-bold text-blue-50 sm:grid-cols-2 lg:grid-cols-1">
               <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
-                Webinaari, kellonaika ja päivämäärä tarkentuu myöhemmin
+                10.11 Webinaari, kellonaika tarkentuu myöhemmin
               </div>
               <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
