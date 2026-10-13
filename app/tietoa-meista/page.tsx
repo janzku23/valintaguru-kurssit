@@ -1,125 +1,18 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.valintaguru.fi";
+import TietoaMeistaClient from "./TietoaMeistaClient";
 
 export const metadata: Metadata = {
-  title: "Tietoa meistä",
-  description:
-    "ValintaGurun esittely on tulossa pian.",
-  alternates: {
-    canonical: "/tietoa-meista",
-  },
+  title: "Tietoa meistä | ValintaGuru",
+  description: "Tutustu ValintaGurun taustalla oleviin ihmisiin ja tiimiin.",
+  alternates: { canonical: "https://www.valintaguru.fi/tietoa-meista" },
   openGraph: {
+    title: "Tietoa meistä | ValintaGuru",
+    description: "Tutustu ValintaGurun tiimiin.",
+    url: "https://www.valintaguru.fi/tietoa-meista",
     type: "website",
-    locale: "fi_FI",
-    siteName: "ValintaGuru",
-    url: "/tietoa-meista",
-    title: "Tietoa meistä | ValintaGuru",
-    description: "ValintaGurun esittely on tulossa pian.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Tietoa ValintaGurusta",
-      },
-    ],
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Tietoa meistä | ValintaGuru",
-    description: "ValintaGurun esittely on tulossa pian.",
-    images: ["/og-image.png"],
-  },
-};
-
-const pageJsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "AboutPage",
-      "@id": `${siteUrl}/tietoa-meista#webpage`,
-      name: "Tietoa meistä",
-      description: "ValintaGurun esittely on tulossa pian.",
-      inLanguage: "fi-FI",
-      url: `${siteUrl}/tietoa-meista`,
-      isPartOf: {
-        "@id": `${siteUrl}/#website`,
-      },
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": `${siteUrl}/tietoa-meista#breadcrumb`,
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Etusivu",
-          item: siteUrl,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Tietoa meistä",
-          item: `${siteUrl}/tietoa-meista`,
-        },
-      ],
-    },
-  ],
 };
 
 export default function TietoaMeistaPage() {
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(pageJsonLd).replace(/</g, "\\u003c"),
-        }}
-      />
-      <main className="min-h-screen bg-[#fffdf8] text-slate-950">
-      <section className="relative flex min-h-[70vh] items-center overflow-hidden px-4 py-16 sm:px-6 lg:px-8">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-indigo-100" />
-        <div className="pointer-events-none absolute -bottom-20 -left-12 h-44 w-44 rounded-[3rem] border-[10px] border-amber-200" />
-
-        <div className="relative mx-auto w-full max-w-4xl">
-          <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-7 text-center shadow-xl shadow-slate-900/5 sm:p-10 lg:p-14">
-            <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-bold text-[#3f51e7]">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-[#3f51e7]" />
-              Tietoa meistä
-            </div>
-
-            <h1 className="mt-7 font-serif text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-              Esittely tulossa pian
-            </h1>
-
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-              Rakennamme parhaillaan ValintaGurun esittelyä.
-              Päivitämme tälle sivulle pian lisää tietoa meistä,
-              toimintatavastamme ja valmennusten taustasta.
-            </p>
-
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link
-                href="/"
-                className="inline-flex w-full items-center justify-center rounded-full bg-[#3f51e7] px-6 py-3.5 font-bold text-white transition hover:bg-[#3142d6] sm:w-auto"
-              >
-                Takaisin etusivulle
-              </Link>
-
-              <Link
-                href="/#kurssit"
-                className="inline-flex w-full items-center justify-center rounded-full border border-slate-300 bg-white px-6 py-3.5 font-bold text-slate-800 transition hover:border-[#3f51e7] hover:text-[#3f51e7] sm:w-auto"
-              >
-                Tutustu kursseihin
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-      </main>
-    </>
-  );
+  return <TietoaMeistaClient />;
 }

@@ -49,7 +49,7 @@ export default function FreeCourseHeroCta() {
               Kokeile ValintaGurua maksutta
             </h2>
             <p className="mt-2 max-w-2xl leading-7 text-slate-600">
-              Luo maksuton tunnus. Webinaarilinkki julkaistaan lähempänä 4.11. ja harjoituskokeet lisätään pian.
+              Luo maksuton tunnus. Webinaarilinkki julkaistaan lähempänä
             </p>
           </div>
 

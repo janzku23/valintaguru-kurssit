@@ -45,7 +45,7 @@ export default function FreeCoursePromoBar() {
             Maksuton
           </span>
           <p className="text-sm font-bold sm:text-base">
-            Ilmainen kurssi + webinaari 4.11.2026
+            Ilmainen kurssi + webinaari tulossa
           </p>
         </div>
 

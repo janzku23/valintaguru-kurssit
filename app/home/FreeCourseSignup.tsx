@@ -110,7 +110,7 @@ export default function FreeCourseSignup() {
             </h2>
             <p className="mt-4 max-w-xl text-base leading-7 text-blue-50 sm:text-lg">
               Luo maksuton käyttäjätunnus. Webinaarilinkki julkaistaan lähempänä
-              4.11.2026
+              
             </p>
              <p className="mt-4 max-w-xl text-base leading-7 text-blue-50 sm:text-lg">
               Jo kurssin ostaneiden ei tarvitse erikseen ilmottautua
@@ -119,11 +119,11 @@ export default function FreeCourseSignup() {
             <div className="mt-7 grid gap-3 text-sm font-bold text-blue-50 sm:grid-cols-2 lg:grid-cols-1">
               <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
-                Webinaari 4.11.2026, kellonaika tarkentuu myöhemmin
+                Webinaari, kellonaika ja päivämäärä tarkentuu myöhemmin
               </div>
               <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
-                Testaa ilmaiseksi mihin pisteesi riittäisivät 2026 kokeella
+                Testaa ilmaiseksi lähtötasosi
               </div>
             </div>
           </div>
