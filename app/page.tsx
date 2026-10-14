@@ -12,15 +12,14 @@ import HomeScoreLimits from "./home/HomeScoreLimits";
 import HomeSocialClient from "./home/HomeSocialClient";
 import HomeFooterClient from "./home/HomeFooterClient";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.valintaguru.fi";
+const siteUrl = "https://www.valintaguru.fi";
 
 export const metadata: Metadata = {
   title: {
     absolute: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
   },
   description:
-    "ValintaGurun valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon. Harjoittele päättelyä, aineistojen analysointia, tekstinymmärtämistä ja ajankäyttöä tehokkaasti verkossa.",
+    "ValintaGurun valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon. Harjoittele päättelyä, aineistojen analysointia, tekstinymmärtämistä ja ajankäyttöä tehokkaasti verkossa.",
   alternates: {
     canonical: "/",
   },
@@ -31,7 +30,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     title: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
     description:
-      "Valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon. Teoria, harjoitukset ja opiskelun seuranta yhdessä palvelussa.",
+      "Valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon. Teoria, harjoitukset ja opiskelun seuranta yhdessä palvelussa.",
     images: [
       {
         url: "/og-image.png",
@@ -45,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
     description:
-      "Valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
+      "Valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
     images: ["/og-image.png"],
   },
 };
@@ -57,7 +56,7 @@ const homePageJsonLd = {
   url: siteUrl,
   name: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
   description:
-    "ValintaGurun valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
+    "ValintaGurun valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
   inLanguage: "fi-FI",
   isPartOf: {
     "@id": `${siteUrl}/#website`,

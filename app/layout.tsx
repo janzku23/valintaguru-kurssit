@@ -14,8 +14,7 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.valintaguru.fi";
+const siteUrl = "https://www.valintaguru.fi";
 
 const siteName = "ValintaGuru";
 

@@ -1,10 +1,8 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://www.valintaguru.fi";
+const siteUrl = "https://www.valintaguru.fi";
 
-const LAST_UPDATED = "2026-10-01";
+const LAST_UPDATED = "2026-10-14";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
