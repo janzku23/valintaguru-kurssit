@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    "ValintaGurun valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon. Harjoittele päättelyä, aineistojen analysointia, tekstinymmärtämistä ja ajankäyttöä tehokkaasti verkossa.",
+    "ValintaGurun valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon. Harjoittele päättelyä, aineistojen analysointia, tekstinymmärtämistä ja ajankäyttöä tehokkaasti verkossa.",
 
   applicationName: siteName,
   creator: siteName,
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     title:
       "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
     description:
-      "Valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon. Teoria, harjoitukset ja opiskelun seuranta yhdessä palvelussa.",
+      "Valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon. Teoria, harjoitukset ja opiskelun seuranta yhdessä palvelussa.",
     images: [
       {
         url: "/og-image.png",
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     title:
       "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
     description:
-      "Valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
+      "Valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
     images: ["/og-image.png"],
   },
 
@@ -139,7 +139,7 @@ const organizationJsonLd = {
     url: `${siteUrl}/logo.png`,
   },
   description:
-    "ValintaGuru tarjoaa valmennuskursseja Valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
+    "ValintaGuru tarjoaa valmennuskursseja valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
   inLanguage: "fi-FI",
 };
 
@@ -151,7 +151,7 @@ const websiteJsonLd = {
   name: siteName,
   alternateName: "ValintaGuru.fi",
   description:
-    "Valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
+    "Valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
   inLanguage: "fi-FI",
   publisher: {
     "@id": `${siteUrl}/#organization`,

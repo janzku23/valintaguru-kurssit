@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "ValintaGuru",
 
     description:
-      "ValintaGurun valmennuskurssit Valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
+      "ValintaGurun valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
 
     start_url: "/",
     scope: "/",
