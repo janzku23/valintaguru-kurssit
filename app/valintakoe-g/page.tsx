@@ -44,9 +44,9 @@ const pageJsonLd = {
     {
       "@type": "WebPage",
       "@id": `${siteUrl}/valintakoe-g#webpage`,
-      name: "Mikä on Valintakoe G?",
+      name: "Mikä on valintakoe G?",
       description:
-        "Tietoa Valintakoe G:stä, sen toteutuksesta ja kokeessa tarvittavista taidoista.",
+        "Tietoa valintakoe G:stä, sen toteutuksesta ja kokeessa tarvittavista taidoista.",
       inLanguage: "fi-FI",
       url: `${siteUrl}/valintakoe-g`,
       isPartOf: {
@@ -128,7 +128,7 @@ export default function ValintakoeGPage() {
               </p>
 
               <h1 className="mt-4 font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-                Mikä on Valintakoe G?
+                Mikä on valintakoe G?
               </h1>
 
               <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-700 sm:text-xl">
