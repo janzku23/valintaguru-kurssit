@@ -77,24 +77,6 @@ export default async function CoursePage({
 
   return (
     <main className="min-h-screen bg-[#f5f8ff] text-slate-950">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <a
-            href="/"
-            className="text-2xl font-extrabold text-blue-700"
-          >
-            ValintaGuru
-          </a>
-
-          <a
-            href="/"
-            className="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold text-slate-800 hover:text-blue-700"
-          >
-            Omat kurssit
-          </a>
-        </div>
-      </header>
-
       <section className="mx-auto max-w-7xl px-6 py-14">
         <div className="rounded-[2rem] bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 p-8 text-white shadow-2xl shadow-blue-900/20 md:p-10">
           <p className="text-sm font-bold uppercase tracking-wide text-blue-100">

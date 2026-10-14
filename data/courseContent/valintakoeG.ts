@@ -29,9 +29,10 @@ export const valintakoeGContent = {
    *     2.2 Johtopäätökset
    */
   theorySections: [
+    // 1. Valintakoe G tutuksi
     {
       id: "g-teoria-1-canva",
-      subtitle: "Teoria",
+      subtitle: "1. Valintakoe G tutuksi",
       title: "Valintakoe G 2026",
       content: "",
       embed: {
@@ -42,7 +43,7 @@ export const valintakoeGContent = {
     },
     {
       id: "g-teoria-2-canva",
-      subtitle: "Teoria",
+      subtitle: "1. Valintakoe G tutuksi",
       title: "Valintakoe G 2027",
       content: "",
       embed: {
@@ -51,10 +52,109 @@ export const valintakoeGContent = {
         url: "https://www.canva.com/design/DAHVi86tdTs/wr7Ukops8Rb_qaCbNIflJg/view?embed",
       },
     },
-      {
+    // 2. Tehokas aineiston käsittely
+    {
+      id: "g-2-tieteellisen-artikkelin-rakenne",
+      subtitle: "2. Tehokas aineiston käsittely",
+      title: "Tieteellisen artikkelin rakenne",
+      content: "",
+      disabled: true,
+    },
+    {
+      id: "g-2-tiedon-paikantaminen-ctrl-f",
+      subtitle: "2. Tehokas aineiston käsittely",
+      title: "Tiedon paikantaminen ja Ctrl+F",
+      content: "",
+      disabled: true,
+    },
+    {
+      id: "g-2-tieteellisen-aineiston-haltuunotto",
+      subtitle: "2. Tehokas aineiston käsittely",
+      title: "Miten tieteellinen aineisto otetaan nopeasti haltuun?",
+      content: "",
+      disabled: true,
+    },
+
+    // 3. Kriittinen ja analyyttinen lukeminen
+    {
+      id: "g-3-vaitteet-perustelut-argumentaatio",
+      subtitle: "3. Kriittinen ja analyyttinen lukeminen",
+      title: "Väitteet, perustelut ja argumentaatio",
+      content: "",
+      disabled: true,
+    },
+    {
+      id: "g-3-kuka-sanoo-mita",
+      subtitle: "3. Kriittinen ja analyyttinen lukeminen",
+      title: "Kuka sanoo mitä – ja mitä voidaan päätellä?",
+      content: "",
+      disabled: true,
+    },
+    {
+      id: "g-3-usean-aineiston-vertailu",
+      subtitle: "3. Kriittinen ja analyyttinen lukeminen",
+      title: "Usean aineiston vertailu ja soveltaminen",
+      content: "",
+      disabled: true,
+    },
+
+    // 4. Tutkimustiedon ja tilastojen ymmärtäminen
+    {
+      id: "g-4-tutkimustiedon-ymmartaminen",
+      subtitle: "4. Tutkimustiedon ja tilastojen ymmärtäminen",
+      title: "Tutkimustiedon ymmärtäminen",
+      content: "",
+      disabled: true,
+    },
+    {
+      id: "g-4-tilastot-taulukot-kuviot",
+      subtitle: "4. Tutkimustiedon ja tilastojen ymmärtäminen",
+      title: "Tilastot, taulukot ja kuviot",
+      content: "",
+      disabled: true,
+    },
+    {
+      id: "g-4-tulkinnan-sudenkuopat",
+      subtitle: "4. Tutkimustiedon ja tilastojen ymmärtäminen",
+      title: "Tutkimustulosten ja lukujen tulkinnan sudenkuopat",
+      content: "",
+      disabled: true,
+    },
+
+    // 5. Vastaustekniikka ja kysymystyypit
+    {
+      id: "g-5-tosi-epatosi-oikein-vaarin-monivalinnat",
+      subtitle: "5. Vastaustekniikka ja kysymystyypit",
+      title: "Tosi/Epätosi ja Oikein/Väärin / Monivalinnat ja muut kysymystyypit",
+      content: "",
+      disabled: true,
+    },
+    {
+      id: "g-5-kysymysmuodot-2026",
+      subtitle: "5. Vastaustekniikka ja kysymystyypit",
+      title: "Viime vuoden kysymysmuodot 2026 ja mitä oppia niistä",
+      content: "",
+      disabled: false,
+      embed: {
+        type: "canva",
+        title: "Valintakoe G 2027",
+        url: "https://www.canva.com/design/DAHX5wV2tl0/wMu85YLtMTTC5cBScLGpCg/view?embed",
+         paddingTop: "172.0842%",
+      },
+    },
+    {
+      id: "g-5-valintakokeen-harhauttajat",
+      subtitle: "5. Vastaustekniikka ja kysymystyypit",
+      title: "Valintakokeen harhauttajat",
+      content: "",
+      disabled: true,
+    },
+
+    // 6. Ajankäyttö ja koestrategia
+    {
       id: "g-teoria-3-canva",
-      subtitle: "Teoria",
-      title: "3 tapaa suorittaa valintakoe G",
+      subtitle: "6. Ajankäyttö ja koestrategia",
+      title: "Kolme tapaa suorittaa valintakoe G",
       content: "",
       embed: {
         type: "canva",
@@ -62,6 +162,13 @@ export const valintakoeGContent = {
         url: "https://www.canva.com/design/DAHWYEqgCg4/dKkl0xZL4AaYiTjbRRwCXw/view?embed",
         paddingTop: "175.0842%",
       },
+    },
+    {
+      id: "g-6-ajankaytto-ja-stressi",
+      subtitle: "6. Ajankäyttö ja koestrategia",
+      title: "Ajankäyttö ja stressi",
+      content: "",
+      disabled: true,
     },
   ],
 

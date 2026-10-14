@@ -165,7 +165,8 @@ export default function CourseMaterialSidebar({
                   <span>{link.title}</span>
 
                   <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs font-black">
-                    {theorySections.length}
+                    {theorySections.filter((section) => !section.disabled).length}
+                    /{theorySections.length}
                   </span>
                 </a>
 
@@ -201,6 +202,21 @@ export default function CourseMaterialSidebar({
                               const isActiveSection =
                                 section.id ===
                                 activeTheorySectionId;
+
+                              if (section.disabled) {
+                                return (
+                                  <div
+                                    key={section.id}
+                                    aria-disabled="true"
+                                    className="flex cursor-not-allowed items-start justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm font-semibold leading-5 text-slate-400"
+                                  >
+                                    <span>{section.title}</span>
+                                    <span className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                                      Tulossa
+                                    </span>
+                                  </div>
+                                );
+                              }
 
                               return (
                                 <a

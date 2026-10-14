@@ -28,6 +28,12 @@ export type TheorySection = {
   subtitle?: string;
   blocks?: TheoryBlock[];
   embed?: TheoryEmbed;
+
+  /**
+   * Näyttää teoriaosion sisällysluettelossa, mutta estää avaamisen.
+   * Käytetään tuleville materiaaleille.
+   */
+  disabled?: boolean;
 };
 
 export type QuizAnswer = {

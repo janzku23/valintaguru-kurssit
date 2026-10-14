@@ -127,7 +127,7 @@ export default function FreeCourseSignup() {
               </div>
                <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
-                Ennakko kysymyksiä voi lähettää info@valintaguru.fi
+                Ennakko kysymyksiä voi lähettää info@valintaguru.com
               </div>
             </div>
           </div>
