@@ -28,7 +28,7 @@ export default function OwnedCoursesClient() {
           <div className="mt-8 grid gap-6 rounded-[2rem] border border-indigo-100 bg-indigo-50 p-5 sm:p-8 md:grid-cols-[1fr_auto] md:items-center">
             <div><h3 className="text-2xl font-extrabold">Kirjaudu nähdäksesi omat kurssisi</h3><p className="mt-3 leading-8 text-slate-700">Kirjaudu samalla sähköpostiosoitteella, jolla kurssi on hankittu.</p>
             <p className="mt-3 leading-8 text-slate-700">Kurssin ostosta toimitamme tunnukset mahdollisimman nopeasti annettuun sähköpostiin</p>
-            <p className="mt-3 leading-8 text-slate-700">Saat Holvin ostovahvistuksen välittömästi ja myöhemmin meiltä käyttäjätunnukset</p></div>
+            <p className="mt-3 leading-8 text-slate-700">Saat Holvin ostovahvistuksen välittömästi</p></div>
             <a href="/kirjaudu" className="inline-flex w-full items-center justify-center rounded-full bg-[#3f51e7] px-6 py-3 text-center font-bold text-white sm:w-fit">Kirjaudu sisään</a>
           </div>
         ) : ownedCourses.length > 0 ? (
