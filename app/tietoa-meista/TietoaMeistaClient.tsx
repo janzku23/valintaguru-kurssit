@@ -40,7 +40,7 @@ const team: TeamMember[] = [
     id: "henkilo-1",
     name: "Jani Tuomaala",
     role: "ValintaGurun tiimi",
-    description: "Tekninen tuki, vastaa myös alustasta ja kehityksestä",
+    description: "Tekninen tuki, vastaa myös alustasta ja kehityksestä.",
      image: "/tiimi/jani.jpeg",
   },
   {
