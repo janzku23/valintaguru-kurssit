@@ -1,0 +1,59 @@
+name: Paivita ValintaGuru versionumero
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: valintaguru-version-main
+  cancel-in-progress: false
+
+jobs:
+  bump-version:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hae projektin tiedostot
+        uses: actions/checkout@v4
+
+      - name: Asenna Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Tunnista Next.js-projektin juurikansio
+        id: project
+        shell: bash
+        run: |
+          if [[ -f scripts/bump-version.mjs && -f src/data/siteVersion.json ]]; then
+            echo 'dir=.' >> "$GITHUB_OUTPUT"
+          elif [[ -f valintaguru-kurssit/scripts/bump-version.mjs && -f valintaguru-kurssit/src/data/siteVersion.json ]]; then
+            echo 'dir=valintaguru-kurssit' >> "$GITHUB_OUTPUT"
+          else
+            echo 'Virhe: bump-version.mjs ja siteVersion.json eivat loydy odotetusta kansiosta.' >&2
+            exit 1
+          fi
+
+      - name: Nosta versionumeroa
+        working-directory: ${{ steps.project.outputs.dir }}
+        run: node scripts/bump-version.mjs
+
+      - name: Tallenna uusi versionumero GitHubiin
+        env:
+          PROJECT_DIR: ${{ steps.project.outputs.dir }}
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "${PROJECT_DIR}/src/data/siteVersion.json"
+          if git diff --cached --quiet; then
+            echo 'Versionumero ei muuttunut.'
+            exit 0
+          fi
+          git commit -m 'chore: increment site version'
+          git push origin HEAD:main
