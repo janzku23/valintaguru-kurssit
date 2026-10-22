@@ -58,7 +58,7 @@ export default function HomeFooterClient() {
       </p>
       {updatedAt && (
         <p className="mt-4 max-w-sm leading-7 text-slate-600">
-          Päivitetty : {updatedAt}
+          Päivitetty: {updatedAt}
         </p>
       )}
     </div>

@@ -1,9 +1,8 @@
-name: Paivita ValintaGurun versionumero
+name: ValintaGuru - versionumeron paivitys
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -14,11 +13,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  bump-version:
+  bump:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - name: Hae GitHub-repositorion tiedostot
+      - name: Hae projektin tiedostot
         uses: actions/checkout@v4
 
       - name: Asenna Node.js
@@ -26,65 +25,44 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Etsi versionumeroinnin tiedostot
-        id: project
+      - name: Etsi tiedosto ja kasvata versionumero
+        id: update
         shell: bash
         run: |
           set -euo pipefail
-
-          echo "GitHub-repositorion juuri: $PWD"
-          echo "GitHubista loytyvat versionumerointitiedostot:"
-          find . -type f \( -name 'bump-version.mjs' -o -name 'siteVersion.json' \) \
-            -not -path '*/node_modules/*' \
-            -not -path '*/.next/*' \
-            -not -path '*/.git/*' -print
-
-          project_dir=''
-          while IFS= read -r script; do
-            dir="${script%/scripts/bump-version.mjs}"
-            if [[ -f "$dir/src/data/siteVersion.json" ]]; then
-              if [[ -n "$project_dir" ]]; then
-                echo '::error::Loytyi useampi projekti, joissa on molemmat versiotiedostot. Rajaa haku oikeaan projektiin.' >&2
-                exit 1
-              fi
-              project_dir="$dir"
-            fi
-          done < <(find . -type f -path '*/scripts/bump-version.mjs' \
-            -not -path '*/node_modules/*' \
-            -not -path '*/.next/*' \
-            -not -path '*/.git/*')
-
-          if [[ -z "$project_dir" ]]; then
-            echo '::error::Versionumerointi ei kaynnistynyt: scripts/bump-version.mjs ja src/data/siteVersion.json eivat ole samassa projektissa tai niita ei ole lisatty GitHubiin.' >&2
+          mapfile -t candidates < <(find . -type f -path '*/data/siteVersion.json' \
+            -not -path '*/node_modules/*' -not -path '*/.next/*' -not -path '*/.git/*')
+          if [[ ${#candidates[@]} -ne 1 ]]; then
+            printf 'Virhe: odotettiin tasan yhta data/siteVersion.json-tiedostoa, loytyi %s.\n' "${#candidates[@]}"
+            printf 'Loydetyt tiedostot:\n'
+            find . -name siteVersion.json -not -path '*/node_modules/*' -print
             exit 1
           fi
+          version_file="${candidates[0]}"
+          echo "version_file=$version_file" >> "$GITHUB_OUTPUT"
+          node - "$version_file" <<'NODE'
+          const fs = require('node:fs');
+          const file = process.argv[2];
+          const obj = JSON.parse(fs.readFileSync(file, 'utf8'));
+          const match = /^(\d+)\.(\d)\.(\d)$/.exec(obj.version);
+          if (!match) throw new Error(`Virheellinen versionumero: ${obj.version}`);
+          let [major, minor, patch] = match.slice(1).map(Number);
+          patch += 1;
+          if (patch === 10) { patch = 0; minor += 1; }
+          if (minor === 10) { minor = 0; major += 1; }
+          obj.version = `${major}.${minor}.${patch}`;
+          fs.writeFileSync(file, JSON.stringify(obj, null, 2) + '\n');
+          console.log(`Uusi versio: ${obj.version} (${file})`);
+          NODE
 
-          echo "Loydetty projektikansio: $project_dir"
-          echo "dir=$project_dir" >> "$GITHUB_OUTPUT"
-
-      - name: Nosta versionumeroa
-        env:
-          PROJECT_DIR: ${{ steps.project.outputs.dir }}
+      - name: Tallenna versio GitHubiin
         shell: bash
-        run: |
-          set -euo pipefail
-          cd "$PROJECT_DIR"
-          node scripts/bump-version.mjs
-
-      - name: Tallenna uusi versionumero GitHubiin
         env:
-          PROJECT_DIR: ${{ steps.project.outputs.dir }}
-        shell: bash
+          VERSION_FILE: ${{ steps.update.outputs.version_file }}
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- "$PROJECT_DIR/src/data/siteVersion.json"
-
-          if git diff --cached --quiet; then
-            echo 'Versionumero ei muuttunut.'
-            exit 0
-          fi
-
-          git commit -m 'chore: increment site version'
+          git add -- "$VERSION_FILE"
+          git commit -m 'chore: paivita ValintaGurun versionumero'
           git push origin HEAD:main
