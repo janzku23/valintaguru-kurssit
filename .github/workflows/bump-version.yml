@@ -1,4 +1,4 @@
-name: Paivita ValintaGuru versionumero
+name: Paivita ValintaGurun versionumero
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - name: Hae projektin tiedostot
+      - name: Hae GitHub-repositorion tiedostot
         uses: actions/checkout@v4
 
       - name: Asenna Node.js
@@ -26,34 +26,65 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Tunnista Next.js-projektin juurikansio
+      - name: Etsi versionumeroinnin tiedostot
         id: project
         shell: bash
         run: |
-          if [[ -f scripts/bump-version.mjs && -f src/data/siteVersion.json ]]; then
-            echo 'dir=.' >> "$GITHUB_OUTPUT"
-          elif [[ -f valintaguru-kurssit/scripts/bump-version.mjs && -f valintaguru-kurssit/src/data/siteVersion.json ]]; then
-            echo 'dir=valintaguru-kurssit' >> "$GITHUB_OUTPUT"
-          else
-            echo 'Virhe: bump-version.mjs ja siteVersion.json eivat loydy odotetusta kansiosta.' >&2
+          set -euo pipefail
+
+          echo "GitHub-repositorion juuri: $PWD"
+          echo "GitHubista loytyvat versionumerointitiedostot:"
+          find . -type f \( -name 'bump-version.mjs' -o -name 'siteVersion.json' \) \
+            -not -path '*/node_modules/*' \
+            -not -path '*/.next/*' \
+            -not -path '*/.git/*' -print
+
+          project_dir=''
+          while IFS= read -r script; do
+            dir="${script%/scripts/bump-version.mjs}"
+            if [[ -f "$dir/src/data/siteVersion.json" ]]; then
+              if [[ -n "$project_dir" ]]; then
+                echo '::error::Loytyi useampi projekti, joissa on molemmat versiotiedostot. Rajaa haku oikeaan projektiin.' >&2
+                exit 1
+              fi
+              project_dir="$dir"
+            fi
+          done < <(find . -type f -path '*/scripts/bump-version.mjs' \
+            -not -path '*/node_modules/*' \
+            -not -path '*/.next/*' \
+            -not -path '*/.git/*')
+
+          if [[ -z "$project_dir" ]]; then
+            echo '::error::Versionumerointi ei kaynnistynyt: scripts/bump-version.mjs ja src/data/siteVersion.json eivat ole samassa projektissa tai niita ei ole lisatty GitHubiin.' >&2
             exit 1
           fi
 
+          echo "Loydetty projektikansio: $project_dir"
+          echo "dir=$project_dir" >> "$GITHUB_OUTPUT"
+
       - name: Nosta versionumeroa
-        working-directory: ${{ steps.project.outputs.dir }}
-        run: node scripts/bump-version.mjs
+        env:
+          PROJECT_DIR: ${{ steps.project.outputs.dir }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PROJECT_DIR"
+          node scripts/bump-version.mjs
 
       - name: Tallenna uusi versionumero GitHubiin
         env:
           PROJECT_DIR: ${{ steps.project.outputs.dir }}
         shell: bash
         run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add "${PROJECT_DIR}/src/data/siteVersion.json"
+          git add -- "$PROJECT_DIR/src/data/siteVersion.json"
+
           if git diff --cached --quiet; then
             echo 'Versionumero ei muuttunut.'
             exit 0
           fi
+
           git commit -m 'chore: increment site version'
           git push origin HEAD:main
