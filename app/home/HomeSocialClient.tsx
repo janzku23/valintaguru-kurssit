@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Script from "next/script";
 import logo from "../../assets/logo.png";
+import kiitos from "../../assets/kiitos.png";
+import mainosg from "../../assets/mainosg.png";
 
 export default function HomeSocialClient() {
   const instagramProfileUrl = "https://www.instagram.com/valintaguru/";
@@ -10,8 +12,8 @@ export default function HomeSocialClient() {
   const [instagramSlide, setInstagramSlide] = useState(0);
 
   const instagramPosts = [
-    { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 1" },
-    { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 2" },
+    { image: kiitos.src, alt: "ValintaGurun Instagram-julkaisu 1" },
+    { image: mainosg.src, alt: "ValintaGurun Instagram-julkaisu 2" },
     { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 3" },
     { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 4" },
     { image: logo.src, alt: "ValintaGurun Instagram-julkaisu 5" },
@@ -86,7 +88,7 @@ export default function HomeSocialClient() {
                   </a>
                 </div>
 
-                <div className="relative mt-4 h-[210px] overflow-hidden rounded-2xl bg-gradient-to-b from-slate-50 to-slate-100 min-[390px]:h-[230px] sm:h-[270px]">
+                <div className="relative mt-4 h-[245px] overflow-hidden rounded-2xl bg-gradient-to-b from-slate-50 to-slate-100 min-[390px]:h-[270px] sm:h-[345px]">
                   <div className="absolute inset-0 flex items-center justify-center [perspective:1200px]">
                     {instagramPosts.map((post, index) => {
                       const position = getInstagramPosition(index);
@@ -111,7 +113,7 @@ export default function HomeSocialClient() {
                           onClick={() => setInstagramSlide(index)}
                           aria-label={`Näytä Instagram-kuva ${index + 1}`}
                           aria-current={isActive ? "true" : undefined}
-                          className={`absolute aspect-[4/3] w-[180px] overflow-hidden rounded-2xl border-4 border-white bg-white shadow-2xl transition-all duration-500 ease-out min-[390px]:w-[205px] sm:w-[285px] ${
+                          className={`absolute aspect-[4/5] w-[160px] overflow-hidden rounded-2xl border-4 border-white bg-white shadow-2xl transition-all duration-500 ease-out min-[390px]:w-[175px] sm:w-[240px] ${
                             isVisible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
                           } ${isActive ? "z-30" : Math.abs(position) === 1 ? "z-20" : "z-10"}`}
                           style={{
@@ -126,7 +128,7 @@ export default function HomeSocialClient() {
                           <img
                             src={post.image}
                             alt={post.alt}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-contain"
                           />
                           {!isActive && (
                             <span className="absolute inset-0 bg-slate-950/10" />

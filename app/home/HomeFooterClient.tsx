@@ -5,6 +5,21 @@ import logo from "../../assets/logo.png";
 import { courses, HOLVI_STORE_URL } from "../../data/courses";
 import type { CourseId } from "../../data/courses";
 import { useHomeAuth } from "./HomeAuthProvider";
+import siteVersion from "../../data/siteVersion.json";
+
+const buildTimestamp = process.env.NEXT_PUBLIC_BUILD_TIMESTAMP;
+
+const updatedAt = buildTimestamp
+  ? new Intl.DateTimeFormat("fi-FI", {
+      timeZone: "Europe/Helsinki",
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    }).format(new Date(buildTimestamp))
+  : null;
 
 export default function HomeFooterClient() {
   const { isLoggedIn, ownedCourseIds } = useHomeAuth();
@@ -39,11 +54,13 @@ export default function HomeFooterClient() {
       </p>
 
         <p className="mt-4 max-w-sm leading-7 text-slate-600">
-        Versio 1.0.1
+        Versio {siteVersion.version}
       </p>
-      <p className="mt-4 max-w-sm leading-7 text-slate-600">
-        Päivitetty: 11.10 klo 17.48
-      </p>
+      {updatedAt && (
+        <p className="mt-4 max-w-sm leading-7 text-slate-600">
+          Päivitetty: {updatedAt}
+        </p>
+      )}
     </div>
 
     <div>

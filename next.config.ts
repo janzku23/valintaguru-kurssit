@@ -1,15 +1,11 @@
- /* import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
- config options here 
-};
-
-export default nextConfig;
-
-*/
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_BUILD_TIMESTAMP: new Date().toISOString(),
+  },
+
   poweredByHeader: false,
 
   images: {
