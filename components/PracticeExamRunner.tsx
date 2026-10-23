@@ -1267,9 +1267,91 @@ export default function PracticeExamRunner({
     );
   }
 
+  // Kurssikohtainen ennakkomateriaali näytetään jo aloitusnäkymässä.
+  // Linkin avaaminen ei käynnistä koetta, ajastinta tai koesuorituksen tallennusta.
+  const intro = exam.intro;
+  const article = intro?.article;
+  const articleUrl = article?.url || exam.articleUrl;
+
   return (
     <div className="space-y-6">
       {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 font-bold text-red-700">{error}</div>}
+
+      {articleUrl && (
+        <section className="overflow-hidden rounded-[2rem] border border-blue-200 bg-white shadow-sm">
+          <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 p-6 text-white sm:p-8">
+            {intro?.eyebrow && (
+              <p className="text-xs font-black uppercase tracking-[0.15em] text-blue-100">
+                {intro.eyebrow}
+              </p>
+            )}
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
+              {intro?.title || "Lue ennakkomateriaali ennen koetta"}
+            </h2>
+            {intro?.lead && (
+              <p className="mt-3 max-w-3xl leading-7 text-blue-50">{intro.lead}</p>
+            )}
+          </div>
+
+          <div className="space-y-6 p-6 sm:p-8">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 sm:p-6">
+              {article?.label && (
+                <p className="text-xs font-black uppercase tracking-[0.12em] text-blue-700">
+                  {article.label}
+                </p>
+              )}
+              <h3 className="mt-2 text-xl font-extrabold text-slate-950">
+                {article?.title || "Tutustu kokeen ennakkomateriaaliin"}
+              </h3>
+              {article?.description && (
+                <p className="mt-3 leading-7 text-slate-700">{article.description}</p>
+              )}
+              <a
+                href={articleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-blue-700 px-6 py-3 font-black text-white transition hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+              >
+                {article?.buttonText || "Avaa artikkeli"}
+                <span aria-hidden="true">↗</span>
+              </a>
+              <p className="mt-3 text-sm text-slate-600">
+                Artikkeli avautuu uuteen välilehteen. Kokeen ajanotto ei vielä käynnisty.
+              </p>
+            </div>
+
+            {intro?.steps && intro.steps.length > 0 && (
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-950">
+                  {intro.instructionsTitle || "Näin suoritat harjoitustentin"}
+                </h3>
+                <ol className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {intro.steps.map((step) => (
+                    <li key={step.number} className="flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-black text-white">
+                        {step.number}
+                      </span>
+                      <div>
+                        <h4 className="font-extrabold text-slate-950">{step.title}</h4>
+                        <p className="mt-1 text-sm leading-6 text-slate-700">{step.text}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
+            {intro?.notice && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold leading-6 text-amber-950">
+                {intro.notice}
+              </div>
+            )}
+            {intro?.closing && (
+              <p className="font-bold text-slate-800">{intro.closing}</p>
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
