@@ -165,6 +165,22 @@ export default function GuruPathChallenge({
   const [verifiedExplanation, setVerifiedExplanation] = useState("");
   const [verifiedPoints, setVerifiedPoints] = useState(0);
 
+  // Vahvistus tarvitaan vain, jos lukuaika on vielä kesken.
+  const [confirmEarlyContinue, setConfirmEarlyContinue] = useState(false);
+
+  function continueToQuestionEarly() {
+    if (!isReadingTask || phase !== "reading" || !readingReady) return;
+
+    // Sama merkintä kuin ajastimen päättyessä: lukutekstiin ei voi palata
+    // sulkemalla tehtävää tai päivittämällä sivua saman istunnon aikana.
+    window.sessionStorage.setItem(`gurupeli:reading-consumed:${nodeId}`, "1");
+    window.sessionStorage.removeItem(`gurupeli:reading-deadline:${nodeId}`);
+
+    setConfirmEarlyContinue(false);
+    setReadingSeconds(0);
+    setPhase("answering");
+  }
+
   /**
    * LUETUN YMMÄRTÄMINEN
    *
@@ -174,7 +190,8 @@ export default function GuruPathChallenge({
   useEffect(() => {
     if (
       !isReadingTask ||
-      !question.reading
+      !question.reading ||
+      phase !== "reading"
     ) {
       setReadingReady(
         true
@@ -287,6 +304,7 @@ export default function GuruPathChallenge({
     nodeId,
     isReadingTask,
     question.reading,
+    phase,
   ]);
 
   /**
@@ -585,7 +603,7 @@ export default function GuruPathChallenge({
 
           <div className="p-5 sm:p-8">
             <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-950">
-              Lue teksti huolellisesti. Kun aika loppuu, teksti katoaa ja kysymys avautuu.
+              Lue teksti huolellisesti. Kysymys avautuu automaattisesti ajan päättyessä, mutta voit halutessasi jatkaa jo aiemmin.
             </div>
 
             <article className="rounded-[1.5rem] bg-slate-50 p-5 text-base leading-8 text-slate-800 sm:p-8 sm:text-lg">
@@ -595,8 +613,59 @@ export default function GuruPathChallenge({
                   .text
               }
             </article>
+
+            <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-violet-100 bg-violet-50/60 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+              <p className="text-sm font-semibold leading-6 text-slate-700">
+                Luitko aineiston jo? Voit siirtyä kysymykseen odottamatta ajan loppumista.
+              </p>
+              <button
+                type="button"
+                onClick={() => setConfirmEarlyContinue(true)}
+                className="min-h-12 shrink-0 rounded-xl bg-violet-700 px-6 py-3 text-sm font-black text-white transition hover:bg-violet-800 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
+              >
+                Jatka kysymykseen →
+              </button>
+            </div>
           </div>
         </section>
+
+        {confirmEarlyContinue && (
+          <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/60 p-4" role="presentation">
+            <div
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="guru-reading-confirm-title"
+              aria-describedby="guru-reading-confirm-description"
+              className="w-full max-w-md rounded-[1.75rem] border border-violet-100 bg-white p-6 shadow-2xl sm:p-8"
+            >
+              <h2 id="guru-reading-confirm-title" className="text-xl font-black text-slate-950 sm:text-2xl">
+                Oletko valmis siirtymään kysymykseen?
+              </h2>
+              <p id="guru-reading-confirm-description" className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">
+                Olethan lukenut aineiston huolellisesti? Kun jatkat tehtävään, lukuteksti poistuu näkyvistä etkä voi enää palata siihen.
+              </p>
+              <p className="mt-3 text-xs font-semibold text-violet-700">
+                Lukuaika jatkuu myös vahvistuksen aikana.
+              </p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setConfirmEarlyContinue(false)}
+                  className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
+                >
+                  Jatka lukemista
+                </button>
+                <button
+                  type="button"
+                  onClick={continueToQuestionEarly}
+                  className="min-h-12 rounded-xl bg-violet-700 px-4 py-3 text-sm font-black text-white transition hover:bg-violet-800 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
+                >
+                  Kyllä, siirry kysymykseen
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
