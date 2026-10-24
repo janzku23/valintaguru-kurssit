@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -165,6 +167,30 @@ export default function GuruPathChallenge({
   const [verifiedExplanation, setVerifiedExplanation] = useState("");
   const [verifiedPoints, setVerifiedPoints] = useState(0);
 
+  // Väärän vastauksen jälkeen uutta yritystä ei sallita samassa näkymässä.
+  const [returnToMapAfterCooldown, setReturnToMapAfterCooldown] = useState(false);
+  const hasReturnedToMap = useRef(false);
+  const cooldownDeadline = useRef(0);
+
+  const resetReadingAttempt = useCallback(() => {
+    if (!isReadingTask) return;
+    // Uudella yrityksellä aineisto näytetään jälleen alusta lähtien.
+    window.sessionStorage.removeItem(`gurupeli:reading-consumed:${nodeId}`);
+    window.sessionStorage.removeItem(`gurupeli:reading-deadline:${nodeId}`);
+  }, [isReadingTask, nodeId]);
+
+  function updateCooldown(seconds: number) {
+    const duration = Math.max(0, Math.ceil(Number(seconds) || 0));
+    cooldownDeadline.current = Date.now() + duration * 1000;
+    setCooldown(duration);
+  }
+
+  function startReturnToMap(seconds: number) {
+    resetReadingAttempt();
+    updateCooldown(seconds);
+    setReturnToMapAfterCooldown(true);
+  }
+
   // Vahvistus tarvitaan vain, jos lukuaika on vielä kesken.
   const [confirmEarlyContinue, setConfirmEarlyContinue] = useState(false);
 
@@ -191,7 +217,8 @@ export default function GuruPathChallenge({
     if (
       !isReadingTask ||
       !question.reading ||
-      phase !== "reading"
+      phase !== "reading" ||
+      returnToMapAfterCooldown
     ) {
       setReadingReady(
         true
@@ -305,6 +332,7 @@ export default function GuruPathChallenge({
     isReadingTask,
     question.reading,
     phase,
+    returnToMapAfterCooldown,
   ]);
 
   /**
@@ -347,15 +375,13 @@ export default function GuruPathChallenge({
         }
 
         if (!cancelled) {
-          setCooldown(
-            Math.max(
-              0,
-              Number(
-                data.cooldownSeconds ??
-                  0
-              )
-            )
-          );
+          const remaining = Math.max(0, Number(data.cooldownSeconds ?? 0));
+          updateCooldown(remaining);
+          if (remaining > 0) {
+            // Myös sivun lataaminen kesken jäähyn palauttaa kartalle.
+            resetReadingAttempt();
+            setReturnToMapAfterCooldown(true);
+          }
         }
       } catch (caught) {
         if (!cancelled) {
@@ -383,36 +409,28 @@ export default function GuruPathChallenge({
   }, [
     courseId,
     nodeId,
+    resetReadingAttempt,
   ]);
 
+  // Kellonaikaan perustuva jäähy toimii myös, jos välilehti on taustalla.
+  const cooldownRunning = cooldown > 0;
   useEffect(() => {
-    if (
-      cooldown <= 0
-    ) {
-      return;
-    }
+    if (!cooldownRunning) return;
 
-    const timer =
-      window.setInterval(
-        () => {
-          setCooldown(
-            (current) =>
-              Math.max(
-                0,
-                current -
-                  1
-              )
-          );
-        },
-        1000
-      );
+    const timer = window.setInterval(() => {
+      setCooldown(Math.max(0, Math.ceil((cooldownDeadline.current - Date.now()) / 1000)));
+    }, 250);
 
-    return () => {
-      window.clearInterval(
-        timer
-      );
-    };
-  }, [cooldown]);
+    return () => window.clearInterval(timer);
+  }, [cooldownRunning]);
+
+  useEffect(() => {
+    if (!returnToMapAfterCooldown || !cooldownLoaded || cooldown > 0) return;
+    if (hasReturnedToMap.current) return;
+    hasReturnedToMap.current = true;
+    resetReadingAttempt();
+    onClose();
+  }, [returnToMapAfterCooldown, cooldownLoaded, cooldown, resetReadingAttempt, onClose]);
 
   function toggleAnswer(
     answerId: string
@@ -472,13 +490,14 @@ export default function GuruPathChallenge({
       const data = await response.json();
       if (!response.ok) {
         if (response.status === 429 && data.cooldownSeconds) {
-          setCooldown(Math.max(0, Number(data.cooldownSeconds)));
+          startReturnToMap(Number(data.cooldownSeconds));
+          return;
         }
         throw new Error(data?.error ?? "Vastauksen tarkistaminen epäonnistui.");
       }
       if (!data.correct) {
         setResult("wrong");
-        setCooldown(Math.max(0, Number(data.cooldownSeconds ?? 15)));
+        startReturnToMap(Number(data.cooldownSeconds ?? 15));
         setPenaltyPoints(Number(data.penaltyPoints ?? 0));
         return;
       }
@@ -494,24 +513,46 @@ export default function GuruPathChallenge({
     }
   }
 
-  function retry() {
-    if (
-      !cooldownLoaded ||
-      cooldown > 0
-    ) {
-      return;
-    }
-
-    setSelectedAnswerIds(
-      []
+  // Näytetään vain jäähy ja paluu kartalle; vastausvaihtoehtoja ei
+  // voi yrittää uudelleen saman avauskerran aikana.
+  if (returnToMapAfterCooldown && cooldownLoaded) {
+    return (
+      <div className="mx-auto w-full max-w-4xl">
+        <button
+          type="button"
+          onClick={onClose}
+          className="mb-4 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-600 shadow-sm transition hover:border-violet-300 hover:text-violet-700"
+        >
+          ← Kartalle
+        </button>
+        <section className="rounded-[2rem] border border-amber-200 bg-white p-6 shadow-xl shadow-amber-100/50 sm:p-10">
+          <div className="mx-auto max-w-xl text-center">
+            <div className="mb-5 text-4xl" aria-hidden="true">⏳</div>
+            <h1 className="text-2xl font-black text-slate-950 sm:text-3xl">
+              {result === "wrong" ? "Väärä vastaus" : "Jäähy on käynnissä"}
+            </h1>
+            {result === "wrong" && (
+              <p className="mt-3 text-sm font-semibold leading-7 text-red-800">
+                Oikeaa vastausta ei paljasteta.
+                {penaltyPoints > 0 ? ` Menetit ${penaltyPoints} pistettä.` : ""}
+              </p>
+            )}
+            <p className="mt-4 text-base leading-7 text-slate-600">
+              {isReadingTask
+                ? "Seuraavalla yrityksellä luet aineiston uudelleen ennen kysymystä."
+                : "Voit yrittää tehtävää uudelleen kartalta jäähyn päätyttyä."}
+            </p>
+            <div className="mx-auto mt-7 flex w-fit items-center gap-3 rounded-2xl bg-amber-50 px-6 py-4 text-amber-900">
+              <span className="text-3xl font-black tabular-nums" aria-live="polite">{cooldown} s</span>
+              <span className="text-sm font-bold">jäähyä jäljellä</span>
+            </div>
+            <p className="mt-5 text-sm font-semibold text-slate-500">
+              Siirryt automaattisesti kartalle, kun jäähy päättyy.
+            </p>
+          </div>
+        </section>
+      </div>
     );
-
-    setResult(
-      "idle"
-    );
-
-    setError(null);
-    setPenaltyPoints(0);
   }
 
   if (
@@ -606,7 +647,7 @@ export default function GuruPathChallenge({
               Lue teksti huolellisesti. Kysymys avautuu automaattisesti ajan päättyessä, mutta voit halutessasi jatkaa jo aiemmin.
             </div>
 
-            <article className="rounded-[1.5rem] bg-slate-50 p-5 text-base leading-8 text-slate-800 sm:p-8 sm:text-lg">
+            <article className="whitespace-pre-line rounded-[1.5rem] bg-slate-50 p-5 text-base leading-8 text-slate-800 sm:p-8 sm:text-lg">
               {
                 question
                   .reading
@@ -901,24 +942,6 @@ export default function GuruPathChallenge({
                       0
                     ? `Jäähy ${cooldown} s`
                     : "Vastaa"}
-              </button>
-            )}
-
-            {result ===
-              "wrong" && (
-              <button
-                type="button"
-                onClick={retry}
-                disabled={
-                  cooldown >
-                  0
-                }
-                className="min-h-[60px] w-full rounded-2xl bg-violet-600 px-6 py-4 text-base font-black text-white transition hover:bg-violet-700 disabled:opacity-40"
-              >
-                {cooldown >
-                0
-                  ? `Yritä uudelleen ${cooldown} s`
-                  : "Yritä uudelleen"}
               </button>
             )}
 

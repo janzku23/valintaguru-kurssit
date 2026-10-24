@@ -55,5 +55,5 @@ export function eventMatchesQuestion(sourceId: string, questionId: string) {
   return sourceId === `gurupeli:${questionId}` || sourceId.endsWith(`:${questionId}`);
 }
 
-export const GURU_WRONG_COOLDOWN_SECONDS = 15;
-export const GURU_WRONG_PENALTY = 5;
+export const GURU_WRONG_COOLDOWN_SECONDS = 10;
+export const GURU_WRONG_PENALTY = 2;

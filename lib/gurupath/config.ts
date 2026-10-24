@@ -27,5 +27,5 @@ export const GURU_REWARDS = {
 
 export function xpNeededForLevel(level: number) {
   const safeLevel = Math.max(1, Math.floor(level));
-  return safeLevel * 250;
+  return safeLevel * 10;
 }
