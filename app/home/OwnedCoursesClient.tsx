@@ -45,7 +45,7 @@ export default function OwnedCoursesClient() {
                   Kurssin lisätyökalut
                 </p>
                 <h3 className="mt-2 font-serif text-2xl font-semibold sm:text-3xl">
-                  Kalenteri ja GuruPeli (Tulossa)
+                  Kalenteri ja GuruPeli
                 </h3>
                 
               </div>
