@@ -1108,7 +1108,83 @@ export default function ValintakoeGExerciseRunner({
               {exercise.description}
             </p>
           </div>
+        </div>
 
+        <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <Info
+            label="Aikaraja"
+            value={`${exercise.durationMinutes} min`}
+          />
+          <Info
+            label="Kysymyksiä"
+            value={`${exercise.questionCount}`}
+          />
+          <Info
+            label="Vaikeustaso"
+            value={difficultyLabel(
+              exercise.difficulty
+            )}
+          />
+          <Info label="Näyttö" value="Artikkeli + tehtävät" />
+          <Info label="Ctrl + F / Cmd + F" value="Sallittu" />
+        </div>
+
+        <section
+          aria-labelledby="exercise-preparation-title"
+          className="mt-6 rounded-3xl border border-blue-100 bg-blue-50/60 p-5 sm:p-6"
+        >
+          <h3
+            id="exercise-preparation-title"
+            className="text-lg font-black text-slate-950"
+          >
+            Ennen kuin aloitat
+          </h3>
+          <ul className="mt-4 list-disc space-y-3 pl-5 text-sm leading-6 text-slate-700 marker:text-blue-600">
+            <li>
+              <strong>Jaa näyttö kahtia:</strong> pidä artikkeli toisella
+              puolella ja tehtävät toisella. Voit käyttää myös kahta näyttöä.
+            </li>
+            <li>
+              <strong>Ctrl + F on sallittu.</strong> Voit etsiä sanoja
+              aineistosta selaimen tai PDF-lukijan hakutoiminnolla.
+              Macilla käytä näppäimiä Cmd + F.
+            </li>
+            <li>
+              <strong>Avaa aineisto valmiiksi</strong> uuteen ikkunaan tai
+              toiselle näytölle ennen harjoituksen käynnistämistä.
+            </li>
+            <li>
+              <strong>Aikaraja on {exercise.durationMinutes} minuuttia.</strong>{" "}
+              Ajanotto alkaa, kun aloitat harjoituksen. Aika ei pysähdy,
+              vaikka poistuisit sivulta.
+            </li>
+          </ul>
+
+          {exercise.articleUrl ? (
+            <a
+              href={exercise.articleUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex rounded-full border border-blue-200 bg-blue-50 px-5 py-3 text-sm font-black text-blue-700 transition hover:bg-blue-100"
+            >
+              Avaa aineisto: {exercise.articleTitle} ↗
+            </a>
+          ) : exercise.notice ? (
+            <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
+              {exercise.notice}
+            </div>
+          ) : null}
+        </section>
+
+        {activeAttempt && (
+          <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-900">
+            Sinulla on käynnissä oleva yritys.
+            Jatkaminen ei nollaa aikaa eikä
+            vastauksia.
+          </div>
+        )}
+
+        <div className="mt-6 flex justify-start">
           <button
             type="button"
             onClick={() =>
@@ -1126,46 +1202,6 @@ export default function ValintakoeGExerciseRunner({
                 : "Aloita harjoitus"}
           </button>
         </div>
-
-        <div className="mt-7 grid gap-3 sm:grid-cols-3">
-          <Info
-            label="Aikaraja"
-            value={`${exercise.durationMinutes} min`}
-          />
-          <Info
-            label="Kysymyksiä"
-            value={`${exercise.questionCount}`}
-          />
-          <Info
-            label="Vaikeustaso"
-            value={difficultyLabel(
-              exercise.difficulty
-            )}
-          />
-        </div>
-
-        {exercise.articleUrl ? (
-          <a
-            href={exercise.articleUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-5 inline-flex rounded-full border border-blue-200 bg-blue-50 px-5 py-3 text-sm font-black text-blue-700 transition hover:bg-blue-100"
-          >
-            Avaa aineisto: {exercise.articleTitle} ↗
-          </a>
-        ) : exercise.notice ? (
-          <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
-            {exercise.notice}
-          </div>
-        ) : null}
-
-        {activeAttempt && (
-          <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-900">
-            Sinulla on käynnissä oleva yritys.
-            Jatkaminen ei nollaa aikaa eikä
-            vastauksia.
-          </div>
-        )}
       </section>
 
       <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
