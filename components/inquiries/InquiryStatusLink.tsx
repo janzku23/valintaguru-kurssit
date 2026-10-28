@@ -18,18 +18,22 @@ export default function InquiryStatusLink({
   onNavigate,
 }: Props) {
   const [count, setCount] = useState(0);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let active = true;
+    let loading = false;
 
     async function loadSummary() {
+      if (loading || document.visibilityState === "hidden") return;
+      loading = true;
+
       try {
         const response = await fetch("/api/inquiries/mine?summary=1", {
           cache: "no-store",
         });
 
         if (!response.ok) {
+          if (active && response.status === 401) setCount(0);
           return;
         }
 
@@ -41,10 +45,11 @@ export default function InquiryStatusLink({
 
         const admin = Boolean(data.isAdmin);
 
-        setIsAdmin(admin);
         setCount(admin ? data.openCount ?? 0 : data.unreadCount ?? 0);
       } catch {
         // Navigaatiolinkki toimii myös ilman ilmoitusmäärää.
+      } finally {
+        loading = false;
       }
     }
 
@@ -54,11 +59,19 @@ export default function InquiryStatusLink({
       void loadSummary();
     };
 
+    const interval = window.setInterval(refresh, 30_000);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("pageshow", refresh);
+    document.addEventListener("visibilitychange", refresh);
     window.addEventListener("valintaguru:inquiry-created", refresh);
     window.addEventListener("valintaguru:inquiry-read", refresh);
 
     return () => {
       active = false;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("pageshow", refresh);
+      document.removeEventListener("visibilitychange", refresh);
       window.removeEventListener("valintaguru:inquiry-created", refresh);
       window.removeEventListener("valintaguru:inquiry-read", refresh);
     };
@@ -70,7 +83,7 @@ export default function InquiryStatusLink({
    * suoraan AdminInquiryPanelin.
    */
   const href = "/kysy";
-  const label = isAdmin ? "Tiedustelut" : "Kysy";
+  const label = "Ota yhteyttä";
 
   if (mobile) {
     return (

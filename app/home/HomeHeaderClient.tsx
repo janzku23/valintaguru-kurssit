@@ -4,9 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import logo from "../../assets/logo.png";
 import { useHomeAuth } from "./HomeAuthProvider";
+import InquiryStatusLink from "@/components/inquiries/InquiryStatusLink";
 
 export default function HomeHeaderClient() {
-  const { loading, isLoggedIn } = useHomeAuth();
+  const { loading, isLoggedIn, user } = useHomeAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -33,12 +34,7 @@ export default function HomeHeaderClient() {
           </a>
 
           <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-700 lg:flex">
-            <a
-              href="/kysy"
-              className="transition hover:text-[#3f51e7]"
-            >
-            Ota yhteyttä
-            </a>
+            <InquiryStatusLink key={user?.id ?? "guest"} />
 
             <a
               href="/valintakoe-g"
@@ -134,14 +130,11 @@ export default function HomeHeaderClient() {
           >
             <div className="mx-auto max-w-7xl px-4 py-4 sm:px-5 md:px-8">
               <nav className="flex flex-col gap-2">
-                <a
-                  href="/kysy"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
-                >
-                  <span>Kysy (Ota yhteyttä)</span>
-                  <span className="text-xl text-slate-400">›</span>
-                </a>
+                <InquiryStatusLink
+                  key={user?.id ?? "guest"}
+                  mobile
+                  onNavigate={() => setMobileMenuOpen(false)}
+                />
 
                 <a
                   href="/valintakoe-g"
