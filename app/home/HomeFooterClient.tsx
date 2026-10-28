@@ -5,7 +5,7 @@ import logo from "../../assets/logo.png";
 import { courses, HOLVI_STORE_URL } from "../../data/courses";
 import type { CourseId } from "../../data/courses";
 import { useHomeAuth } from "./HomeAuthProvider";
-import siteVersion from "../../data/siteVersion.json";
+import Link from "next/link";
 
 const buildTimestamp = process.env.NEXT_PUBLIC_BUILD_TIMESTAMP;
 
@@ -59,6 +59,14 @@ export default function HomeFooterClient() {
           Päivitetty: {updatedAt}
         </p>
       )}
+
+      <Link
+        href="/paivitykset"
+        className="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-[#3f51e7] hover:text-[#3f51e7] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3f51e7]"
+      >
+        Katso päivitykset
+        <span aria-hidden="true">→</span>
+      </Link>
     </div>
 
     <div>
@@ -74,28 +82,28 @@ export default function HomeFooterClient() {
 
         {isLoggedIn && ownedCourses.length > 0 && (
           <>
-            <a
+            <Link
               href="/kalenteri"
               className="transition hover:text-[#3f51e7]"
             >
               Kalenteri
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/gurupath"
               className="transition hover:text-[#3f51e7]"
             >
               GuruPeli
-            </a>
+            </Link>
           </>
         )}
 
-        <a
+        <Link
           href="/kysy"
           className="transition hover:text-[#3f51e7]"
         >
           Yhteydenottolomake
-        </a>
+        </Link>
 
         <a
           href={HOLVI_STORE_URL}
@@ -107,12 +115,12 @@ export default function HomeFooterClient() {
         </a>
 
         {isLoggedIn && (
-          <a
+          <Link
             href="/profiili"
             className="transition hover:text-[#3f51e7]"
           >
             Profiili
-          </a>
+          </Link>
         )}
       </div>
     </div>
@@ -121,33 +129,33 @@ export default function HomeFooterClient() {
       <p className="font-extrabold">Ehdot</p>
 
       <div className="mt-4 flex flex-col gap-3 text-slate-600">
-        <a
+        <Link
           href="/ehdot/tietosuojakaytanto"
           className="transition hover:text-[#3f51e7]"
         >
           Tietosuojakäytäntö
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/ehdot/palautuskaytanto"
           className="transition hover:text-[#3f51e7]"
         >
           Palautuskäytäntö
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/ehdot/kayttoehdot"
           className="transition hover:text-[#3f51e7]"
         >
           Käyttöehdot
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/ehdot/toimituskaytanto"
           className="transition hover:text-[#3f51e7]"
         >
           Toimituskäytäntö
-        </a>
+        </Link>
       </div>
     </div>
 
@@ -164,19 +172,19 @@ export default function HomeFooterClient() {
           info@valintaguru.com
         </a>
 
-        <a
+        <Link
           href="/ehdot/yhteystiedot"
           className="transition hover:text-[#3f51e7]"
         >
           Yhteystiedot
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/ehdot/oikeudellinen-huomautus"
           className="transition hover:text-[#3f51e7]"
         >
           Oikeudellinen huomautus
-        </a>
+        </Link>
       </div>
     </div>
   </div>
@@ -185,12 +193,12 @@ export default function HomeFooterClient() {
     <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-center text-sm text-slate-500 sm:flex-row">
       <p>© 2026 ValintaGuru Oy</p>
 
-      <a
+      <Link
         href="/ehdot"
         className="font-semibold transition hover:text-[#3f51e7]"
       >
         Kaikki ehdot ja yritystiedot
-      </a>
+      </Link>
     </div>
   </div>
 </footer>
