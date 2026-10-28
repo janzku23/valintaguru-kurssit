@@ -3,11 +3,12 @@ import { requireAdminPage } from "@/lib/adminAccess";
 
 const nav = [
   { href: "/admin", label: "Yleiskuva", icon: "⌂" },
+  { href: "/admin/raportit", label: "Aiempi yleiskuva", icon: "▤" },
   { href: "/admin/kayttajat", label: "Käyttäjät", icon: "♟" },
   { href: "/admin/oikeudet", label: "Kurssioikeudet", icon: "✓" },
   { href: "/admin/edistyminen", label: "Edistyminen", icon: "↗" },
   { href: "/admin/valintakoe-g/tehtavapankki", label: "G-tehtäväpankki", icon: "G" },
-  { href: "/tiedustelut", label: "Tiedustelut", icon: "✉" },
+  { href: "/admin/tiedustelut", label: "Tiedustelut", icon: "✉" },
 ];
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
@@ -50,7 +51,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
               <a href="/" className="rounded-full border border-slate-200 px-3 py-2 text-xs font-black">Sivustolle</a>
             </div>
             <div className="flex gap-2 overflow-x-auto border-t border-slate-100 px-3 py-2">
-              {nav.slice(0, 5).map((item) => (
+              {nav.map((item) => (
                 <a key={item.href} href={item.href} className="whitespace-nowrap rounded-full bg-slate-100 px-3 py-2 text-xs font-bold">
                   {item.label}
                 </a>
