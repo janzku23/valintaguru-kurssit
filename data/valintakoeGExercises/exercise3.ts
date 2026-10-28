@@ -1,9 +1,10 @@
 import type { ValintakoeGExercise } from "./types";
 
 /**
- * Harjoitus 3 on muodostettu toimitetusta VALINTAKOE G TEHTÄVÄT HELPPO -dokumentista.
- * Kaikki tehtävät ovat easy-tasoa.
- * Lähdedokumentin aikaraja: 40 min.
+ * Harjoitus 3: päivitetyn tehtävätekstin tehtävät 1–10.
+ * Tehtävän 10 perustelu ja oppimisvinkki säilytettiin vanhasta tiedostosta,
+ * koska uusi teksti katkesi. Kategoria päivitettiin sisältöä vastaavaksi (3).
+ * Lähdelainaukset ovat explanation-kentissä.
  */
 export const valintakoeGExercise3Base = {
   "id": "harjoitus-3",
@@ -15,13 +16,13 @@ export const valintakoeGExercise3Base = {
   "difficulty": "easy",
   "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
   "articleTitle": "Disinformaation kultakausi koittaa saastuneessa informaatioympäristössä",
-  "articleUrl": "https://journal.fi/mediaviestinta/article/view/160075",
+  "articleUrl": "https://journal.fi/prologi/article/view/157134/102515",
   "questions": [
     {
       "id": "g-h3-q1",
       "questionType": "single",
       "difficulty": "easy",
-      "categoryId": 14,
+      "categoryId": 10,
       "prompt": "Mikä seuraavista vastaa artikkelissa esitettyä Oxford Dictionariesin määritelmää totuudenjälkeisyydestä?",
       "options": [
         {
@@ -39,6 +40,10 @@ export const valintakoeGExercise3Base = {
         {
           "id": "d",
           "text": "Tilanteet, joissa objektiivisten faktojen merkitys rajoittuu poliittiseen päätöksentekoon."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -47,16 +52,16 @@ export const valintakoeGExercise3Base = {
       "source": {
         "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
         "page": "177",
-        "section": "artikkelin alku"
+        "section": "artikkelin alku."
       },
-      "explanation": "B säilyttää määritelmän olennaisen suuruussuhteen: objektiivisten faktojen merkitys on vähäisempi kuin tunteisiin vetoamisen. A kääntää suhteen päinvastaiseksi ja C muuttaa sen tasavertaiseksi. D puolestaan rajaa määritelmää tavalla, jota tekstissä ei tehdä.",
-      "learningPoint": "Tarkista vertailusanojen, kuten enemmän, vähemmän ja yhtä paljon, suunta."
+      "explanation": "Ratkaisevaa on kahden asian keskinäinen suhde. Aineiston mukaan objektiivisilla faktoilla on vähemmän merkitystä kuin tunteisiin vetoamisella.\nA kääntää suuruussuhteen päinvastaiseksi. C tekee asioista yhtä merkityksellisiä. D puolestaan lisää määritelmään rajauksen, jota aineistossa ei ole.\n\nLähdelainaus:\n”objektiivisilla faktoilla on vähemmän merkitystä yleiseen mielipiteeseen kuin tunteisiin vetoamisella.”",
+      "learningPoint": "Kun kysymyksessä verrataan kahta asiaa, tarkista kummankin asema. Kiinnitä erityistä huomiota sanoihin kuten enemmän, vähemmän, suurempi, pienempi ja yhtä paljon."
     },
     {
       "id": "g-h3-q2",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 4,
+      "categoryId": 1,
       "prompt": "Vehkoon mukaan vuonna 2016 sosiaalisen median viestintäympäristö ja teknologinen kehitys kohtasivat poliittisen populismin tavalla, joka oli aidosti uutta.",
       "options": [
         {
@@ -66,6 +71,10 @@ export const valintakoeGExercise3Base = {
         {
           "id": "epatosi",
           "text": "Epätosi"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -75,14 +84,14 @@ export const valintakoeGExercise3Base = {
         "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
         "page": "177"
       },
-      "explanation": "Väite vastaa aineistoa täsmällisesti. Tässä ratkaiseva kohta on poliittinen populismi: opiskelijan pitää tarkistaa, minkä poliittisen ilmiön kanssa sosiaalisen median viestintäympäristö ja teknologinen kehitys Vehkoon mukaan kohtasivat vuonna 2016. Jos populismi vaihdettaisiin esimerkiksi liberalismiin, muuten lähes samanlainen väite muuttuisi vääräksi.",
-      "learningPoint": "Kiinnitä huomiota väitteen yksittäisiin käsitteisiin. Muuten täysin oikealta näyttävä väite voi muuttua vääräksi yhden keskeisen sanan vuoksi."
+      "explanation": "Väite vastaa aineistoa suoraan. Siinä mainitaan sama vuosi, samat kehityskulut ja sama poliittinen ilmiö kuin aineistossa.\nTässä ei tarvitse tehdä laajempaa päätelmää. Olennaista on paikantaa kohta ja tarkistaa, vastaako väite siinä annettua tietoa.\n\nLähdelainaus:\n”vuonna 2016 sosiaalisen median viestintäympäristö ja teknologinen kehitys kohtasivat poliittisen populismin tavalla, joka oli aidosti uutta.”",
+      "learningPoint": "Poimi väitteestä yksilöllinen hakusana, kuten 2016 tai populismi, paikanna kohta aineistosta ja tarkista väitteen sisältö sitä ympäröivästä tekstistä."
     },
     {
       "id": "g-h3-q3",
       "questionType": "single",
       "difficulty": "easy",
-      "categoryId": 3,
+      "categoryId": 2,
       "prompt": "Mikä seuraavista kuvaa artikkelin mukaan totuudenjälkeisyyttä?",
       "options": [
         {
@@ -100,6 +109,10 @@ export const valintakoeGExercise3Base = {
         {
           "id": "d",
           "text": "Sosiaalisen median kehitysvaihetta, jossa poliitikot ovat menettäneet mahdollisuutensa viestiä suoraan seuraajilleen."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -109,15 +122,15 @@ export const valintakoeGExercise3Base = {
         "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
         "page": "177"
       },
-      "explanation": "C tiivistää kirjoittajan määritelmän säilyttäen sekä kehityskulkujen kolme aluetta että niiden seurauksen. Muut vaihtoehdot kaventavat tai muuttavat määritelmää.",
-      "learningPoint": "Etsi kappaleen pääajatus sen sijaan, että etsisit vain täysin samoja sanoja."
+      "explanation": "C tiivistää aineiston pidemmän kuvauksen säilyttäen sen keskeisen merkityksen. Totuudenjälkeisyyttä ei kuvata vain teknologisena tai poliittisena ilmiönä, vaan useiden kehityskulkujen kokonaisuutena.\n\nLähdelainaus:\n”Totuudenjälkeisyys on sarja teknologiassa, mediassa ja politiikassa tapahtuneita kehityskulkuja...”",
+      "learningPoint": "Selvitä, mitä aineistossa todella tarkoitetaan, ja vertaa vaihtoehtojen merkitystä siihen. Oikea vaihtoehto voi käyttää eri sanoja ja tiivistää pidemmän tekstikohdan."
     },
     {
       "id": "g-h3-q4",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 5,
-      "prompt": "Vehkoon mukaan Trumpin jakaman ”Trump Gaza” -tekoälyvideon poliittinen strategia perustuu siihen, että videon pitäisi näyttää niin aidolta, ettei katsoja tunnista sitä tekoälyllä tehdyksi.",
+      "categoryId": 3,
+      "prompt": "Vehkoon mukaan Trumpin jakaman ”Trump Gaza” tekoälyvideon poliittinen strategia perustuu siihen, että videon pitäisi näyttää niin aidolta, ettei katsoja tunnista sitä tekoälyllä tehdyksi.",
       "options": [
         {
           "id": "oikein",
@@ -126,6 +139,10 @@ export const valintakoeGExercise3Base = {
         {
           "id": "vaarin",
           "text": "Väärin"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -135,14 +152,14 @@ export const valintakoeGExercise3Base = {
         "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
         "page": "178"
       },
-      "explanation": "Kirjoittaja esittää lähes päinvastaisen ajatuksen: videon tekoälyperäisyys on hänen mukaansa nähtävissä. Poliittinen strategia perustuu tekstissä siihen, ettei minkään tarvitse olla totta, ei siihen, että tekoälyn käyttö pitäisi onnistuneesti salata.",
-      "learningPoint": "Tarkista, onko vaihtoehdossa aineiston merkityssuunta käännetty vastakkaiseksi."
+      "explanation": "Kysymyksessä aineiston merkitys käännetään vastakkaiseksi. Aineiston mukaan videon tekoälyperäisyys on selvästi havaittavissa. Poliittinen strategia ei siis perustu siihen, että tekoälyn käyttö onnistuttaisiin piilottamaan katsojalta.\n\nLähdelainaus:\n”Kuka tahansa näkee, että video on tekoälyllä tehty...”",
+      "learningPoint": "Älä tarkista vain sitä, esiintyvätkö samat asiat aineistossa. Vertaa myös väitteen merkitystä alkuperäiseen tekstiin ja tarkista, onko se käännetty vastakkaiseksi."
     },
     {
       "id": "g-h3-q5",
       "questionType": "multiple",
       "difficulty": "easy",
-      "categoryId": 11,
+      "categoryId": 14,
       "prompt": "Mitkä seuraavista pitävät artikkelin mukaan paikkansa? Valitse kaikki oikeat vaihtoehdot.",
       "options": [
         {
@@ -160,6 +177,10 @@ export const valintakoeGExercise3Base = {
         {
           "id": "d",
           "text": "Mark Zuckerberg ilmoitti Metan luopuvan faktantarkistusohjelmastaan Yhdysvalloissa."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -171,8 +192,8 @@ export const valintakoeGExercise3Base = {
         "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
         "page": "178"
       },
-      "explanation": "A, C ja D vastaavat tekstissä esitettyjä tietoja. B laajentaa Yhdysvaltoja koskevan tiedon perusteettomasti koko maailmaan. Tässä kannattaa tarkistaa erityisesti väitteen kohdejoukko ja maantieteellinen rajaus.",
-      "learningPoint": "Tarkista aina, koskeeko väite täsmälleen samaa joukkoa tai aluetta kuin aineistossa."
+      "explanation": "A, C ja D vastaavat aineiston tietoja.\nB on väärin, koska aineistossa Metan faktantarkistusohjelmasta luopuminen rajataan Yhdysvaltoihin. Kysymyksessä tämä laajennetaan koskemaan koko maailmaa.\n\nLähdelainauset:\n”Vihapuheen ja disinformaation vastaiset säännöt on purettu X:stä.”\n”Meta luopuu faktantarkistusohjelmastaan Yhdysvalloissa.”",
+      "learningPoint": "Tarkista aina, kuinka laajaa joukkoa, aluetta tai tilannetta aineiston tieto koskee. Jos aineistossa asia rajataan esimerkiksi yhteen maahan, sitä ei voi ilman perustetta yleistää koko maailmaan."
     },
     {
       "id": "g-h3-q6",
@@ -188,6 +209,10 @@ export const valintakoeGExercise3Base = {
         {
           "id": "ei",
           "text": "Ei"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -197,14 +222,14 @@ export const valintakoeGExercise3Base = {
         "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
         "page": "178"
       },
-      "explanation": "Teksti ilmaisee asian suoraan. Ratkaisevaa on huomata sekä tarvittavan puhenäytteen lyhyys että se, että kyse on synteettisen äänen tuottamisesta.",
-      "learningPoint": "Harjoittele yksittäisen täsmällisen tiedon löytämistä nopeasti oikeasta tekstikohdasta."
+      "explanation": "Aineistossa asia ilmaistaan suoraan. Synteettisen äänen tuottamiseen voi riittää vain muutaman sekunnin puhenäyte.\n\nLähdelainaus:\n”Kenen tahansa puheesta voi nykyään tuottaa synteettisen äänen vain muutaman sekunnin puhenäytteen pohjalta.”",
+      "learningPoint": "Paikanna kysymyksen ratkaiseva yksityiskohta aineistosta ja tarkista se suoraan. Tässä olennaisia hakusanoja ovat esimerkiksi synteettinen ääni ja puhenäyte."
     },
     {
       "id": "g-h3-q7",
       "questionType": "single",
       "difficulty": "easy",
-      "categoryId": 12,
+      "categoryId": 8,
       "prompt": "Mikä seuraavista on EPÄTOSI artikkelissa esitetyn faktantarkistuksen käsitteen perusteella?",
       "options": [
         {
@@ -222,6 +247,10 @@ export const valintakoeGExercise3Base = {
         {
           "id": "d",
           "text": "Faktantarkistus tarkoittaa journalismissa yksinomaan yksittäisten faktatietojen oikeellisuuden tarkistamista."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -231,8 +260,8 @@ export const valintakoeGExercise3Base = {
         "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
         "page": "179"
       },
-      "explanation": "Artikkelissa faktantarkistus kuvataan laajaksi alueeksi. Siihen voivat kuulua muun muassa politiikan faktantarkistus, julkaisua edeltävä tarkistus, narratiivin ja kronologian arviointi, OSINT sekä verkkomateriaalin aitouden tarkistaminen. D tekee tästä perusteettomasti yksinomaisen toiminnan.",
-      "learningPoint": "Kiinnitä huomiota sanoihin kuten vain, aina, kaikki ja yksinomaan."
+      "explanation": "Artikkelissa faktantarkistus kuvataan laajaksi kokonaisuudeksi. Siihen voi kuulua esimerkiksi poliittisten väitteiden tarkistamista, julkaisua edeltävää tarkistamista sekä narratiivin ja kronologian arviointia.\nD rajaa faktantarkistuksen yksinomaan yksittäisten faktatietojen tarkistamiseen. Tämä tekee aineiston laajemmasta kuvauksesta perusteettoman ehdottoman.\n\nLähdelainaus:\n”faktantarkistus ei ole pelkkää yksityiskohtien syynäämistä.”",
+      "learningPoint": "Kiinnitä huomiota ehdottomiin sanoihin, kuten vain, aina, kaikki, yksinomaan ja ei koskaan. Tarkista, onko aineiston väite todella yhtä ehdoton kuin kysymyksessä."
     },
     {
       "id": "g-h3-q8",
@@ -243,7 +272,7 @@ export const valintakoeGExercise3Base = {
       "options": [
         {
           "id": "a",
-          "text": "Faktantarkistus ja tiedonhankinta ovat toisilleen läheisiä journalistisia osa-alueita."
+          "text": "Faktantarkistus ja tiedonhankinta ovat toisilleen läheisiä journalistisia osa alueita."
         },
         {
           "id": "b",
@@ -256,6 +285,10 @@ export const valintakoeGExercise3Base = {
         {
           "id": "d",
           "text": "Tiedonhankinta on faktantarkistuksen vastakohta journalistisessa työssä."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -265,14 +298,14 @@ export const valintakoeGExercise3Base = {
         "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
         "page": "179"
       },
-      "explanation": "A ilmaisee lähisukulaisuuden eri sanoin säilyttäen alkuperäisen merkityksen. Muut vaihtoehdot muuttavat näiden kahden toiminnan välistä suhdetta.",
-      "learningPoint": "Älä etsi vain samoja sanoja; tarkista, säilyykö merkitys sanamuodon vaihtuessa."
+      "explanation": "A ilmaisee sanan lähisukulaisia eri tavalla. Ilmaus ”toisilleen läheisiä journalistisia osa alueita” säilyttää aineiston alkuperäisen merkityksen.\n\nLähdelainaus:\n”Faktantarkistus ja tiedonhankinta ovat lähisukulaisia.”",
+      "learningPoint": "Älä etsi vain aineiston täsmälleen samoja sanoja. Vertaa kysymyksen ja aineiston merkityksiä. Eri sanamuoto voi ilmaista täysin saman asian."
     },
     {
       "id": "g-h3-q9",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 9,
+      "categoryId": 6,
       "prompt": "Artikkelin mukaan faktapohjaisuus on journalismin perusta, mutta faktojen tarkistamista ja tiedon verifiointia on jo pitkään opetettu alan korkeakouluopinnoissa järjestelmällisesti omina kursseinaan.",
       "options": [
         {
@@ -282,6 +315,10 @@ export const valintakoeGExercise3Base = {
         {
           "id": "epatosi",
           "text": "Epätosi"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -291,14 +328,14 @@ export const valintakoeGExercise3Base = {
         "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
         "page": "179"
       },
-      "explanation": "Väite muuttaa artikkelin ajallista tietoa. Tekstin mukaan omia kursseja ei ole juurikaan ollut ennen viime vuosia, kun taas tehtävä sijoittaa järjestelmällisen opetuksen jo pitkälle menneisyyteen.",
-      "learningPoint": "Tarkista erityisesti ilmaukset kuten ennen, nykyään, viime vuosina ja aiemmin."
+      "explanation": "Aineiston mukaan omia kursseja ei ole juurikaan ollut ennen viime vuosia. Kysymyksessä opetus sijoitetaan paljon aikaisemmaksi väittämällä sitä tapahtuneen järjestelmällisesti jo pitkään.\n\nLähdelainaus:\n”faktojen tarkistamista ja tiedon verifiointia ei ole juurikaan opetettu alan korkeakouluopinnoissa omina kursseinaan ennen viime vuosia.”",
+      "learningPoint": "Kiinnitä huomiota ajallisiin ilmauksiin, kuten ennen, jälkeen, aiemmin, nykyään, viime vuosina ja jo pitkään. Tieto voi olla oikea, mutta väärään ajankohtaan sijoitettuna koko väite muuttuu vääräksi."
     },
     {
       "id": "g-h3-q10",
       "questionType": "multiple",
       "difficulty": "easy",
-      "categoryId": 10,
+      "categoryId": 3,
       "prompt": "Mitkä seuraavista EIVÄT pidä paikkaansa artikkelin perusteella? Valitse kaikki väärät vaihtoehdot.",
       "options": [
         {
@@ -316,6 +353,10 @@ export const valintakoeGExercise3Base = {
         {
           "id": "d",
           "text": "Verkossa liikkuvan materiaalin aitouden tarkistaminen kuuluu artikkelissa faktantarkistuksen laajaan alueeseen."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -325,34 +366,8 @@ export const valintakoeGExercise3Base = {
         "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
         "page": "179"
       },
-      "explanation": "C kääntää tekstissä kuvatun kehityksen suunnan. Artikkelin mukaan kontekstointi on nykyään yleisempää kuin muutama vuosi sitten, ei päinvastoin. A, B ja D vastaavat artikkelissa esitettyä.",
+      "explanation": "C kääntää tekstissä kuvatun kehityksen suunnan. Artikkelin mukaan kontekstointi on nykyään yleisempää kuin muutama vuosi sitten, ei päinvastoin. A, B ja D vastaavat artikkelissa esitettyä.\n\nLähdelainaus:\n”vielä muutama vuosi sitten moni poliitikko sai kyseenalaistamatta viitata ’väestönvaihtoon’, nykyään tällaiset lausunnot kontekstoidaan usein salaliittoteoriaan viittaavina.”",
       "learningPoint": "Kun tekstissä verrataan ennen–nyt-tilannetta, tarkista tarkasti, kumpaan suuntaan muutos tapahtuu."
-    },
-    {
-      "id": "g-h3-q11",
-      "questionType": "true_false",
-      "difficulty": "easy",
-      "categoryId": 6,
-      "prompt": "Oikein vai väärin? Artikkelin mukaan informaation ja datan määrän kasvu johtuu siitä, että mis- ja disinformaation määrä kasvaa.",
-      "options": [
-        {
-          "id": "oikein",
-          "text": "Oikein"
-        },
-        {
-          "id": "vaarin",
-          "text": "Väärin"
-        }
-      ],
-      "correctAnswerIds": [
-        "vaarin"
-      ],
-      "source": {
-        "articleId": "disinformaation-kultakausi-koittaa-saastuneessa-informaatioymparistossa",
-        "page": "179"
-      },
-      "explanation": "Aineistossa suhde kulkee informaation ja datan kokonaismäärästä niiden sisältämään mis- ja disinformaatioon: ihmiskunta tuottaa kasvavan määrän informaatiota ja dataa, josta osa on mis- ja disinformaatiota. Kysymyksen väite kääntää suhteen ja esittää mis- ja disinformaation kasvun informaation ja datan kokonaismäärän kasvun syyksi. Tällaista syy-seuraussuhdetta aineistossa ei esitetä.",
-      "learningPoint": "Kun tekstissä kuvataan kahden asian välistä suhdetta, tarkista kumpi liittyy kumpaan. Samojen käsitteiden esiintyminen sekä tekstissä että väitteessä ei riitä, jos niiden välinen suhde on käännetty."
     }
   ]
 } satisfies ValintakoeGExercise;

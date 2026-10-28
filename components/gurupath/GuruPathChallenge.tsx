@@ -7,7 +7,8 @@ import {
   useState,
 } from "react";
 
-import type { GuruPublicQuestion } from "@/data/gurupath/types";
+import type { GuruPublicQuestion, ValintakoeGCategoryId } from "@/data/gurupath/types";
+import { getGuruValintakoeGCategoryInfo } from "@/data/gurupath/valintakoeGCategoryNames";
 
 import type {
   CourseId,
@@ -22,6 +23,7 @@ type Props = {
   nodeId: string;
   levelNumber: number;
   question: GuruPublicQuestion;
+  valintakoeGCategoryId?: ValintakoeGCategoryId;
   source: RewardSource;
   pointReward: number;
   hasNextLevel: boolean;
@@ -71,11 +73,41 @@ function typeLabel(
   return "Monivalinta";
 }
 
+/** Näkyy vain vastauksen tarkistamisen JÄLKEEN ja vain merkityillä kysymyksillä. */
+function ValintakoeGCategoryFeedback({
+  categoryId,
+}: {
+  categoryId?: ValintakoeGCategoryId;
+}) {
+  const categoryInfo = getGuruValintakoeGCategoryInfo(categoryId);
+  if (!categoryInfo) return null;
+
+  return (
+    <aside className="mt-4 rounded-2xl border border-violet-200 bg-violet-50 p-4 text-left sm:p-5" aria-label="Valintakoe G:n kysymyskategoria ja opiskeluvinkki">
+      <p className="text-[11px] font-black uppercase tracking-[0.12em] text-violet-700">
+        Valintakoe G · kysymyskategoria {categoryId}/20
+      </p>
+      <p className="mt-1 text-base font-black leading-6 text-slate-900">
+        {categoryInfo.name}
+      </p>
+      <div className="mt-3 border-t border-violet-200/70 pt-3">
+        <p className="text-xs font-black uppercase tracking-[0.1em] text-violet-700">
+          Opiskeluvinkki
+        </p>
+        <p className="mt-1 text-sm font-medium leading-6 text-slate-700">
+          {categoryInfo.studentTip}
+        </p>
+      </div>
+    </aside>
+  );
+}
+
 export default function GuruPathChallenge({
   courseId,
   nodeId,
   levelNumber,
   question,
+  valintakoeGCategoryId,
   source,
   pointReward,
   hasNextLevel,
@@ -537,6 +569,9 @@ export default function GuruPathChallenge({
                 {penaltyPoints > 0 ? ` Menetit ${penaltyPoints} pistettä.` : ""}
               </p>
             )}
+            {result === "wrong" && (
+              <ValintakoeGCategoryFeedback categoryId={valintakoeGCategoryId} />
+            )}
             <p className="mt-4 text-base leading-7 text-slate-600">
               {isReadingTask
                 ? "Seuraavalla yrityksellä luet aineiston uudelleen ennen kysymystä."
@@ -907,6 +942,10 @@ export default function GuruPathChallenge({
                 }
               </p>
             </div>
+          )}
+
+          {result === "correct" && (
+            <ValintakoeGCategoryFeedback categoryId={valintakoeGCategoryId} />
           )}
 
           {error && (

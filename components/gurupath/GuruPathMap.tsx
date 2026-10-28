@@ -1171,6 +1171,7 @@ export default function GuruPathMap({
           question={
             selectedQuestion
           }
+          valintakoeGCategoryId={selectedNode.valintakoeGCategoryId}
           source={sourceForNode(
             selectedNode
           )}

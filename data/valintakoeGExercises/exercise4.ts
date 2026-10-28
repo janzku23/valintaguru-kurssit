@@ -1,10 +1,9 @@
 import type { ValintakoeGExercise } from "./types";
 
 /**
- * Harjoitus 4 on muodostettu toimitetusta VALINTAKOE G TEHTÄVÄT HELPPO -dokumentista.
- * Kaikki tehtävät ovat easy-tasoa.
- * HUOM: lähdedokumentti ei ilmoita tälle harjoitukselle aikarajaa.
- * durationMinutes=45 on nykyisen harjoitusmoottorin tekninen oletus.
+ * Harjoitus 4: uusimman tehtävätekstin tehtävät 1–11.
+ * Lähdelainaukset ovat explanation-kentissä, hakuvinkit learningPoint-kentissä.
+ * Lähdeteksti ei ilmoita aikarajaa; nykyinen 45 minuutin oletus säilytetään.
  */
 export const valintakoeGExercise4Base = {
   "id": "harjoitus-4",
@@ -16,13 +15,13 @@ export const valintakoeGExercise4Base = {
   "difficulty": "easy",
   "articleId": "turvallisuuden-nayttamot-muutoksessa-sota-informaatiotiloissa-vaatii-valppautta",
   "articleTitle": "Turvallisuuden näyttämöt muutoksessa – sota informaatiotiloissa vaatii valppautta",
-  "articleUrl": "https://journal.fi/prologi/article/view/157134",
+  "articleUrl": "https://journal.fi/prologi/article/view/157134/102515",
   "questions": [
     {
       "id": "g-h4-q1",
       "questionType": "single",
       "difficulty": "easy",
-      "categoryId": 8,
+      "categoryId": 7,
       "prompt": "Mikä seuraavista kuvaa artikkelin perusteella vahvistusvinoumaa?",
       "options": [
         {
@@ -40,6 +39,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "d",
           "text": "Pidämme mediassa korostuvia asioita vähemmän merkittävinä kuin ne todellisuudessa ovat."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -50,14 +53,14 @@ export const valintakoeGExercise4Base = {
         "page": "57",
         "section": "kognitiivisia vinoumia käsittelevä kappale"
       },
-      "explanation": "Artikkelissa vahvistusvinouma yhdistetään nimenomaan informaation valitsemiseen ja tulkitsemiseen aiempia näkemyksiä tukevalla tavalla. Vaihtoehdot A ja B kuvaavat samassa kappaleessa käsiteltyjä muita vinoumia, joten pelkkä oikean tekstikohdan löytäminen ei riitä, vaan määritelmät täytyy erottaa toisistaan.",
-      "learningPoint": "Tarkista, mihin käsitteeseen aineistossa oleva ominaisuus tai määritelmä kuuluu. Lähekkäin esitetyt oikeat tiedot voivat toimia uskottavina häiriövaihtoehtoina. Hakuvinkki: Hae Ctrl+F:llä sanaa ”vahvistusvinouma”."
+      "explanation": "Artikkelissa vahvistusvinouma yhdistetään nimenomaan informaation valitsemiseen ja tulkitsemiseen aiempia näkemyksiä tukevalla tavalla. Vaihtoehdot A ja B kuvaavat samassa kappaleessa käsiteltyjä muita vinoumia, joten pelkkä oikean tekstikohdan löytäminen ei riitä, vaan määritelmät täytyy erottaa toisistaan.\n\nLähde:\n”Usein valitsemme ja tulkitsemme informaatiota niin, että se tukee aiempia näkemyksiämme. Tätä kutsutaan vahvistusvinoumaksi.”",
+      "learningPoint": "Tarkista, mihin käsitteeseen kukin määritelmä kuuluu. Vaihtoehdon tieto voi löytyä aineistosta mutta kuvata vahvistusvinouman sijasta toista vinoumaa.\n\nHakuvinkki: Hae Ctrl+F:llä sanaa ”vahvistusvinouma”."
     },
     {
       "id": "g-h4-q2",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 12,
+      "categoryId": 8,
       "prompt": "Vastaako seuraava väittämä artikkelin sisältöä? Prudentialistisen näkemyksen mukaan turvallisuus voidaan määritellä tilaksi, jossa riskit ja uhat ovat kokonaan poistuneet.",
       "options": [
         {
@@ -67,6 +70,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "epatosi",
           "text": "Epätosi"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -77,14 +84,14 @@ export const valintakoeGExercise4Base = {
         "page": "54",
         "section": "turvallisuuden määrittelyä käsittelevä ensimmäinen kappale"
       },
-      "explanation": "Väite tekee määritelmästä aineistoa ehdottomamman. Artikkelin mukaan riskien ja uhkien ei tarvitse olla kokonaan poistuneita, vaan ne voivat myös olla hallinnassa siten, ettei riski todennäköisesti toteudu. Ratkaiseva kohta on siis väitteen ilmaus ”kokonaan poistuneet”.",
-      "learningPoint": "Kiinnitä huomiota sanoihin, jotka tekevät väitteestä aineistoa ehdottomamman. Tarkista, antaako teksti todella perusteen näin vahvalle ilmaukselle. Hakuvinkki: Sanalla ”prudentialistisen” pääsee nopeasti oikeaan tekstikohtaan."
+      "explanation": "Väite tekee määritelmästä aineistoa ehdottomamman. Artikkelin mukaan riskien ja uhkien ei tarvitse olla kokonaan poistuneita, vaan ne voivat myös olla hallinnassa siten, ettei riski todennäköisesti toteudu. Ratkaiseva kohta on siis väitteen ilmaus ”kokonaan poistuneet”.\n\nLähde:\n”turvallisuus voidaan määritellä tilaksi, jossa tiettyjä riskejä ja uhkia ei ole tai ne ovat hallinnassa siten, että riski ei todennäköisesti toteudu.”",
+      "learningPoint": "Tarkista, tekeekö väite aineiston kuvauksesta ehdottoman. Ilmaus ”kokonaan poistuneet” sulkee pois tekstissä mainitun mahdollisuuden, että riskit ja uhat ovat olemassa mutta hallinnassa.\n\nHakuvinkki: Sanalla ”prudentialistisen” pääsee nopeasti oikeaan tekstikohtaan."
     },
     {
       "id": "g-h4-q3",
       "questionType": "multiple",
       "difficulty": "easy",
-      "categoryId": 9,
+      "categoryId": 6,
       "prompt": "Mitkä seuraavista väittämistä DIDI-mallista pitävät artikkelin perusteella paikkansa? Valitse kaikki oikeat vaihtoehdot.",
       "options": [
         {
@@ -102,6 +109,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "d",
           "text": "Malli kuvaa jatkumoa hyväksyttävästä keskustelusta laittomaan informaatiovaikuttamiseen."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -114,14 +125,14 @@ export const valintakoeGExercise4Base = {
         "page": "56",
         "section": "DIDI-mallia käsittelevä kappale"
       },
-      "explanation": "A, B ja D vastaavat artikkelin kuvausta. C sekoittaa DIDI-mallin vuoden 2018 kehittämisen artikkelissa myöhemmin käsiteltyyn Suomen informaatiopuolustukseen ja vuoteen 2021. Tässä kannattaa tarkistaa erityisesti, mihin ajankohtaantieto kuuluu.",
-      "learningPoint": "Aiheeseen liittyvä vuosiluku voi löytyä aineistosta mutta kuulua eri asiaan. Tarkista aina, mihin tapahtumaan ajankohta tekstissä yhdistetään."
+      "explanation": "A, B ja D vastaavat artikkelin kuvausta. C sekoittaa DIDI-mallin vuoden 2018 kehittämisen artikkelissa myöhemmin käsiteltyyn Suomen informaatiopuolustukseen ja vuoteen 2021. Tässä kannattaa tarkistaa erityisesti, mihin ajankohtaan tieto kuuluu.\n\nLähde:\n”Lundin yliopiston tutkijaryhmä on vuonna 2018 kehittänyt Ruotsin turvallisuusviraston (MSB) toimeksiannosta mallin”\n\n”Malli on jatkumo hyväksyttävästä, avoimesta keskustelusta ei-hyväksyttävän informaatiovaikuttamisen kautta laittomaan informaatiovaikuttamiseen.”\n\n”Mallin komponentteja ovat harhauttaminen (deception), aikomukset (intentions), häiritsevyys (disruption) ja sekaantuminen (interference).”",
+      "learningPoint": "Yhdistä vuosiluku juuri siihen tapahtumaan, jota kysymys koskee. Vuosi 2021 liittyy Suomen informaatiopuolustukseen, kun taas DIDI-malli kehitettiin vuonna 2018."
     },
     {
       "id": "g-h4-q4",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 3,
+      "categoryId": 2,
       "prompt": "Onko seuraava väittämä artikkelin perusteella oikein vai väärin? Suomen vuoden 2021 puolustusselonteossa informaatiopuolustus rajattiin maanpuolustuksen toimintojen suojaamiseen ulkoa ohjatun ja muun vahingoittamistarkoituksessa tehdyn viestinnän vaikutuksilta.",
       "options": [
         {
@@ -131,6 +142,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "vaarin",
           "text": "Väärin"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -141,8 +156,8 @@ export const valintakoeGExercise4Base = {
         "page": "58",
         "section": "Suomen informaatiopuolustus on ratkaistava"
       },
-      "explanation": "Väite säilyttää artikkelissa esitetyn määritelmän olennaisen merkityksen: vuoden 2021 puolustusselonteon määritelmä kohdistui nimenomaan maanpuolustuksen toimintojen suojaamiseen kuvatunlaiselta viestinnältä. Tässä ratkaisevaa on löytää oikea kohta nopeasti ja varmistaa, ettei väitteessä ole muutettu määritelmän kohdetta.",
-      "learningPoint": "Tunnista, säilyykö tekstikohdan merkitys, vaikka asia esitetään kysymyksessä hieman tiivistettynä ja eri rakenteessa. Hakuvinkki: Haku ”2021” rajaa aineistosta nopeasti oikean kohdan."
+      "explanation": "Väite säilyttää artikkelissa esitetyn määritelmän olennaisen merkityksen: vuoden 2021 puolustusselonteon määritelmä kohdistui nimenomaan maanpuolustuksen toimintojen suojaamiseen kuvatunlaiselta viestinnältä. Tässä ratkaisevaa on löytää oikea kohta nopeasti ja varmistaa, ettei väitteessä ole muutettu määritelmän kohdetta.\n\nLähde:\n”informaatiopuolustus määriteltiin hyvin suppeasti siten, että se rajattiin vain ’maanpuolustuksen toimintojen suojaamiseksi ulkoa ohjatun ja muun vahingoittamistarkoituksessa tehdyn viestinnän vaikutuksilta’.”",
+      "learningPoint": "Vertaa väitteen merkitystä aineiston määritelmään. Tiivistetynkin ilmauksen pitää säilyttää, mitä suojataan ja millaisen viestinnän vaikutuksilta.\n\nHakuvinkki: Haku ”2021” rajaa aineistosta nopeasti oikean kohdan."
     },
     {
       "id": "g-h4-q5",
@@ -166,6 +181,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "d",
           "text": "Ihminen pitää mediassa usein esillä olevia asioita automaattisesti totuudenmukaisina."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -176,14 +195,14 @@ export const valintakoeGExercise4Base = {
         "page": "57",
         "section": "kognitiivisia vinoumia käsittelevä kappale"
       },
-      "explanation": "C ilmaisee saman asian eri sanarakenteella kuin artikkeli. A kuvaa vahvistusvinoumaa ja B saatavuusvinoumaa. Tehtävässä olennaista on tunnistaa määritelmän merkitys eikä vain etsiä vaihtoehdosta samoja sanoja kuin aineistosta.",
-      "learningPoint": "Tunnista aineiston kanssa samanmerkityksinen ilmaus, vaikka kysymys tai vastausvaihtoehto ei toista tekstiä sanatarkasti. Hakuvinkki: Hae ”ankkurointivinouma” ja vertaa sen määritelmää vaihtoehtoihin."
+      "explanation": "C ilmaisee saman asian eri sanarakenteella kuin artikkeli. A kuvaa vahvistusvinoumaa ja B saatavuusvinoumaa. Tehtävässä olennaista on tunnistaa määritelmän merkitys eikä vain etsiä vaihtoehdosta samoja sanoja kuin aineistosta.\n\nLähde:\n”Ankkurointivinouma taas tarkoittaa sitä, että nojaudumme liian vahvasti johonkin tiettyyn informaatioon, useimmiten siihen, jonka olemme saaneet ensimmäisenä.”",
+      "learningPoint": "Tunnista sama määritelmä eri sanamuodossa. Tarkista, että ankkurointivinoumaan yhdistetään liian vahva nojautuminen tiettyyn, tavallisesti ensimmäisenä saatuun informaatioon.\n\nHakuvinkki: Hae ”ankkurointivinouma” ja vertaa sen määritelmää vaihtoehtoihin."
     },
     {
       "id": "g-h4-q6",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 5,
+      "categoryId": 3,
       "prompt": "Vastaako seuraava väittämä artikkelin sisältöä? Informaatiosodankäynti muodostaa itsenäisen konfliktin, johon ei tarvitse liittyä muuta meneillään olevaa konfliktia.",
       "options": [
         {
@@ -193,6 +212,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "epatosi",
           "text": "Epätosi"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -203,14 +226,14 @@ export const valintakoeGExercise4Base = {
         "page": "56",
         "section": "Vihamielistä vaikuttamista ja sodankäyntiä"
       },
-      "explanation": "Väite kääntää artikkelin esittämän suhteen vastakkaiseksi. Artikkelin mukaan informaatiosodankäynti liittyy aina laajempaan konfliktiin, kun taas väitteessä se esitetään siitä riippumattomana.",
-      "learningPoint": "Tarkista väitteen merkityssuunta. Samojen käsitteiden esiintyminen ei riitä, jos niiden avulla ilmaistu sisältö on muutettu vastakkaiseksi. Hakuvinkki: Hae ”itsenäistä informaatiosotaa”."
+      "explanation": "Väite kääntää artikkelin esittämän suhteen vastakkaiseksi. Artikkelin mukaan informaatiosodankäynti liittyy aina laajempaan konfliktiin, kun taas väitteessä se esitetään siitä riippumattomana.\n\nLähde:\n”ettei itsenäistä informaatiosotaa ole olemassa, vaan informaatiosodankäynti liittyy aina johonkin laajempaan meneillään olevaan konfliktiin.”",
+      "learningPoint": "Tarkista, ilmaiseeko väite saman vai vastakkaisen sisällön kuin aineisto. Riippumattomuus muusta konfliktista on vastakkainen väite sille, että informaatiosodankäynti liittyy aina laajempaan konfliktiin.\n\nHakuvinkki: Hae ”itsenäistä informaatiosotaa”."
     },
     {
       "id": "g-h4-q7",
       "questionType": "multiple",
       "difficulty": "easy",
-      "categoryId": 8,
+      "categoryId": 7,
       "prompt": "Mitkä seuraavista kuuluvat artikkelissa Kööpenhaminan koulukunnan mallin mukaisiin turvallisuuden sektoreihin? Valitse kaikki oikeat vaihtoehdot.",
       "options": [
         {
@@ -228,6 +251,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "d",
           "text": "Ympäristöturvallisuus"
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -240,8 +267,8 @@ export const valintakoeGExercise4Base = {
         "page": "54",
         "section": "laajaa turvallisuuskäsitystä käsittelevä kappale"
       },
-      "explanation": "Sotilaallinen, poliittinen ja ympäristöturvallisuus mainitaan turvallisuuden sektoreina. Kognitiivinen turvallisuuspuolestaan esiintyy artikkelissa myöhemmin informaatiopuolustuksen yhteydessä, mutta sitä ei luetella tässä Kööpenhaminan koulukunnan turvallisuuden sektoriksi. Siksi tuttu ja artikkelissa oikeasti esiintyvä käsite voi silti olla tässä yhteydessä väärä.",
-      "learningPoint": "Älä tarkista vain, esiintyykö käsite aineistossa. Tarkista myös, kuuluuko se juuri siihen luokkaan tai ryhmään, josta kysytään."
+      "explanation": "Sotilaallinen, poliittinen ja ympäristöturvallisuus mainitaan turvallisuuden sektoreina. Kognitiivinen turvallisuus puolestaan esiintyy artikkelissa myöhemmin informaatiopuolustuksen yhteydessä, mutta sitä ei luetella tässä Kööpenhaminan koulukunnan turvallisuuden sektoriksi. Siksi tuttu ja artikkelissa oikeasti esiintyvä käsite voi silti olla tässä yhteydessä väärä.\n\nLähde:\n”turvallisuuden sektoreina, joita ovat sotilaallisen, poliittisen, taloudellisen, yhteiskunnallisen ja ympäristöturvallisuuden sektorit.”",
+      "learningPoint": "Tarkista, mihin luokitteluun käsite kuuluu. Kognitiivinen turvallisuus esiintyy aineistossa, mutta sitä ei luetella Kööpenhaminan koulukunnan mallin turvallisuuden sektoriksi."
     },
     {
       "id": "g-h4-q8",
@@ -257,6 +284,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "vaarin",
           "text": "Väärin"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -267,14 +298,14 @@ export const valintakoeGExercise4Base = {
         "page": "58",
         "section": "Suomen informaatiopuolustus on ratkaistava"
       },
-      "explanation": "Väite säilyttää aineiston keskeisen tiedon: Suomessa termin ensimmäinen esiintyminen sijoitetaan vuoden 2021 puolustusselontekoon. Tässä tehtävässä ratkaisevaa on paikantaa yksittäinen ajankohtaa koskeva fakta täsmällisesti.",
-      "learningPoint": "Paikanna nopeasti yksittäinen täsmällinen tieto ja varmista, että sekä vuosiluku että tapahtuma vastaavat aineistoa. Hakuvinkki: Hakusana ”2021” vie suoraan olennaiseen kohtaan."
+      "explanation": "Väite säilyttää aineiston keskeisen tiedon: Suomessa termin ensimmäinen esiintyminen sijoitetaan vuoden 2021 puolustusselontekoon. Tässä tehtävässä ratkaisevaa on paikantaa yksittäinen ajankohtaa koskeva fakta täsmällisesti.\n\nLähde:\n”Suomessa vastaava informaatiopuolustuksen termi esiintyi ensimmäisen kerran vasta vuonna 2021 julkaistussa puolustusselonteossa.”",
+      "learningPoint": "Paikanna termin ensimmäistä esiintymistä koskeva tieto. Varmista erikseen, että maa, vuosi ja asiakirja vastaavat aineistoa.\n\nHakuvinkki: Hakusana ”2021” vie suoraan olennaiseen kohtaan."
     },
     {
       "id": "g-h4-q9",
       "questionType": "single",
       "difficulty": "easy",
-      "categoryId": 8,
+      "categoryId": 7,
       "prompt": "Mikä seuraavista väittämistä pitää artikkelin perusteella paikkansa?",
       "options": [
         {
@@ -292,6 +323,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "d",
           "text": "Mentaalisessa sodankäynnissä pyritään ensisijaisesti vahvistamaan vastustajan kansallista koheesiota."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -300,16 +335,16 @@ export const valintakoeGExercise4Base = {
       "source": {
         "articleId": "turvallisuuden-nayttamot-muutoksessa-sota-informaatiotiloissa-vaatii-valppautta",
         "page": "57",
-        "section": "informaatio­psykologista sodankäyntiä käsittelevä kappale"
+        "section": "informaatiopsykologista sodankäyntiä käsittelevä kappale"
       },
-      "explanation": "Artikkeli erottaa kaksi ulottuvuutta toisistaan. Sosiaalis-kulttuurisen sodankäynnin kohteena ovat kansallinen identiteetti ja narratiivi, kun taas mentaalisen sodankäynnin kohteena ovat ihmisen mieli, ajattelu ja kognitio. A ja B siirtävät ominaisuuksia väärälle ulottuvuudelle, ja D muuttaa koheesioon kohdistuvan vaikutuksen suunnan.",
-      "learningPoint": "Kun aineistossa käsitellään lähekkäin kahta käsitettä, tarkista huolellisesti, mikä ominaisuus kuuluu kummallekin. Oikea tieto muuttuu vääräksi, jos se yhdistetään väärään käsitteeseen."
+      "explanation": "Artikkeli erottaa kaksi ulottuvuutta toisistaan. Sosiaalis-kulttuurisen sodankäynnin kohteena ovat kansallinen identiteetti ja narratiivi, kun taas mentaalisen sodankäynnin kohteena ovat ihmisen mieli, ajattelu ja kognitio. A ja B siirtävät ominaisuuksia väärälle ulottuvuudelle, ja D muuttaa koheesioon kohdistuvan vaikutuksen suunnan.\n\nLähde:\n”Sosiaalis-kulttuurisen sodankäynnin kohteena ovat vastustajan kansallinen identiteetti ja narratiivi, joita pyritään haurastuttamaan kansallisen koheesion vähentämiseksi.”",
+      "learningPoint": "Yhdistä vaikuttamisen kohde oikeaan sodankäynnin ulottuvuuteen. Kansallinen identiteetti ja narratiivi kuuluvat sosiaalis-kulttuuriseen sodankäyntiin, kun taas mieli, ajattelu ja kognitio kuuluvat mentaaliseen sodankäyntiin."
     },
     {
       "id": "g-h4-q10",
       "questionType": "single",
       "difficulty": "easy",
-      "categoryId": 3,
+      "categoryId": 2,
       "prompt": "Mikä seuraavista väittämistä kuvaa artikkelin perusteella hyväksyttävää informaatiovaikuttamista?",
       "options": [
         {
@@ -327,6 +362,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "d",
           "text": "Vaikuttaminen voi olla hyväksyttävää, vaikka sen tavoitteena olisi haitallisten vastakkainasettelujen luominen."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -337,14 +376,14 @@ export const valintakoeGExercise4Base = {
         "page": "56",
         "section": "DIDI-mallia ja hyväksyttävää informaatiovaikuttamista käsittelevä kappale"
       },
-      "explanation": "B tiivistää samassa tekstikohdassa luetellut hyväksyttävän informaatiovaikuttamisen ominaisuudet. A, C ja D muuttavat yksittäisiä ehtoja tavalla, jota artikkeli ei tue. Esimerkiksi pelkkä oma intressi ei riitä, vaan sen on oltava legitiimi.",
-      "learningPoint": "Yhdistä muutaman läheisen virkkeen keskeinen sisältö ja tunnista vaihtoehto, joka säilyttää kokonaisuuden merkityksen. Hakuvinkki: Hae ”Hyväksyttävä informaatiovaikuttaminen”."
+      "explanation": "B tiivistää samassa tekstikohdassa luetellut hyväksyttävän informaatiovaikuttamisen ominaisuudet. A, C ja D muuttavat yksittäisiä ehtoja tavalla, jota artikkeli ei tue. Esimerkiksi pelkkä oma intressi ei riitä, vaan sen on oltava legitiimi.\n\nLähde:\n”Hyväksyttävä informaatiovaikuttaminen on aina läpinäkyvää: sen lähde, kohde ja tavoitteet ovat tiedossa. Se on myös rakentavaa, eikä sen tavoitteena ole vahingoittaa ketään.”\n\nArtikkelissa todetaan lisäksi, ettei hyväksyttävä vaikuttaminen häiritse kohtuuttomasti yhteiskunnan toimintaa.",
+      "learningPoint": "Tunnista usean läheisen virkkeen sisältöä tiivistävä vaihtoehto. Varmista, että tiivistelmä säilyttää hyväksyttävän vaikuttamisen ehdot eikä poista tai muuta niitä.\n\nHakuvinkki: Hae ”Hyväksyttävä informaatiovaikuttaminen”."
     },
     {
       "id": "g-h4-q11",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 10,
+      "categoryId": 6,
       "prompt": "Informaatiosodankäynnin operaatiot informaatiotilassa aloitetaan tyypillisesti vasta sen jälkeen, kun konflikti on tullut näkyväksi ja vihollisuudet ovat puhjenneet reaalimaailmassa.",
       "options": [
         {
@@ -354,6 +393,10 @@ export const valintakoeGExercise4Base = {
         {
           "id": "epatosi",
           "text": "Epätosi"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -364,8 +407,8 @@ export const valintakoeGExercise4Base = {
         "page": "56–57",
         "section": "informaatiosodankäyntiä käsittelevä kohta"
       },
-      "explanation": "Artikkelissa tapahtumien ajallinen järjestys on informaatiotilan operaatiot → konfliktin näkyväksi tuleminen ja vihollisuuksien puhkeaminen. Väitteessä järjestys on käännetty päinvastaiseksi. Ratkaisevaa ei siis ole vain huomata samoja tapahtumia, vaan tarkistaa niiden ajallinen suhde.",
-      "learningPoint": "Tarkista prosessin tai tapahtumien ajallinen suunta. Samat tapahtumat voivat esiintyä sekä aineistossa että väitteessä, vaikka niiden järjestys olisi väärä. Hakuvinkki: Hae esimerkiksi ”paljon ennen” tai ”konflikti tulee näkyväksi”."
+      "explanation": "Artikkelissa tapahtumien ajallinen järjestys on informaatiotilan operaatiot → konfliktin näkyväksi tuleminen ja vihollisuuksien puhkeaminen. Väitteessä järjestys on käännetty päinvastaiseksi. Ratkaisevaa ei siis ole vain huomata samoja tapahtumia, vaan tarkistaa niiden ajallinen suhde.\n\nLähde:\n”tyypillisesti operaatiot informaatiotilassa aloitetaan jo paljon ennen kuin konflikti tulee näkyväksi ja vihollisuudet puhkeavat reaalimaailmassa.”",
+      "learningPoint": "Vertaa tapahtumien ajallista suhdetta. Ilmaukset ”jo paljon ennen” ja ”vasta sen jälkeen” sijoittavat samat operaatiot eri vaiheeseen suhteessa konfliktin näkyväksi tulemiseen.\n\nHakuvinkki: Hae esimerkiksi ”paljon ennen” tai ”konflikti tulee näkyväksi”."
     }
   ]
 } satisfies ValintakoeGExercise;

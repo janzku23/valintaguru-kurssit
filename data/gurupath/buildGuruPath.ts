@@ -26,6 +26,7 @@ export function buildGuruPath(viewId: GuruGameViewId): GuruPathCourse {
       type: "challenge",
       points: question.points ?? 35,
       category,
+      valintakoeGCategoryId: question.valintakoeGCategoryId,
     })
   );
 

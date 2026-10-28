@@ -30,7 +30,7 @@ export const COURSE_FEATURES: Record<
   CourseFeatureFlags
 > = {
   oikis: {
-    theory: false,
+    theory: true,
     tasks: false,
     flashcards: false,
     podcast: false,
@@ -48,7 +48,7 @@ export const COURSE_FEATURES: Record<
   },
 
   "oikis-teho": {
-    theory: false,
+    theory: true,
     tasks: true,
     flashcards: false,
     podcast: true,
@@ -57,7 +57,7 @@ export const COURSE_FEATURES: Record<
   },
 
   "oikis-teho-etaope": {
-    theory: false,
+    theory: true,
     tasks: true,
     flashcards: false,
     podcast: true,

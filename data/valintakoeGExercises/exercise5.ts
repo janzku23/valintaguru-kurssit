@@ -1,28 +1,26 @@
 import type { ValintakoeGExercise } from "./types";
 
 /**
- * Harjoitus 5 on muodostettu toimitetusta VALINTAKOE G TEHTÄVÄT HELPPO -dokumentista.
- * Kaikki tehtävät ovat easy-tasoa.
- * HUOM: lähdedokumentti ei ilmoita tälle harjoitukselle aikarajaa.
- * durationMinutes=45 on nykyisen harjoitusmoottorin tekninen oletus.
+ * Harjoitus 5: uusimman tehtävätekstin tehtävät 1–10. Aikaraja 40 min.
+ * Lähdekuvaukset ovat explanation-kentissä, haku- ja muistivinkit learningPoint-kentissä.
  */
 export const valintakoeGExercise5Base = {
   "id": "harjoitus-5",
   "version": 1,
   "courseId": "valintakoe-g",
-  "title": "Harjoitus 5 – Suomalaisen demokratiapolitiikan sudenkuopat",
-  "description": "Aineistoharjoitus. Tuloksessa seurataan sekä kokonaisosumaa että lukutaitokategorioita.",
-  "durationMinutes": 45,
+  "title": "Harjoitus 5 – Demokratian kehittäminen ja osallistumisen eriytyminen",
+  "description": "40 minuutin aineistoharjoitus. Tuloksessa seurataan sekä kokonaisosumaa että lukutaitokategorioita.",
+  "durationMinutes": 40,
   "difficulty": "easy",
   "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
   "articleTitle": "Suomalaisen demokratiapolitiikan sudenkuopat",
-  "articleUrl": "https://journal.fi/politiikka/article/view/125172",
+  "articleUrl": "https://journal.fi/politiikka/article/download/125172/86170",
   "questions": [
     {
       "id": "g-h5-q1",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 3,
+      "categoryId": 2,
       "prompt": "Periaatepäätöksen näkökulmasta osallistumisen eriytyminen on ongelma, mutta artikkelin kirjoittajan mukaan osallistumisen eriytyminen pitäisi sallia osana samaa demokratisaatioprosessia.",
       "options": [
         {
@@ -32,6 +30,10 @@ export const valintakoeGExercise5Base = {
         {
           "id": "epatosi",
           "text": "Epätosi"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -39,10 +41,11 @@ export const valintakoeGExercise5Base = {
       ],
       "source": {
         "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
-        "page": "249"
+        "page": "249",
+        "section": "osallistumisen eriytymistä käsittelevä kappale"
       },
-      "explanation": "Tekstissä asetetaan vastakkain Periaatepäätöksen näkemys ja kirjoittajan esittämä näkemys. Periaatepäätös pitää osallistumisen eriytymistä ongelmana, kun taas kirjoittajan mukaan eriytyminen pitäisi sallia, jotta epätasa-arvo voidaan huomioida. Ratkaisevaa on erottaa toisistaan, kenen näkemyksestä kulloinkin puhutaan.",
-      "learningPoint": "Tunnista, säilyykö tekstikohdan keskeinen ajatus samana, vaikka se on tiivistetty ja ilmaistu eri sanoin. Tarkista erityisesti, että molempien näkemysten välinen ero säilyy oikein. Hakuvinkki: Hae esimerkiksi ”osallistumisen eriytyminen”."
+      "explanation": "Väite säilyttää artikkelissa esitetyn keskeisen ajatuksen. Periaatepäätöksen näkökulmasta osallistumisen eriytyminen on ongelmallista, kun taas kirjoittaja korostaa erilaisten osallistumisen tilojen ja lähtökohtien merkitystä demokratian kehittymiselle.\nTehtävässä on tärkeää erottaa nämä kaksi näkökulmaa toisistaan. Väite tiivistää molemmat kannat oikein.\n\nLähde:\nArtikkelissa todetaan, että periaatepäätös pitää osallistumisen eriytymistä ongelmana, mutta kirjoittajan mukaan eriytyminen pitäisi sallia osana demokratisaatioprosessia, jotta yhteiskunnallista epätasa-arvoa voitaisiin huomioida paremmin.",
+      "learningPoint": "Tarkista, säilyttääkö kysymys aineistossa esitetyn ajatuksen, vaikka sitä olisi tiivistetty tai muotoiltu uudelleen. Kiinnitä erityistä huomiota siihen, että eri toimijoiden näkemykset pysyvät erillään.\nHakuvinkki: Hae ilmausta osallistumisen eriytyminen."
     },
     {
       "id": "g-h5-q2",
@@ -66,6 +69,10 @@ export const valintakoeGExercise5Base = {
         {
           "id": "d",
           "text": "Demokratia määritellään valtiollisesta yhteiskuntajärjestyksestä riippumattomaksi toimintatavaksi."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -73,16 +80,17 @@ export const valintakoeGExercise5Base = {
       ],
       "source": {
         "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
-        "page": "247"
+        "page": "247",
+        "section": "demokratian määritelmää käsittelevä kappale"
       },
-      "explanation": "A vastaa suoraan tekstissä esitettyä määritelmää. B kääntää tekstissä tehdyn erottelun: juuri tällaista avoimen demokratiaprosessin kautta tapahtuvaa arvopohjan määrittelyä Periaatepäätös ei kirjoittajan mukaan tee. C on liian ehdoton, koska tekstissä demokratia yhdistetään myös talouteen, hyvinvointiin ja elämänlaatuun, mutta ei ainoastaanniihin.",
-      "learningPoint": "Paikanna tekstistä täsmällinen määritelmä ja erottele se lähellä olevista, uskottavilta kuulostavista vaihtoehdoista. Hakuvinkki: Hae esimerkiksi ”arvopohjana”."
+      "explanation": "A on oikein, koska se vastaa artikkelissa esitettyä demokratian määritelmää.\nB on väärin, koska kirjoittajan mukaan periaatepäätös ei määrittele arvopohjaa avoimen demokratiaprosessin kautta.\nC on väärin, koska demokratiaa ei määritellä ainoastaan talouden ja hyvinvoinnin takaajaksi.\nD on väärin, koska määritelmä liitetään nimenomaan suomalaiseen yhteiskuntajärjestykseen.\n\nLähde:\nArtikkelissa kerrotaan, että periaatepäätös määrittelee demokratian suomalaisen yhteiskuntajärjestyksen arvopohjaksi. Kirjoittaja huomauttaa, ettei arvopohjaa määritellä avoimen demokratiaprosessin kautta.",
+      "learningPoint": "Etsi aineistosta kysytty määritelmä ja tarkista sen sisältö täsmällisesti. Älä valitse vaihtoehtoa vain siksi, että se kuulostaa yleisesti uskottavalta.\nHakuvinkki: Hae sanaa arvopohjana."
     },
     {
       "id": "g-h5-q3",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 8,
+      "categoryId": 6,
       "prompt": "Vuoden 1916 naiskansanedustajien määrän taso saavutettiin Suomessa uudelleen vasta vuonna 1966.",
       "options": [
         {
@@ -92,6 +100,10 @@ export const valintakoeGExercise5Base = {
         {
           "id": "vaarin",
           "text": "Väärin"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -99,16 +111,17 @@ export const valintakoeGExercise5Base = {
       ],
       "source": {
         "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
-        "page": "246"
+        "page": "246",
+        "section": "naiskansanedustajien määrän historiallista kehitystä käsittelevä kohta"
       },
-      "explanation": "Väitteessä käytetty 1966 löytyy tekstistä, mutta se on yhdistetty väärään tapahtumaan. Vuoden 1916 taso saavutettiin uudelleen vuonna 1951. Vuosi 1966 tarkoittaa ajankohtaa, jolloin naisten määrä alkoi merkittävästi kasvaa. Tehtävän ansa syntyy siis kahdesta lähekkäin esiintyvästä oikeasta vuosiluvusta.",
-      "learningPoint": "Tarkista, mihin tapahtumaan tekstissä esiintyvä vuosiluku liittyy. 1966 on tekstissä oikea vuosiluku, mutta se liittyy naisten määrän merkittävän kasvun alkamiseen, ei vuoden 1916 tason saavuttamiseen uudelleen. Oikea tieto voi siis tehdä väitteestä väärän, jos se yhdistetään väärään tapahtumaan. Hakuvinkki: Hae esimerkiksi ”vuoden 1916 taso” tai ”1966”."
+      "explanation": "Väitteessä käytetty vuosi 1966 löytyy artikkelista, mutta se on yhdistetty väärään tapahtumaan.\nVuosi 1951: Vuoden 1916 naiskansanedustajien määrän taso saavutettiin uudelleen.\nVuosi 1966: Naisten määrä alkoi kasvaa merkittävästi.\nMolemmat vuosiluvut ovat siis aineistosta tuttuja, mutta ne kuvaavat eri asioita.\n\nLähde:\nArtikkelin mukaan vuoden 1916 taso saavutettiin uudelleen vuoden 1951 vaaleissa. Naisten määrä alkoi kasvaa merkittävästi vasta vuonna 1966.",
+      "learningPoint": "Tarkista, mihin tapahtumaan aineistossa esiintyvä vuosiluku liittyy. Oikea vuosiluku voi tehdä väitteestä väärän, jos se yhdistetään väärään tapahtumaan.\nHakuvinkki: Hae ilmausta vuoden 1916 taso tai vuosilukua 1966."
     },
     {
       "id": "g-h5-q4",
       "questionType": "multiple",
       "difficulty": "easy",
-      "categoryId": 8,
+      "categoryId": 5,
       "prompt": "Mitkä seuraavista väittämistä kuvaavat tekstissä esitettyjä Periaatepäätöksen kahta sudenkuoppaa? Valitse kaikki oikeat vaihtoehdot.",
       "options": [
         {
@@ -126,6 +139,10 @@ export const valintakoeGExercise5Base = {
         {
           "id": "d",
           "text": "Julkispoliittinen sudenkuoppa tarkoittaa ensisijaisesti demokraattisten tulevaisuudenkuvien irrottamista menneisyyden tulkinnoista."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -134,10 +151,11 @@ export const valintakoeGExercise5Base = {
       ],
       "source": {
         "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
-        "page": "247"
+        "page": "247",
+        "section": "”Periaatepäätöksen kaksi sudenkuoppaa”"
       },
-      "explanation": "A yhdistää historiapoliittisen sudenkuopan oikeaan kuvaukseen ja B julkispoliittisen sudenkuopan oikeaan kuvaukseen. C ja D käyttävät tekstissä oikeasti esiintyviä ajatuksia, mutta ne on yhdistetty väärään sudenkuoppaan. Siksi pelkkä käsitteiden tunnistaminen ei riitä, vaan on tarkistettava, mikä ominaisuus kuuluu kummallekin.",
-      "learningPoint": "Tarkista, mihin käsitteeseen tekstissä oleva oikea tieto kuuluu. Häiriövaihtoehto voi sisältää täysin oikean tiedon, mutta yhdistää sen väärään käsitteeseen. Hakuvinkki: Hae esimerkiksi ”sudenkuoppa” tai ”julkistilasta”."
+      "explanation": "A on oikein, koska historiapoliittinen sudenkuoppa koskee menneisyyden tulkintojen ja historiapolitiikan riittämätöntä käsittelyä.\nB on oikein, koska julkispoliittinen sudenkuoppa liittyy oletukseen yhteisestä ja yhtenäisestä julkistilasta.\nC on väärin, koska yhtenäisen julkistilan oletus kuuluu julkispoliittiseen sudenkuoppaan.\nD on väärin, koska menneisyyden tulkintojen sivuuttaminen kuuluu historiapoliittiseen sudenkuoppaan.\n\nLähde:\nArtikkelissa nimetään kaksi sudenkuoppaa. Historiapoliittinen sudenkuoppa liittyy menneisyyden tulkintojen ja historiapolitiikan sivuuttamiseen. Julkispoliittinen sudenkuoppa puolestaan liittyy oletukseen yhtenäisestä ja kaikkien jakamasta julkistilasta.",
+      "learningPoint": "Tarkista, mihin käsitteeseen aineistossa esitetty ominaisuus kuuluu. Kaksi läheistä käsitettä voivat esiintyä samassa kappaleessa, jolloin niiden määritelmät on helppo sekoittaa keskenään.\nHakuvinkki: Hae sanaa sudenkuoppa ja vertaa molempien käsitteiden määritelmiä."
     },
     {
       "id": "g-h5-q5",
@@ -153,6 +171,10 @@ export const valintakoeGExercise5Base = {
         {
           "id": "epatosi",
           "text": "Epätosi"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -160,16 +182,17 @@ export const valintakoeGExercise5Base = {
       ],
       "source": {
         "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
-        "page": "247"
+        "page": "247",
+        "section": "demokratian tilaa ja poliittisia vastakkainasetteluja käsittelevä kappale"
       },
-      "explanation": "Väite säilyttää tekstissä esitetyn yhteyden: Periaatepäätöksessä tunnistetaan Suomen heikot sijoitukset osallistuvan ja puntaroivan demokratian indekseissä, mutta samalla poliittisten vastakkainasettelujen vahvistuminen nähdään kielteisenä. Ratkaisevaa on huomata, että tekstissä nämä kaksi asiaa asetetaan nimenomaan rinnakkain.",
-      "learningPoint": "Tunnista sama merkitys, vaikka kysymyksen sanamuoto ei täysin vastaa aineiston sanamuotoa. Esimerkiksi negatiivinen kehityskulku voidaan ilmaista hieman eri tavoin merkityksen muuttumatta. Hakuvinkki: Hae esimerkiksi ”puntaroivan demokratian” tai ”vastakkainasettelujen”."
+      "explanation": "Väite säilyttää aineistossa esitetyn ajatuksen. Periaatepäätöksessä tunnistetaan osallistuvan ja puntaroivan demokratian puutteita, mutta poliittisten vastakkainasettelujen vahvistuminen esitetään silti negatiivisena kehityksenä.\nTehtävässä olennaista on huomata, että nämä kaksi asiaa esitetään artikkelissa rinnakkain. Niiden välillä on kirjoittajan esiin nostama jännite.\n\nLähde:\nArtikkelissa todetaan, että periaatepäätöksessä tunnistetaan Suomen verrattain heikot sijoitukset osallistuvan ja puntaroivan demokratian indekseissä. Samalla poliittisten vastakkainasettelujen vahvistuminen nähdään kielteisenä kehityskulkuna.",
+      "learningPoint": "Tarkista, säilyykö aineiston alkuperäinen merkitys, vaikka kysymyksessä käytetään hieman erilaisia sanoja tai tiivistetään pidempi ajatus. Huomioi myös, miten väitteen eri osat liittyvät toisiinsa.\nHakuvinkki: Hae ilmausta puntaroivan demokratian tai vastakkainasettelujen."
     },
     {
       "id": "g-h5-q6",
       "questionType": "single",
       "difficulty": "easy",
-      "categoryId": 3,
+      "categoryId": 2,
       "prompt": "Mikä seuraavista kuvaa tekstin mukaan Periaatepäätöksen suhtautumista Suomen demokratian menneisyyteen?",
       "options": [
         {
@@ -187,6 +210,10 @@ export const valintakoeGExercise5Base = {
         {
           "id": "d",
           "text": "Menneisyyttä tarkastellaan ensisijaisesti saamelaisten totuus- ja sovintokomission onnistumisten kautta."
+        },
+        {
+          "id": "e",
+          "text": "Jätän vastaamatta tähän kysymykseen."
         }
       ],
       "correctAnswerIds": [
@@ -194,16 +221,17 @@ export const valintakoeGExercise5Base = {
       ],
       "source": {
         "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
-        "page": "247"
+        "page": "247",
+        "section": "historiapoliittista sudenkuoppaa käsittelevä kappale"
       },
-      "explanation": "B säilyttää tekstin kaksi olennaista rajausta: menneisyyttä käsitellään ohimennen ja ainoastaan positiivisessa valossa. C menee liian pitkälle väittäessään, ettei menneisyyteen viitattaisi lainkaan. A puolestaan väittää päinvastoin, että menneisyyttä käsiteltäisiin yksityiskohtaisesti ja moniulotteisesti.",
-      "learningPoint": "Tunnista, mikä vaihtoehto tiivistää tekstikohdan merkityksen oikein. Tarkista erityisesti, ettei vaihtoehto muuta sitä, kuinka laajasti ja millä tavalla menneisyyttä Periaatepäätöksessä käsitellään. Hakuvinkki: Hae esimerkiksi ”vahvat perinteet” tai ”positiivisessa valossa”."
+      "explanation": "A on väärin, koska artikkelin mukaan menneisyyttä ei käsitellä yksityiskohtaisesti ja moniulotteisesti.\nB on oikein, koska se säilyttää aineiston kaksi keskeistä havaintoa. Menneisyyttä käsitellään ohimennen ja ainoastaan positiivisessa valossa.\nC on väärin, koska menneisyyttä ei jätetä kokonaan käsittelemättä. Siihen viitataan mainitsemalla vahvat perinteet.\nD on väärin, koska periaatepäätöksen menneisyyskäsittelyä ei kuvata saamelaisten totuus- ja sovintokomission onnistumisten kautta.\n\nLähde:\nArtikkelissa kerrotaan, että periaatepäätöksessä Suomen demokratian menneisyyttä käsitellään lyhyesti ja myönteisessä valossa. Siinä viitataan demokratian vahvoihin perinteisiin.",
+      "learningPoint": "Vertaa vaihtoehtojen kokonaismerkitystä aineistoon. Oikea vaihtoehto voi tiivistää tekstikohdan, mutta sen on säilytettävä kaikki olennaiset rajaukset. Tarkista erityisesti, kuinka laajasti ja millä tavalla asiaa aineistossa käsitellään.\nHakuvinkki: Hae ilmausta vahvat perinteet tai positiivisessa valossa."
     },
     {
       "id": "g-h5-q7",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 5,
+      "categoryId": 3,
       "prompt": "Artikkelin mukaan Periaatepäätös avaa, miksi Suomen aiempi demokratiapolitiikka on saanut kansainvälisiltä järjestöiltä suosituksia epäkohtien suhteen ja miksi niiden toteuttamisessa on epäonnistuttu.",
       "options": [
         {
@@ -213,6 +241,10 @@ export const valintakoeGExercise5Base = {
         {
           "id": "vaarin",
           "text": "Väärin"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -220,16 +252,17 @@ export const valintakoeGExercise5Base = {
       ],
       "source": {
         "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
-        "page": "248"
+        "page": "248",
+        "section": "Suomen demokratiapolitiikan epäkohtia ja kansainvälisiä suosituksia käsittelevä kappale"
       },
-      "explanation": "Väitteessä yksi ratkaiseva asia on muutettu: tekstissä Periaatepäätös ei avaa suositusten saamisen tai niiden toteuttamisessa epäonnistumisen syitä. Väitteessä taas sanotaan, että se avaa ne. Muuten väite käyttää samoja asioita kuin aineisto, joten ratkaisu riippuu tämän yhden merkityssuunnan huomaamisesta.",
-      "learningPoint": "Etsi väitteestä sana tai ilmaus, joka kääntää tekstin merkityksen vastakkaiseksi. Tässä ratkaiseva ero on ”ei avaa” → ”avaa”. Hakuvinkki: Hae esimerkiksi ”suosituksia” tai ”ei avaa”."
+      "explanation": "Kysymyksessä käytetään samoja asioita kuin aineistossa, mutta niiden merkitys muutetaan vastakkaiseksi.\nAineistossa: Periaatepäätös ei avaa suositusten saamisen tai niiden toteuttamisessa epäonnistumisen syitä.\nKysymyksessä: Periaatepäätös avaa nämä syyt.\nRatkaiseva ero on siis kielteisessä ilmauksessa. Kysymyksessä kielto on poistettu, jolloin koko väitteen merkitys muuttuu.\n\nLähde:\nArtikkelin mukaan periaatepäätöksessä mainitaan kansainvälisiltä järjestöiltä saadut suositukset, mutta siinä ei selitetä, miksi Suomi on saanut suosituksia tai miksi niiden toteuttamisessa on epäonnistuttu.",
+      "learningPoint": "Tarkista erityisesti kiellot ja verbit. Väite voi sisältää samat henkilöt, tapahtumat ja käsitteet kuin aineisto, mutta yksi muutos voi kääntää sen merkityksen vastakkaiseksi.\nHakuvinkki: Hae sanaa suosituksia tai ilmausta ei avaa."
     },
     {
       "id": "g-h5-q8",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 12,
+      "categoryId": 8,
       "prompt": "Polarisaatio on artikkelin mukaan aina demokratian kannalta ongelma.",
       "options": [
         {
@@ -239,6 +272,10 @@ export const valintakoeGExercise5Base = {
         {
           "id": "epatosi",
           "text": "Epätosi"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -246,16 +283,17 @@ export const valintakoeGExercise5Base = {
       ],
       "source": {
         "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
-        "page": "246"
+        "page": "246",
+        "section": "polarisaatiota ja demokratiaa käsittelevä kohta"
       },
-      "explanation": "Tekstissä ei esitetä polarisaatiota automaattisesti tai kaikissa tilanteissa demokratian ongelmana. Väitteeseen lisätty ”aina” tekee väitteestä liian ehdottoman. Ratkaisevaa on huomata, että tekstin ilmaus ”ei itsessään” ei tarkoita, ettei polarisaatio voisi joissakin olosuhteissa muodostua ongelmalliseksi.",
-      "learningPoint": "Tarkista, onko aineiston rajattuun väitteeseen lisätty liian ehdoton ilmaus. Sanat kuten aina, kaikki, vain ja ei koskaan voivat muuttaa muuten uskottavan väitteen vääräksi. Hakuvinkki: Hae esimerkiksi ”polarisaatio itsessään”."
+      "explanation": "Kysymyksessä käytetty sana aina tekee väitteestä liian ehdottoman.\nArtikkelissa ei väitetä, että polarisaatio olisi kaikissa tilanteissa ongelmallista demokratialle. Sen sijaan kirjoittaja korostaa, ettei polarisaatio itsessään ole ongelma.\nTämä ei kuitenkaan tarkoita, etteikö polarisaatio voisi joissakin tilanteissa aiheuttaa ongelmia. Aineiston väitettä ei siis saa tulkita kumpaankaan suuntaan liian ehdottomasti.\n\nLähde:\nArtikkelissa todetaan, ettei polarisaatio itsessään ole demokratian kannalta ongelma.",
+      "learningPoint": "Kiinnitä huomiota sanoihin, jotka tekevät väitteestä ehdottoman. Esimerkiksi aina, kaikki, vain, täysin, yksinomaan ja ei koskaan voivat muuttaa aineiston rajatun ajatuksen liian vahvaksi väitteeksi.\nHakuvinkki: Hae ilmausta polarisaatio itsessään."
     },
     {
       "id": "g-h5-q9",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 4,
+      "categoryId": 14,
       "prompt": "Saamelaisten totuus- ja sovintokomission oikeudenmukainen toiminta edellyttää tekstin mukaan, että saamelaiset osallistuvat prosessiin samoista lähtökohdista kuin muut suomalaisen yhteiskunnan toimijat.",
       "options": [
         {
@@ -265,6 +303,10 @@ export const valintakoeGExercise5Base = {
         {
           "id": "epatosi",
           "text": "Epätosi"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -272,16 +314,17 @@ export const valintakoeGExercise5Base = {
       ],
       "source": {
         "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
-        "page": "249"
+        "page": "249",
+        "section": "saamelaisten totuus- ja sovintokomissiota käsittelevä kohta"
       },
-      "explanation": "Tekstissä korostetaan, että saamelaisten tulee saada osallistua prosessiin omista lähtökohdistaan. Väitteessä tämä on muutettu muotoon samoista lähtökohdista kuin muut suomalaisen yhteiskunnan toimijat. Ratkaisevaa on siis tarkistaa, kenen lähtökohdista osallistumisen tulee tapahtua.",
-      "learningPoint": "Tarkista väitteen yksittäiset rajaukset tarkasti. Suurin osa väitteestä voi vastata aineistoa, vaikka yksi muutettu ilmaus tekee kokonaisuudesta väärän. Hakuvinkki: Hae esimerkiksi ”omista lähtökohdistaan” tai ”totuus- ja sovintokomission”."
+      "explanation": "Artikkelissa korostetaan, että saamelaisten tulee saada osallistua totuus- ja sovintoprosessiin omista lähtökohdistaan. Tämä tarkoittaa, että osallistumisessa on huomioitava heidän oma asemansa ja lähtökohtansa.\nKysymyksessä tämä on muutettu muotoon samoista lähtökohdista kuin muut suomalaisen yhteiskunnan toimijat.\nAineistossa: Saamelaiset osallistuvat omista lähtökohdistaan.\nKysymyksessä: Saamelaiset osallistuvat samoista lähtökohdista kuin muut toimijat.\nVäite on väärin, koska siinä muutetaan oikeudenmukaisen osallistumisen keskeistä edellytystä.\n\nLähde:\nArtikkelissa todetaan, että komission oikeudenmukainen toiminta edellyttää saamelaisten mahdollisuutta osallistua prosessiin omista lähtökohdistaan.",
+      "learningPoint": "Kiinnitä huomiota siihen, millä edellytyksillä tai mistä lähtökohdista jokin toiminta tapahtuu. Väitteessä voidaan säilyttää lähes koko alkuperäinen ajatus, mutta muuttaa osallistumista koskeva olennainen rajaus.\nÄlä tarkista vain sitä, että aineistossa puhutaan samoista henkilöistä ja samasta toiminnasta. Selvitä myös, millaiset lähtökohdat tai erityiset edellytykset aineistossa mainitaan.\nHakuvinkki: Hae aineistosta ilmausta omista lähtökohdistaan tai totuus- ja sovintokomission.\nMuistisääntö: Sama toiminta ei tarkoita samoja lähtökohtia."
     },
     {
       "id": "g-h5-q10",
       "questionType": "true_false",
       "difficulty": "easy",
-      "categoryId": 5,
+      "categoryId": 3,
       "prompt": "Poliittisen vastakkainasettelun vahvistuminen on artikkelin mukaan itsessään ongelmallista demokratialle.",
       "options": [
         {
@@ -291,6 +334,10 @@ export const valintakoeGExercise5Base = {
         {
           "id": "vaarin",
           "text": "Väärin"
+        },
+        {
+          "id": "skip",
+          "text": "Jätän vastaamatta tähän kysymykseen"
         }
       ],
       "correctAnswerIds": [
@@ -298,10 +345,11 @@ export const valintakoeGExercise5Base = {
       ],
       "source": {
         "articleId": "suomalaisen-demokratiapolitiikan-sudenkuopat",
-        "page": "250"
+        "page": "250",
+        "section": "poliittista vastakkainasettelua ja demokratiaa käsittelevä kappale"
       },
-      "explanation": "Tekstissä sanotaan, että poliittisen vastakkainasettelun vahvistuminen ei itsessään ole ongelmallista. Väitteessä merkitys on käännetty vastakkaiseksi poistamalla kielto: ”ei ole ongelmallista” → ”on ongelmallista”. Samat käsitteet esiintyvät molemmissa, mutta niiden merkityssuunta on päinvastainen.",
-      "learningPoint": "Tarkista, onko aineiston väitteen merkityssuunta käännetty vastakkaiseksi. Erityisesti kielteiset ilmaukset, kuten ”ei ole”, kannattaa tarkistaa huolellisesti. Hakuvinkki: Hae esimerkiksi ”vastakkainasettelun vahvistuminen”."
+      "explanation": "Artikkelissa todetaan, ettei poliittisen vastakkainasettelun vahvistuminen ole itsessään ongelmallista demokratialle.\nKysymyksessä tämä ajatus on muutettu päinvastaiseksi poistamalla kielto.\nAineistossa: Poliittisen vastakkainasettelun vahvistuminen ei itsessään ole ongelmallista.\nKysymyksessä: Poliittisen vastakkainasettelun vahvistuminen on itsessään ongelmallista.\nVäitteessä käytetään samoja käsitteitä kuin aineistossa, mutta niiden merkitys on käännetty vastakkaiseksi. Ratkaiseva ero on sanassa ei.\n\nLähde:\n”poliittisen vastakkainasettelun vahvistuminen ei itsessään ole ongelmallista”",
+      "learningPoint": "Tarkista, vastaako kysymyksen merkitys aineistossa esitettyä asiaa vai onko se muutettu vastakkaiseksi. Kiinnitä erityistä huomiota kieltoihin sekä sanoihin, jotka muuttavat väitteen merkitystä.\nÄlä päättele vastausta vain sen perusteella, että kysymyksessä esiintyvät samat käsitteet kuin aineistossa. Vertaa myös sitä, mitä käsitteiden välisestä suhteesta todella sanotaan.\nHakuvinkki: Hae aineistosta ilmausta vastakkainasettelun vahvistuminen ja tarkista sitä ympäröivät virkkeet.\nMuistisääntö: Yksi poistettu kielto voi muuttaa koko väitteen merkityksen."
     }
   ]
 } satisfies ValintakoeGExercise;
