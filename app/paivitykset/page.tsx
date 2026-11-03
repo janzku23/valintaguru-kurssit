@@ -45,6 +45,16 @@ const entries: SiteUpdate[] = [
       
     ],
   },
+     {
+    date: "2026-11-03",
+    title: "Sivuston päivityshistoria",
+    changes: [
+      "Gurupeli on saanut uusia kysymyksiä",
+      "Holvi maksujärjestelmä on vaihtunut paytrailiin",
+      "Paytrail takaa tunnuksien saamisen lähes välittömästi, kun taas Holvissa se venyi",
+      "Yleisiä parannuksia ja korjauksia"
+    ],
+  },
 ];
 
 const siteUpdates = [...entries].sort((a, b) =>
