@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import logo from "../../assets/logo.png";
-import { courses, HOLVI_STORE_URL } from "../../data/courses";
+import { courses, SHOP_STORE_URL } from "../../data/courses";
 import type { CourseId } from "../../data/courses";
 import { useHomeAuth } from "./HomeAuthProvider";
 import Link from "next/link";
@@ -106,7 +106,7 @@ export default function HomeFooterClient() {
         </Link>
 
         <a
-          href={HOLVI_STORE_URL}
+          href={SHOP_STORE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="transition hover:text-[#3f51e7]"

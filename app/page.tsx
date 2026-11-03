@@ -6,7 +6,9 @@ import FreeCoursePromoBar from "./home/FreeCoursePromoBar";
 import FreeCourseSignup from "./home/FreeCourseSignup";
 import FreeCourseAccessCard from "./home/FreeCourseAccessCard";
 import OwnedCoursesClient from "./home/OwnedCoursesClient";
+import { Suspense } from "react";
 import CoursesClient from "./home/CoursesClient";
+import CoursesSection from "./home/CoursesSection";
 import HomeWhy from "./home/HomeWhy";
 import HomeScoreLimits from "./home/HomeScoreLimits";
 import HomeSocialClient from "./home/HomeSocialClient";
@@ -75,7 +77,6 @@ const homePageJsonLd = {
   ],
 };
 
-
 export default function HomePage() {
   return (
     <>
@@ -93,7 +94,9 @@ export default function HomePage() {
           <HomeHero />
           <OwnedCoursesClient />
           <FreeCourseAccessCard />
-          <CoursesClient />
+          <Suspense fallback={<CoursesClient />}>
+            <CoursesSection />
+          </Suspense>
           <FreeCourseSignup />
           <HomeWhy />
           <HomeScoreLimits />

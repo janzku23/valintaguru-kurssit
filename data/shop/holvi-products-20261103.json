@@ -1,0 +1,141 @@
+{
+  "source": "https://holvi.com/shop/ValintaGuru/",
+  "retrieved_at": "2026-11-03",
+  "access_policy": "No expiry, explicitly confirmed by owner in this chat",
+  "products": [
+    {
+      "source_url": "https://holvi.com/shop/ValintaGuru/product/2924c4a5d912b3900a8ff64a33acaf86/",
+      "source_product_id": "2924c4a5d912b3900a8ff64a33acaf86",
+      "source_image_url": "https://cdn.holvi.com/media/poolimage.image/2026/09/19/ea612a5da1d3d33ce436c49b7878748a48c48ea3_1100x1100_q85.png",
+      "product": {
+        "slug": "oikis-tiivis",
+        "name": "Oikis Tiivis",
+        "description": "Oikis Tiivis -kurssi on sinulle, joka haluat apua ennakkomateriaalin hallintaan.",
+        "content": "Oikis Tiivis -kurssi on sinulle, joka haluat apua ennakkomateriaalin hallintaan.\nKurssi sisältää: tiivistelmän ennakkomateriaalista, opetuspodcastit ja laaja kysymyspankki oikiksen ennakkomateriaaliosioista.\nHUOM! Kurssin sisältö tarkentuu, kun hakuvaatimukset julkaistaan syksyn 2026 aikana.",
+        "audience": "Oikis Tiivis -kurssi on sinulle, joka haluat apua ennakkomateriaalin hallintaan.",
+        "category": "Oikeustiede",
+        "price_cents": 12900,
+        "sale_price_cents": null,
+        "currency": "EUR",
+        "vat_percentage": 25.5,
+        "course_ids": ["oikis-tiivis"],
+        "access_days": null,
+        "legal_kind": "digital_content",
+        "published": true,
+        "visible": true,
+        "archived": false,
+        "reviewed": true,
+        "sort_order": 0,
+        "image_url": "/holvi/kuvat/oikistiivis.png"
+      }
+    },
+    {
+      "source_url": "https://holvi.com/shop/ValintaGuru/product/cb4c0943e31b1004b46d7896c36e9ce1/",
+      "source_product_id": "cb4c0943e31b1004b46d7896c36e9ce1",
+      "source_image_url": "https://cdn.holvi.com/media/poolimage.image/2026/09/19/2b9ecdec8fd393a4e285e634af5a28b2a710e950_1100x1100_q85.png",
+      "product": {
+        "slug": "oikis-teho",
+        "name": "Oikis Tehokurssi",
+        "description": "Kurssi on suunniteltu sinulle, joka haluat valmistautua valintakoe G:hen ja oikeustieteen eriytyvään osioon tehokkaasti. Tämä kurssi sopii erityisesti hakijalle, joka on hakenut oikeustieteelliseen aiemmin ja jolle oikeudellinen teksti on jo jossain määrin tuttua, tai joka kokee, ettei tarvitse kaikkein kattavinta valmistautumista.",
+        "content": "Oikis Teho – Taitoa, varmuutta ja tehokasta valmistautumista\nKurssi on suunniteltu sinulle, joka haluat valmistautua valintakoe G:hen ja oikeustieteen eriytyvään osioon tehokkaasti. Tämä kurssi sopii erityisesti hakijalle, joka on hakenut oikeustieteelliseen aiemmin ja jolle oikeudellinen teksti on jo jossain määrin tuttua, tai joka kokee, ettei tarvitse kaikkein kattavinta valmistautumista.\nSaat käyttöösi harkitun ja tehokkaan kokonaisuuden, joka tukee sekä osaamisen kehittämistä että onnistumista koetilanteessa.\nSisältää:\n- Valintakoe G - tehokurssin: harjoitustehtäviä, materiaalipankin sekä 4 harjoituspääsykoetta yhteiseen osioon.\n- Oikis Tiivis -materiaalit: tiivistelmä ennakkomateriaalista, opetuspodcastit ja laaja kysymyspankki oikiksen ennakkomateriaaliosioista.\n- Vastaustekniikka oikiksen eriytyvään osioon: opit hahmottamaan kysymysten rakenteen ja välttämään tyypillisimmät virheet\n- 8 harjoitustenttiä sekä 4 pienempää harjoitustehtävää. Tehtävät kehittävät oikeudellista päättelyä, vastausrutiinia ja koetilanteessa tarvittavaa ajattelunopeutta. Näiden avulla harjoittelet oikeustieteen ennakkomateriaalia varten.\nOikis Teho sopii hakijalle, joka haluaa valmistautua tehokkaasti ja keskittyä olennaiseen – selkeään ajatteluun, varmaan suoritukseen ja pisteitä tuottavaan tekemiseen.\n🎯 Kun haluat enemmän, kuin tiivistelmän!",
+        "audience": "Kurssi on suunniteltu sinulle, joka haluat valmistautua valintakoe G:hen ja oikeustieteen eriytyvään osioon tehokkaasti. Tämä kurssi sopii erityisesti hakijalle, joka on hakenut oikeustieteelliseen aiemmin ja jolle oikeudellinen teksti on jo jossain määrin tuttua, tai joka kokee, ettei tarvitse kaikkein kattavinta valmistautumista.",
+        "category": "Oikeustiede",
+        "price_cents": 19900,
+        "sale_price_cents": null,
+        "currency": "EUR",
+        "vat_percentage": 25.5,
+        "course_ids": ["oikis-teho", "oikis-tiivis", "valintakoe-g"],
+        "access_days": null,
+        "legal_kind": "digital_content",
+        "published": true,
+        "visible": true,
+        "archived": false,
+        "reviewed": true,
+        "sort_order": 1,
+        "image_url": "/holvi/kuvat/oikisteho.png"
+      }
+    },
+    {
+      "source_url": "https://holvi.com/shop/ValintaGuru/product/70897e512ad411304a55fb73963baf02/",
+      "source_product_id": "70897e512ad411304a55fb73963baf02",
+      "source_image_url": "https://cdn.holvi.com/media/poolimage.image/2026/09/19/677d69c47fec1a2277e9bade7896b9a0f49c7edf_1100x1100_q85.png",
+      "product": {
+        "slug": "oikis-teho-etaope",
+        "name": "Oikis Teho + etäopetus",
+        "description": "Kurssi on suunniteltu sinulle, joka haluat valmistautua valintakoe G:hen ja oikeustieteen eriytyvään osioon parhaalla mahdollisella tavalla. Tämä kurssi sopii erityisesti ensimmäistä kertaa oikeustieteelliseen hakevalle ja henkilöille, jotka eivät ole vielä tulleet niin tutuksi oikeustieteellisen tekstin kanssa.",
+        "content": "Oikis Teho + etäopetus – Täydellinen paketti oikeustieteellisen hakijalle\nKurssi on suunniteltu sinulle, joka haluat valmistautua valintakoe G:hen ja oikeustieteen eriytyvään osioon parhaalla mahdollisella tavalla. Tämä kurssi sopii erityisesti ensimmäistä kertaa oikeustieteelliseen hakevalle ja henkilöille, jotka eivät ole vielä tulleet niin tutuksi oikeustieteellisen tekstin kanssa.  \nSaat käyttöösi harkitun ja tehokkaan kokonaisuuden, joka tukee sekä osaamisen kehittämistä että onnistumista koetilanteessa.\nSisältää:\n- Valintakoe G - tehokurssin + etäopetukset: harjoitustehtäviä, materiaalipankin sekä 4 harjoituspääsykoetta yhteiseen osioon. Lisäksi 22 oppituntia etäyhteyden välityksellä, joissa käydään lävitse muun muassa kriittistä ja analyyttistä lukemista, tehokasta luku- ja vastaustekniikkaa sekä ajankäyttöä ja koestrategiaa.\n- Oikis Tiivis -materiaalit: tiivistelmä ennakkomateriaalista, opetuspodcastit ja laaja kysymyspankki oikiksen ennakkomateriaaliosioista.\n- Vastaustekniikka oikiksen eriytyvään osioon: opit hahmottamaan kysymysten rakenteen ja välttämään tyypillisimmät virheet\n- 8 harjoitustenttiä sekä 4 pienempää harjoitustehtävää. Tehtävät kehittävät oikeudellista päättelyä, vastausrutiinia ja koetilanteessa tarvittavaa ajattelunopeutta. Näiden avulla harjoittelet oikeustieteen ennakkomateriaalia varten.\n- 2 täysimittaista harjoituskoetta\n- 14 oppituntia etäyhteydellä: käydään yhdessä lävitse oikeustieteen perusteet sekä eri oikeudenalojen yleisiä oppeja, periaatteita ja säädöksiä. \nOikis Teho + etäopetus -kurssi sopii hakijalle, joka haluaa saada kaiken tiedon oikeustieteellisen pääsykokeisiin valmistautumisessa.  \n🎯 Kun haluat valmistautua parhaalla mahdollisella tavalla!",
+        "audience": "Kurssi on suunniteltu sinulle, joka haluat valmistautua valintakoe G:hen ja oikeustieteen eriytyvään osioon parhaalla mahdollisella tavalla. Tämä kurssi sopii erityisesti ensimmäistä kertaa oikeustieteelliseen hakevalle ja henkilöille, jotka eivät ole vielä tulleet niin tutuksi oikeustieteellisen tekstin kanssa.",
+        "category": "Oikeustiede",
+        "price_cents": 37900,
+        "sale_price_cents": null,
+        "currency": "EUR",
+        "vat_percentage": 25.5,
+        "course_ids": [
+          "oikis-teho-etaope",
+          "oikis-tiivis",
+          "valintakoe-g-etaope"
+        ],
+        "access_days": null,
+        "legal_kind": "service",
+        "published": true,
+        "visible": true,
+        "archived": false,
+        "reviewed": true,
+        "sort_order": 2,
+        "image_url": "/holvi/kuvat/oikistehoeta.png"
+      }
+    },
+    {
+      "source_url": "https://holvi.com/shop/ValintaGuru/product/fe710d122cc569aa42c7915c961f2acf/",
+      "source_product_id": "fe710d122cc569aa42c7915c961f2acf",
+      "source_image_url": "https://cdn.holvi.com/media/poolimage.image/2026/09/19/07f9aaa85ccd589d151c14657a017ac78a779f56_1100x1100_q85.png",
+      "product": {
+        "slug": "valintakoe-g",
+        "name": "Valintakoe G Tehokurssi",
+        "description": "Valintakoe G -valmennuskurssi on itsenäisesti suoritettava verkkokurssi, jossa harjoittelet aineistokokeessa tarvittavia taitoja vaiheittain. Kurssi yhdistää selkeät teoriaosuudet, opetusvideot ja runsaan käytännön harjoittelun.",
+        "content": "Valintakoe G 2027 -valmennuskurssi\nValintakoe G -valmennuskurssi on itsenäisesti suoritettava verkkokurssi, jossa harjoittelet aineistokokeessa tarvittavia taitoja vaiheittain. Kurssi yhdistää selkeät teoriaosuudet, opetusvideot ja runsaan käytännön harjoittelun.\nKurssi sisältää:\n\n🎥 Opetusvideot ja teoriat – kriittinen ja analyyttinen lukeminen, tehokas lukutekniikka, tieteellisten tekstien ja tilastojen tulkinta, vastaustekniikka, usean aineiston yhdistäminen sekä ajankäyttö ja koestrategia.\n\n📚 Yli 40 aineistoharjoitusta helpommasta vaativaan – harjoitukset etenevät lyhyemmistä aineistoista kohti pitkiä ja haastavia tieteellisiä tekstejä.\n\n🧠 Valintakokeen taitoja kehittäviä tehtäviä – harjoittelet tarkkaa lukemista, käsitteiden ymmärtämistä ja soveltamista, tiedon yhdistämistä, päätelmien tekemistä sekä hyvin samankaltaisten vastausvaihtoehtojen erottamista.\n\n💡 Perusteelliset vastausselitykset – saat oikean vastauksen lisäksi selityksen siitä, mihin aineiston kohtaan vastaus perustuu ja miksi muut vaihtoehdot ovat vääriä.\n\n⏱️ 4 täysimittaista harjoituskoetta – pääset harjoittelemaan aineistojen käsittelyä, vastaustekniikkaa ja ajankäyttöä kokonaisuutena.\n\nKurssi suoritetaan kokonaan omaan tahtiin, eikä siihen sisälly liveopetusta.",
+        "audience": "Valintakoe G:n vuoden 2027 hakijalle.",
+        "category": "Valintakoe G",
+        "price_cents": 12000,
+        "sale_price_cents": null,
+        "currency": "EUR",
+        "vat_percentage": 25.5,
+        "course_ids": ["valintakoe-g"],
+        "access_days": null,
+        "legal_kind": "digital_content",
+        "published": true,
+        "visible": true,
+        "archived": false,
+        "reviewed": true,
+        "sort_order": 3,
+        "image_url": "/holvi/kuvat/valintakoeg.png"
+      }
+    },
+    {
+      "source_url": "https://holvi.com/shop/ValintaGuru/product/53808fad0e707c2e4a17a92355b58b4a/",
+      "source_product_id": "53808fad0e707c2e4a17a92355b58b4a",
+      "source_image_url": "https://cdn.holvi.com/media/poolimage.image/2026/09/19/b9e635b55e8da70d433d5121e804a1c2fe938ada_1100x1100_q85.png",
+      "product": {
+        "slug": "valintakoe-g-etaope",
+        "name": "Valintakoe G Tehokurssi + etäopetus",
+        "description": "Etävalmennus yhdistää kattavan verkkokurssin ja 22 tuntia opettajajohtoista etäopetusta keväällä 2027. Valmennuksessa saat tukea paitsi itse valintakokeeseen valmistautumiseen myös koko hakukevään etenemiseen.",
+        "content": "Valintakoe G 2027 – Etävalmennus\nEtävalmennus yhdistää kattavan verkkokurssin ja 22 tuntia opettajajohtoista etäopetusta keväällä 2027. Valmennuksessa saat tukea paitsi itse valintakokeeseen valmistautumiseen myös koko hakukevään etenemiseen.\nKurssi sisältää:\n\n22 tuntia etäopetusta – kriittinen ja analyyttinen lukeminen, tehokas lukutekniikka, tieteellisten tekstien ja tilastojen tulkinta, vastaustekniikka, usean aineiston yhdistäminen sekä ajankäyttö ja koestrategia.\n\nTukea koko hakukevään ajan – opetuskerroilla käsitellään myös koepaineiden ja jännityksen hallintaa, opiskelun suunnittelua sekä hakemiseen liittyviä käytännön kysymyksiä ja hakuohjausta.\n\nOpetusvideot ja kattavat teoriat, joihin voit palata koko kurssin ajan.\n\nYli 40 aineistoharjoitusta – lyhyemmistä aineistoista edetään kohti pidempiä ja vaativampia tieteellisiä aineistoja.\n\nMonipuoliset valintakoetyyliset tehtävät, joissa harjoittelet tarkkaa lukemista, käsitteiden soveltamista, päättelyä ja tiedon yhdistämistä.\n\nPerusteelliset vastausselitykset – näet, mihin aineiston kohtaan oikea vastaus perustuu ja miksi muut vaihtoehdot ovat vääriä.\n\n4 täysimittaista harjoituskoetta, joissa harjoittelet koetilannetta, ajankäyttöä ja vastausstrategiaa.\n\nHarjoituskokeiden yhteiset läpikäynnit etäluennoilla – tehtävät ja oikeat vastaukset käydään opettajien kanssa läpi, ja samalla puretaan vaikeimmat kohdat ja yleisimmät virheet.\n\nMahdollisuus kysyä opettajilta ja saada henkilökohtaisempaa tukea koko valmennuksen ajan.\n\nEtävalmennuksen tavoitteena on, että sinun ei tarvitse selvitä hakukeväästä yksin: saat ohjausta harjoitteluun, valintakokeeseen, hakemiseen ja koepaineiden hallintaan aina valintakokeeseen asti.",
+        "audience": "Valintakoe G:n vuoden 2027 hakijalle.",
+        "category": "Valintakoe G",
+        "price_cents": 27900,
+        "sale_price_cents": null,
+        "currency": "EUR",
+        "vat_percentage": 25.5,
+        "course_ids": ["valintakoe-g-etaope"],
+        "access_days": null,
+        "legal_kind": "service",
+        "published": true,
+        "visible": true,
+        "archived": false,
+        "reviewed": true,
+        "sort_order": 4,
+        "image_url": "/holvi/kuvat/valintakoegeta.png"
+      }
+    }
+  ]
+}

@@ -14,6 +14,7 @@ const date = (value: string) => new Intl.DateTimeFormat("fi-FI", { dateStyle: "m
 const str = (value: unknown) => typeof value === "string" ? value : "";
 const daysBetween = (a: string, b: string) => Math.round((Date.parse(a + "T12:00:00Z") - Date.parse(b + "T12:00:00Z")) / DAY);
 const nav = [
+  ["/admin/kauppa", "Verkkokauppa", "Tuotteet, tilaukset ja palautukset"],
   ["/admin/kayttajat", "Käyttäjät", "Opiskelijat ja kurssit"],
   ["/admin/oikeudet", "Kurssioikeudet", "Hallitse käyttöoikeuksia"],
   ["/admin/edistyminen", "Edistyminen", "Oppiminen ja tulokset"],

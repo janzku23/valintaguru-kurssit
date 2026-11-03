@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test:shop": "node --test scripts/test-shop.cjs",
+    "test:shop:sql": "node --test scripts/test-shop-sql.cjs",
+    "test:admin": "node --test scripts/test-admin-dashboard.cjs",
+    "test": "npm run test:shop && npm run test:shop:sql && npm run test:admin",
+    "check:shop": "node scripts/check-shop-environment.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
@@ -20,6 +26,7 @@
     "react-pdf": "^10.4.1"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.15",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

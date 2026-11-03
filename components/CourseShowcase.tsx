@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import Image from "next/image";
+import { money } from "@/lib/shop/types";
+import type { CourseOffers } from "@/lib/shop/offers";
 import type { Course, CourseId } from "@/data/courses";
-import {
-  COURSE_PRICES,
-  HOLVI_STORE_URL,
-  isCoursePurchasable,
-} from "@/data/courses";
+import { SHOP_STORE_URL } from "@/data/courses";
 
 type Props = {
   courses: Course[];
   ownedCourseIds: CourseId[];
+  offers?: CourseOffers;
 };
 
 type FilterId = "all" | "oikis" | "g";
@@ -29,8 +29,7 @@ const FILTERS: Array<{ id: FilterId; label: string }> = [
 ];
 
 const COURSE_IMAGES: Partial<Record<CourseId, string>> = {
-  oikis: 
-  "/holvi/kuvat/kysbank.png",
+  oikis: "/holvi/kuvat/kysbank.png",
   "oikis-tiivis": "/holvi/kuvat/oikistiivis.png",
   "oikis-teho": "/holvi/kuvat/oikisteho.png",
   "oikis-teho-etaope": "/holvi/kuvat/oikistehoeta.png",
@@ -95,67 +94,40 @@ function getPresentation(course: Course): CoursePresentation {
   );
 }
 
-function getPurchaseUrl(course: Course) {
-  if (!isCoursePurchasable(course.id)) {
-    return null;
-  }
-
-  if (
-    typeof course.purchaseUrl === "string" &&
-    course.purchaseUrl.trim().length > 0 &&
-    course.purchaseUrl !== HOLVI_STORE_URL
-  ) {
-    return course.purchaseUrl;
-  }
-
-  return null;
-}
-
 export default function CourseShowcase({
   courses,
   ownedCourseIds,
+  offers = {},
 }: Props) {
   const [filter, setFilter] = useState<FilterId>("all");
   const [activeIndex, setActiveIndex] = useState(0);
 
   const visibleCourses = useMemo(() => {
-    const showcaseCourses = courses.filter(
-      (course) => course.id !== "yo"
-    );
+    const showcaseCourses = courses.filter((course) => course.id !== "yo");
 
     if (filter === "all") {
       return showcaseCourses;
     }
 
     return showcaseCourses.filter(
-      (course) => getPresentation(course).category === filter
+      (course) => getPresentation(course).category === filter,
     );
   }, [courses, filter]);
 
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [filter]);
-
-  useEffect(() => {
-    if (activeIndex > visibleCourses.length - 1) {
-      setActiveIndex(0);
-    }
-  }, [activeIndex, visibleCourses.length]);
+  const currentIndex = activeIndex < visibleCourses.length ? activeIndex : 0;
 
   if (visibleCourses.length === 0) {
     return null;
   }
 
   function previous() {
-    setActiveIndex((current) =>
-      current === 0 ? visibleCourses.length - 1 : current - 1
+    setActiveIndex(
+      (currentIndex + visibleCourses.length - 1) % visibleCourses.length,
     );
   }
 
   function next() {
-    setActiveIndex((current) =>
-      current === visibleCourses.length - 1 ? 0 : current + 1
-    );
+    setActiveIndex((currentIndex + 1) % visibleCourses.length);
   }
 
   function relativePosition(index: number) {
@@ -165,7 +137,7 @@ export default function CourseShowcase({
       return 0;
     }
 
-    let position = index - activeIndex;
+    let position = index - currentIndex;
 
     if (position > total / 2) {
       position -= total;
@@ -203,7 +175,10 @@ export default function CourseShowcase({
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setFilter(item.id)}
+                  onClick={() => {
+                    setFilter(item.id);
+                    setActiveIndex(0);
+                  }}
                   className={`rounded-full px-4 py-2 text-sm font-black transition ${
                     active
                       ? "bg-slate-950 text-white shadow-sm"
@@ -217,7 +192,7 @@ export default function CourseShowcase({
           </div>
 
           <a
-            href={HOLVI_STORE_URL}
+            href={SHOP_STORE_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-6 inline-flex items-center gap-2 text-sm font-black text-[#3f51e7] transition hover:text-[#3142d6]"
@@ -241,8 +216,9 @@ export default function CourseShowcase({
                 const isVisible = absPosition <= 1;
                 const presentation = getPresentation(course);
                 const owned = ownedCourseIds.includes(course.id);
-                const purchaseUrl = getPurchaseUrl(course);
-                const price = COURSE_PRICES[course.id];
+                const offer = offers[course.id];
+                const purchaseUrl = offer?.href;
+                const price = offer ? money(offer.priceCents) : null;
                 const courseImage = COURSE_IMAGES[course.id];
 
                 const transform =
@@ -316,7 +292,8 @@ export default function CourseShowcase({
                         <div className="mt-auto flex min-h-12 items-end justify-between gap-2 border-t border-slate-100 pt-4">
                           {!isActive ? (
                             <p className="text-[9px] font-black uppercase tracking-[0.11em] text-slate-400 sm:text-[11px] sm:tracking-[0.13em]">
-                              {position < 0 ? "Edellinen" : "Seuraava"} · klikkaa
+                              {position < 0 ? "Edellinen" : "Seuraava"} ·
+                              klikkaa
                             </p>
                           ) : owned ? (
                             <a
@@ -350,12 +327,12 @@ export default function CourseShowcase({
                                   onClick={(event) => event.stopPropagation()}
                                   className="ml-auto inline-flex shrink-0 items-center justify-center gap-1 rounded-full bg-[#3f51e7] px-3 py-2 text-[10px] font-black text-white shadow-sm transition hover:bg-[#3142d6] sm:px-4 sm:text-xs"
                                 >
-                                  Osta Holvista
+                                  Tutustu ja osta
                                   <span aria-hidden="true">↗</span>
                                 </a>
                               ) : (
                                 <a
-                                  href={HOLVI_STORE_URL}
+                                  href={SHOP_STORE_URL}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   onClick={(event) => event.stopPropagation()}
@@ -376,8 +353,11 @@ export default function CourseShowcase({
                         <div className="pointer-events-none absolute -bottom-10 -left-8 h-24 w-24 rounded-full bg-[#f3a31b]/10" />
 
                         {courseImage ? (
-                          <img
+                          <Image
                             src={courseImage}
+                            width={600}
+                            height={600}
+                            sizes="(max-width: 640px) 40vw, 280px"
                             alt={`${course.title} – ValintaGuru`}
                             loading="lazy"
                             className={`relative z-10 max-h-[220px] w-full object-contain transition-all duration-500 sm:max-h-[250px] ${
@@ -430,9 +410,9 @@ export default function CourseShowcase({
                   type="button"
                   onClick={() => setActiveIndex(index)}
                   aria-label={`Näytä kurssi ${index + 1}`}
-                  aria-current={index === activeIndex ? "true" : undefined}
+                  aria-current={index === currentIndex ? "true" : undefined}
                   className={`h-2.5 rounded-full transition-all ${
-                    index === activeIndex
+                    index === currentIndex
                       ? "w-7 bg-[#3f51e7]"
                       : "w-2.5 bg-slate-300 hover:bg-slate-400"
                   }`}

@@ -1,0 +1,141 @@
+{
+  "source": "Read-only live Supabase PostgREST OpenAPI; no row values requested",
+  "tableNames": [
+    "calendar_invites",
+    "guru_game_penalties",
+    "guru_game_events",
+    "yo_guru_game_profiles",
+    "free_course_exam_attempts",
+    "valintakoe_g_exercise_attempts",
+    "student_progress_attempts",
+    "calendar_entitlements",
+    "study_goals",
+    "practice_exam_attempts",
+    "admin_workspace_records",
+    "calendar_groups",
+    "guru_game_profiles",
+    "calendar_events_visible",
+    "calendar_categories",
+    "calendar_notes",
+    "support_inquiries",
+    "valintakoe_g_reading_categories",
+    "calendar_user_profiles",
+    "student_courses",
+    "guru_game_course_progress",
+    "calendar_events",
+    "course_entitlements",
+    "valintakoe_g_question_metadata",
+    "calendar_members",
+    "student_flashcard_progress",
+    "calendar_member_directory",
+    "free_course_signups",
+    "newsletter_preferences"
+  ],
+  "definitions": {
+    "student_courses": {
+      "required": [
+        "id",
+        "email",
+        "course_id",
+        "status",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "user_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "email": {
+          "format": "text",
+          "type": "string"
+        },
+        "course_id": {
+          "format": "text",
+          "type": "string"
+        },
+        "course_slug": {
+          "format": "text",
+          "type": "string"
+        },
+        "status": {
+          "default": "active",
+          "format": "text",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        },
+        "course_title": {
+          "format": "text",
+          "type": "string"
+        },
+        "title": {
+          "format": "text",
+          "type": "string"
+        },
+        "updated_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "course_entitlements": {
+      "required": [
+        "id",
+        "email",
+        "course_slug",
+        "status",
+        "created_at"
+      ],
+      "properties": {
+        "id": {
+          "default": "gen_random_uuid()",
+          "description": "Note:\nThis is a Primary Key.<pk/>",
+          "format": "uuid",
+          "type": "string"
+        },
+        "email": {
+          "format": "text",
+          "type": "string"
+        },
+        "course_slug": {
+          "format": "text",
+          "type": "string"
+        },
+        "shopify_order_id": {
+          "format": "text",
+          "type": "string"
+        },
+        "shopify_product_id": {
+          "format": "text",
+          "type": "string"
+        },
+        "shopify_variant_id": {
+          "format": "text",
+          "type": "string"
+        },
+        "status": {
+          "default": "active",
+          "format": "text",
+          "type": "string"
+        },
+        "created_at": {
+          "default": "now()",
+          "format": "timestamp with time zone",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

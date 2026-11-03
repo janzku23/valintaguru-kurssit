@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import logo from "../../assets/logo.png";
 import { useHomeAuth } from "./HomeAuthProvider";
 import InquiryStatusLink from "@/components/inquiries/InquiryStatusLink";
@@ -13,7 +14,7 @@ export default function HomeHeaderClient() {
   return (
       <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-5 sm:py-4 md:px-8">
-          <a
+          <Link
             href="/"
             className="flex min-w-0 items-center gap-2 sm:gap-3"
             onClick={() => setMobileMenuOpen(false)}
@@ -31,49 +32,50 @@ export default function HomeHeaderClient() {
             <span className="truncate font-serif text-lg font-semibold tracking-tight min-[390px]:text-xl sm:text-2xl">
               ValintaGuru
             </span>
-          </a>
+          </Link>
 
           <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-700 lg:flex">
             <InquiryStatusLink key={user?.id ?? "guest"} />
+            <Link href="/kauppa" className="transition hover:text-[#3f51e7]">Kauppa</Link>
 
-            <a
+            <Link
               href="/valintakoe-g"
               className="transition hover:text-[#3f51e7]"
             >
               Valintakoe G
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/oikeustiede"
               className="transition hover:text-[#3f51e7]"
             >
               Oikeustiede
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/valintakoe-g-pisterajat"
               className="transition hover:text-[#3f51e7]"
             >
               Pisterajat
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/tietoa-meista"
               className="transition hover:text-[#3f51e7]"
             >
               Tietoa meistä
-            </a>
+            </Link>
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <a
-              href="#kurssit"
+            <Link
+              href="/#kurssit"
               className="hidden rounded-full border border-slate-300 px-5 py-2.5 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7] lg:inline-flex"
             >
               Tutustu kursseihin
-            </a>
+            </Link>
 
-            <a
+            <Link
               href={isLoggedIn ? "/profiili" : "/kirjaudu"}
               className="hidden whitespace-nowrap rounded-full bg-[#3f51e7] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:-translate-y-0.5 hover:bg-[#3142d6] sm:inline-flex"
             >
@@ -82,7 +84,7 @@ export default function HomeHeaderClient() {
                 : isLoggedIn
                   ? "Oma profiili"
                   : "Kirjaudu"}
-            </a>
+            </Link>
 
             <button
               type="button"
@@ -130,59 +132,60 @@ export default function HomeHeaderClient() {
           >
             <div className="mx-auto max-w-7xl px-4 py-4 sm:px-5 md:px-8">
               <nav className="flex flex-col gap-2">
+                <Link href="/kauppa" onClick={() => setMobileMenuOpen(false)} className="rounded-2xl px-4 py-3.5 font-bold text-slate-800">Kauppa →</Link>
                 <InquiryStatusLink
                   key={user?.id ?? "guest"}
                   mobile
                   onNavigate={() => setMobileMenuOpen(false)}
                 />
 
-                <a
+                <Link
                   href="/valintakoe-g"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
                 >
                   <span>Valintakoe G</span>
                   <span className="text-xl text-slate-400">›</span>
-                </a>
+                </Link>
 
-                <a
+                <Link
                   href="/oikeustiede"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
                 >
                   <span>Oikeustiede</span>
                   <span className="text-xl text-slate-400">›</span>
-                </a>
+                </Link>
 
-                <a
+                <Link
                   href="/valintakoe-g-pisterajat"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
                 >
                   <span>Pisterajat</span>
                   <span className="text-xl text-slate-400">›</span>
-                </a>
+                </Link>
 
-                <a
+                <Link
                   href="/tietoa-meista"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-between rounded-2xl px-4 py-3.5 font-bold text-slate-800 transition hover:bg-indigo-50 hover:text-[#3f51e7]"
                 >
                   <span>Tietoa meistä</span>
                   <span className="text-xl text-slate-400">›</span>
-                </a>
+                </Link>
               </nav>
 
               <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
-                <a
-                  href="#kurssit"
+                <Link
+                  href="/#kurssit"
                   onClick={() => setMobileMenuOpen(false)}
                   className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3.5 text-center font-bold text-slate-900 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
                 >
                   Tutustu kursseihin
-                </a>
+                </Link>
 
-                <a
+                <Link
                   href={isLoggedIn ? "/profiili" : "/kirjaudu"}
                   onClick={() => setMobileMenuOpen(false)}
                   className="inline-flex items-center justify-center rounded-full bg-[#3f51e7] px-5 py-3.5 text-center font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-[#3142d6]"
@@ -192,7 +195,7 @@ export default function HomeHeaderClient() {
                     : isLoggedIn
                       ? "Oma profiili"
                       : "Kirjaudu"}
-                </a>
+                </Link>
               </div>
             </div>
           </div>
