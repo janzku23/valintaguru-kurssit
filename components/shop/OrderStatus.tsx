@@ -124,13 +124,8 @@ export default function OrderStatus({ id }: { id: string }) {
               <div className="vg-shop-note">
                 <strong>Kirjautuminen kursseille</strong>
                 <p>
-                  {order.access_email_sent
-                    ? "Kirjautumislinkin lähetys on hyväksytty. Tarkista myös roskapostikansio."
-                    : "Kirjautumislinkki lähetetään tilauksella annettuun sähköpostiin. Sähköpostin lähetys ei vaikuta maksuun tai toimitettuihin oikeuksiin."}
-                </p>
-                <p>
-                  Jos sinulla on jo tunnus, voit käyttää nykyistä salasanaasi.
-                  Vanhentuneen linkin voit uusia kirjautumissivulta.
+                  Uusi käyttäjä saa sähköpostikutsun salasanan asettamista varten.
+                  Jos sinulla on jo tunnus, kirjaudu nykyisellä salasanallasi.
                 </p>
                 <div className="vg-shop-actions">
                   <Link href="/kirjaudu" className="vg-shop-btn">

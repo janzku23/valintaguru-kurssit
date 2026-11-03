@@ -1,5 +1,4 @@
 import "server-only";
-import { createClient } from "@supabase/supabase-js";
 import {
   db,
   itemsForOrder,
@@ -59,21 +58,21 @@ export async function processJobs(orderId?: string, limit = 3) {
       else if (job.kind === "access") {
         if (order.fulfillment_status !== "delivered")
           throw new Error("not_delivered");
-        // Uses the EXISTING Resend SMTP configuration and Supabase's one-use expiring link.
-        // Never confirms email or changes password on the basis of a payment.
-        const auth = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          { auth: { persistSession: false, autoRefreshToken: false } },
-        );
-        const { error } = await auth.auth.signInWithOtp({
-          email: order.email,
-          options: {
-            shouldCreateUser: false,
-            emailRedirectTo: `${shopConfig().site}/aseta-salasana`,
-          },
-        });
-        if (error) throw new Error("auth_email_failed");
+        if (!order.user_id) throw new Error("missing_order_user");
+        const admin = db().auth.admin;
+        const { data, error } = await admin.getUserById(order.user_id);
+        const user = data?.user;
+        if (error || !user) throw new Error("order_user_lookup_failed");
+        // Existing confirmed accounts already have access through their usual login.
+        if (!user.email_confirmed_at) {
+          if (user.email?.toLowerCase() !== order.email.toLowerCase())
+            throw new Error("order_user_email_mismatch");
+          const invite = await admin.inviteUserByEmail(order.email, {
+            redirectTo: `${shopConfig().site}/aseta-salasana`,
+          });
+          if (invite.error || invite.data?.user?.id !== user.id)
+            throw new Error("auth_invite_failed");
+        }
       } else {
         // Skip stale pending notifications if the payment has since completed.
         if (job.kind !== "pending" || order.status === "unpaid")

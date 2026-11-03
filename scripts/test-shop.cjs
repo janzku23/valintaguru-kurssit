@@ -193,6 +193,7 @@ function jobHarness({
   status = "paid",
   createFails = false,
   emailFails = false,
+  confirmed = false,
 } = {}) {
   let calls = [],
     claimed = false;
@@ -209,6 +210,7 @@ function jobHarness({
     status,
     mode: "test",
     fulfillment_status: "pending",
+    user_id: a,
   };
   const chain = {
     update: (body) => {
@@ -222,6 +224,14 @@ function jobHarness({
     from: () => chain,
     auth: {
       admin: {
+        getUserById: async () => ({
+          data: { user: { id: a, email: order.email, email_confirmed_at: confirmed ? "confirmed" : undefined } },
+          error: null,
+        }),
+        inviteUserByEmail: async (email, options) => {
+          calls.push(["invite", email, options]);
+          return { data: { user: { id: a } }, error: null };
+        },
         createUser: async (input) => {
           calls.push(["create", input]);
           return createFails
@@ -259,16 +269,6 @@ function jobHarness({
         if (emailFails) throw Error("email_failed");
       },
     },
-    "@supabase/supabase-js": {
-      createClient: () => ({
-        auth: {
-          signInWithOtp: async (input) => {
-            calls.push(["otp", input]);
-            return { error: null };
-          },
-        },
-      }),
-    },
   })("lib/shop/jobs.ts");
   return { jobs, calls, job, order };
 }
@@ -294,17 +294,20 @@ test("existing users and concurrent user creation reuse the original Auth identi
     if (config.existing) assert.ok(!h.calls.some((c) => c[0] === "create"));
   }
 });
-test("auth email uses existing SMTP, disallows signup and returns no session to purchaser (mock SMTP)", async () => {
-  const h = jobHarness();
-  h.job.kind = "access";
-  h.order.fulfillment_status = "delivered";
-  await h.jobs.processJobs(a, 1);
-  const otp = h.calls.find((c) => c[0] === "otp")[1];
-  assert.equal(otp.options.shouldCreateUser, false);
-  assert.equal(
-    otp.options.emailRedirectTo,
-    "https://example.test/aseta-salasana",
-  );
+test("access job uses the Supabase invitation for unconfirmed accounts and skips confirmed accounts", async () => {
+  for (const confirmed of [false, true]) {
+    const h = jobHarness({ confirmed });
+    h.job.kind = "access";
+    h.order.fulfillment_status = "delivered";
+    assert.equal((await h.jobs.processJobs(a, 1)).completed, 1);
+    const invite = h.calls.find((c) => c[0] === "invite");
+    if (confirmed) assert.equal(invite, undefined);
+    else assert.deepEqual(invite, [
+      "invite",
+      h.order.email,
+      { redirectTo: "https://example.test/aseta-salasana" },
+    ]);
+  }
 });
 test("failed email remains retryable and does not undo payment or course rights (mock Resend)", async () => {
   const h = jobHarness({ emailFails: true });
@@ -357,6 +360,8 @@ test("Resend receipt includes immutable terms and uses a stable idempotency key 
     const body = JSON.parse(sent.init.body);
     assert.ok(body.html.includes("&lt;Course&gt;"));
     assert.ok(body.text.includes("Frozen terms"));
+    assert.ok(!body.html.includes("/kirjaudu"));
+    assert.ok(!body.text.includes("/kirjaudu"));
     assert.ok(body.subject.startsWith("[TESTI]"));
     delete process.env.SUPPORT_FROM_EMAIL;
     await email.sendOrderEmail(

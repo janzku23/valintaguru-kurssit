@@ -21,7 +21,7 @@ export async function sendOrderEmail(
   const config = shopConfig();
   let subject = `Tilausvahvistus #${order.number}`,
     intro = order.new_user
-      ? "Tervetuloa ValintaGuruun! Maksusi on vahvistettu ja kurssisi ovat käytössä."
+      ? "Kiitos tilauksestasi! Maksusi on vahvistettu. Saat erillisen sähköpostikutsun, jonka kautta voit asettaa salasanasi."
       : "Kiitos tilauksestasi! Maksusi on vahvistettu ja ostamasi kurssit on lisätty tunnuksellesi.";
   if (job.kind === "pending") {
     subject = `Maksu odottaa vahvistusta #${order.number}`;
@@ -62,12 +62,10 @@ export async function sendOrderEmail(
     refundAmount === null ? "" : `Palautus ${money(refundAmount)}`,
     consent,
     ...order.terms_snapshot.paragraphs,
-    "Kirjautumislinkki lähetetään erikseen Supabase Authin kautta. Jos linkki vanhenee, pyydä uusi kirjautumissivulta.",
-    `${config.site}/kirjaudu`,
     `Peruuta sopimus: ${config.site}/kauppa/peruuta`,
     "Asiakaspalvelu: info@valintaguru.com",
   ].join("\n\n");
-  const markup = `<div style="background:#f5f8ff;padding:32px 16px;font-family:Arial,sans-serif;color:#0f172a"><div style="max-width:620px;margin:auto;background:white;border-radius:28px;padding:32px"><img src="${config.site}/logo.png" alt="ValintaGuru" width="52" height="52"><h1 style="font-family:Georgia,serif">${html(subject)}</h1><p>${html(intro)}</p><p>Tilaus #${order.number}</p><ul>${items.map((i) => `<li>${html(i.name)} – ${money(i.total_cents)}<br>sis. ALV ${i.vat_percentage} %${i.access_days === null ? "" : `, ${accessDuration(i.access_days)}`}</li>`).join("")}</ul><p><strong>Tilauksen summa ${money(order.amount_cents)}</strong></p><p>${html(consent)}</p><p><a style="display:inline-block;padding:14px 24px;background:#3f51e7;border-radius:24px;color:white;text-decoration:none" href="${config.site}/kirjaudu">Kirjaudu ValintaGuruun</a></p><p>Turvallinen kirjautumislinkki saapuu erikseen. Vanhentuneen linkin voi uusia kirjautumissivulta.</p><details><summary>Osto- ja toimitusehdot</summary>${order.terms_snapshot.paragraphs.map((p) => `<p>${html(p)}</p>`).join("")}</details><p><a href="${config.site}/kauppa/peruuta">Peruuta sopimus</a></p><p>info@valintaguru.com · <a href="${config.site}">ValintaGuru</a></p></div></div>`;
+  const markup = `<div style="background:#f5f8ff;padding:32px 16px;font-family:Arial,sans-serif;color:#0f172a"><div style="max-width:620px;margin:auto;background:white;border-radius:28px;padding:32px"><img src="${config.site}/logo.png" alt="ValintaGuru" width="52" height="52"><h1 style="font-family:Georgia,serif">${html(subject)}</h1><p>${html(intro)}</p><p>Tilaus #${order.number}</p><ul>${items.map((i) => `<li>${html(i.name)} – ${money(i.total_cents)}<br>sis. ALV ${i.vat_percentage} %${i.access_days === null ? "" : `, ${accessDuration(i.access_days)}`}</li>`).join("")}</ul><p><strong>Tilauksen summa ${money(order.amount_cents)}</strong></p><p>${html(consent)}</p><details><summary>Osto- ja toimitusehdot</summary>${order.terms_snapshot.paragraphs.map((p) => `<p>${html(p)}</p>`).join("")}</details><p><a href="${config.site}/kauppa/peruuta">Peruuta sopimus</a></p><p>info@valintaguru.com · <a href="${config.site}">ValintaGuru</a></p></div></div>`;
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
