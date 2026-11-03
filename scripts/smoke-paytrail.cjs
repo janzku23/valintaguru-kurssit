@@ -47,12 +47,14 @@ async function call(method, route, body = "", tx) {
 }
 (async () => {
   const stamp = randomUUID();
+  const reference = "1";
+  const { safePaytrailHref } = require("./shop-test-loader.cjs")()("lib/shop/paytrail.ts");
   const created = await call(
     "POST",
     "/payments",
     JSON.stringify({
       stamp,
-      reference: stamp,
+      reference,
       amount: 100,
       currency: "EUR",
       language: "FI",
@@ -72,13 +74,14 @@ async function call(method, route, body = "", tx) {
     }),
   );
   const tx = created.data.transactionId;
+  safePaytrailHref(created.data.href, tx);
   const got = await call("GET", "/payments/" + tx, "", tx);
   core.assertPaymentMatch(got.data, {
     transactionId: tx,
     amount: 100,
     currency: "EUR",
     stamp,
-    reference: stamp,
+    reference,
   });
   console.log(
     JSON.stringify(

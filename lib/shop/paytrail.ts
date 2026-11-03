@@ -75,12 +75,14 @@ export async function paytrail<T>(
     requestId: response.headers.get("request-id"),
   };
 }
-export function safePaytrailHref(href: string) {
+export function safePaytrailHref(href: string, transaction?: string) {
   const url = new URL(href);
   if (
     url.protocol !== "https:" ||
-    url.hostname !== "services.paytrail.com" ||
+    !["services.paytrail.com", "pay.paytrail.com"].includes(url.hostname) ||
+    url.port ||
     !url.pathname.startsWith("/pay/") ||
+    (transaction !== undefined && url.pathname !== `/pay/${transaction}`) ||
     url.username ||
     url.password
   )

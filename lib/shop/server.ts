@@ -154,7 +154,7 @@ export async function createPayment(order: Order) {
   const payment = result.payment;
   if (!result.created) {
     if (payment.href && ["new", "pending", "delayed"].includes(payment.status))
-      return safePaytrailHref(payment.href);
+      return safePaytrailHref(payment.href, payment.transaction_id ?? undefined);
     throw new Error(
       "Maksua käsitellään. Tarkista tilauksen tila ennen uutta maksuyritystä.",
     );
@@ -186,9 +186,10 @@ export async function createPayment(order: Order) {
         callbackUrls: { success: callback, cancel: callback },
       },
     );
-    if (!uuid(data.transactionId) || data.reference !== String(order.number))
+    // Create returns a settlement reference. The signed GET verifies the order reference.
+    if (!uuid(data.transactionId))
       throw new Error("Virheellinen maksuvastaus.");
-    const href = safePaytrailHref(data.href);
+    const href = safePaytrailHref(data.href, data.transactionId);
     const { error } = await db()
       .from("shop_payments")
       .update({
@@ -244,6 +245,16 @@ export async function reconcilePayment(
     p_provider: data.provider ?? null,
     p_request: requestId,
   });
+  if (data.status === "new" && data.href && !payment.href) {
+    const href = safePaytrailHref(data.href, transaction);
+    const { error } = await db()
+      .from("shop_payments")
+      .update({ href })
+      .eq("id", payment.id)
+      .eq("transaction_id", transaction)
+      .eq("status", "new");
+    if (error) throw new Error("Maksulinkin tallennus epäonnistui.");
+  }
   return { order, info: data };
 }
 export async function verifyCallback(request: Request) {
@@ -271,7 +282,6 @@ export async function validatedCallbackPayment(request: Request) {
     order = await orderById(payment.order_id);
   if (
     fields["checkout-amount"] !== String(order.amount_cents) ||
-    fields["checkout-reference"] !== String(order.number) ||
     !["ok", "fail", "pending", "delayed"].includes(fields["checkout-status"])
   )
     throw new Error("Callback ei vastaa tilausta.");

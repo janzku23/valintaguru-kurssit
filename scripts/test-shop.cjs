@@ -151,6 +151,11 @@ test("Paytrail redirect cannot send visitors to arbitrary hosts (mock transport)
     api.safePaytrailHref("https://services.paytrail.com/pay/" + a),
     "https://services.paytrail.com/pay/" + a,
   );
+  assert.equal(
+    api.safePaytrailHref("https://pay.paytrail.com/pay/" + a, a),
+    "https://pay.paytrail.com/pay/" + a,
+  );
+  assert.throws(() => api.safePaytrailHref("https://pay.paytrail.com/pay/" + a, b));
   for (const url of [
     "javascript:alert(1)",
     "https://evil.test/pay/x",

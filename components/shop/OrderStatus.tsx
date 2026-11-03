@@ -51,7 +51,8 @@ export default function OrderStatus({ id }: { id: string }) {
   }
   const paid = !!order && order.status !== "unpaid",
     failed = order?.payment_status === "fail",
-    refunded = order?.status === "refunded";
+    refunded = order?.status === "refunded",
+    unconfirmedLink = order?.payment_status === "unknown" || order?.payment_status === "creating";
   return (
     <main className="vg-shop-section">
       <section
@@ -73,7 +74,9 @@ export default function OrderStatus({ id }: { id: string }) {
                 ? "Maksusi on vahvistettu."
                 : failed
                   ? "Maksu ei onnistunut."
-                  : "Maksu odottaa vahvistusta."}
+                  : unconfirmedLink
+                    ? "Maksulinkin tila on epäselvä."
+                    : "Maksu odottaa vahvistusta."}
         </h1>
         {order && (
           <>
@@ -89,7 +92,9 @@ export default function OrderStatus({ id }: { id: string }) {
                     : "Valmistelemme kurssioikeuksiasi. Jos toimitus viivästyy, järjestelmä yrittää automaattisesti uudelleen."
                   : failed
                     ? "Maksu keskeytettiin tai maksunvälittäjä hylkäsi sen. Voit yrittää uudelleen. Ostoskorisi on säilytetty."
-                    : "Maksunvälittäjä ei ole vielä vahvistanut maksua. Kurssia ei ole avattu. Voit sulkea selaimen: vahvistus käsitellään palvelimella ja saat sähköpostin maksun vahvistuttua."}
+                    : unconfirmedLink
+                      ? "Maksulinkkiä ei saatu vahvistettua. Ota yhteyttä asiakaspalveluun ja kerro tilausnumero."
+                      : "Maksunvälittäjä ei ole vielä vahvistanut maksua. Kurssia ei ole avattu. Voit sulkea selaimen: vahvistus käsitellään palvelimella ja saat sähköpostin maksun vahvistuttua."}
             </p>
             {order.status === "partially_refunded" && (
               <p className="vg-shop-note">
