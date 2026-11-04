@@ -12,6 +12,11 @@ import {
 } from "@/lib/shop/server";
 import { productIds, uuid } from "@/lib/shop/core";
 import { shopConfig } from "@/lib/shop/config";
+import {
+  checkoutConsent,
+  checkoutConsentVersion,
+} from "@/lib/shop/checkout-consent";
+import type { Quote } from "@/lib/shop/types";
 import { SHOP_TERMS } from "@/lib/shop/terms";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
@@ -39,19 +44,41 @@ export async function POST(request: Request) {
       !Number.isSafeInteger(body.expectedAmount)
     )
       throw new Error("Virheellinen ostoskori tai suostumus.");
+    const products = productIds(body.productIds);
+    const code = typeof body.code === "string" ? body.code.slice(0, 40) : "";
+    const consentTexts: string[] = [];
+    if (body.consentVersion === checkoutConsentVersion) {
+      const quote = await rpc<Quote>("shop_quote", {
+        p_products: products,
+        p_code: code,
+      });
+      consentTexts.push(checkoutConsent.immediate);
+      if (quote.items.some((item) => item.legal_kind === "digital_content")) {
+        if (body.withdrawalAck !== true)
+          throw new Error("Virheellinen ostoskori tai suostumus.");
+        consentTexts.push(checkoutConsent.digital);
+      }
+      if (quote.items.some((item) => item.legal_kind === "service")) {
+        if (body.serviceAck !== true)
+          throw new Error("Virheellinen ostoskori tai suostumus.");
+        consentTexts.push(checkoutConsent.service);
+      }
+    }
     const key = createHmac("sha256", config.internalSecret)
       .update(`${token}:${body.key}`)
       .digest("hex");
     const id = await rpc<string>("shop_checkout", {
-      p_products: productIds(body.productIds),
-      p_code: typeof body.code === "string" ? body.code.slice(0, 40) : "",
+      p_products: products,
+      p_code: code,
       p_email: email,
       p_name: name,
       p_hash: tokenHash(token),
       p_key: key,
       p_mode: config.mode,
       p_merchant: config.merchant,
-      p_terms: SHOP_TERMS,
+      p_terms: consentTexts.length
+        ? { ...SHOP_TERMS, checkout_consents: consentTexts }
+        : SHOP_TERMS,
       p_immediate: true,
       p_ack: body.withdrawalAck === true,
       p_expected: body.expectedAmount,

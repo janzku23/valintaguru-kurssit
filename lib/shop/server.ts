@@ -154,7 +154,10 @@ export async function createPayment(order: Order) {
   const payment = result.payment;
   if (!result.created) {
     if (payment.href && ["new", "pending", "delayed"].includes(payment.status))
-      return safePaytrailHref(payment.href, payment.transaction_id ?? undefined);
+      return safePaytrailHref(
+        payment.href,
+        payment.transaction_id ?? undefined,
+      );
     throw new Error(
       "Maksua käsitellään. Tarkista tilauksen tila ennen uutta maksuyritystä.",
     );
@@ -316,7 +319,8 @@ export async function publicOrder(order: Order): Promise<PublicOrder> {
     amount_cents: order.amount_cents,
     fulfillment_status: order.fulfillment_status,
     payment_status: payment?.status ?? null,
-    items: items.map(({ name, total_cents, access_days }) => ({
+    items: items.map(({ product_id, name, total_cents, access_days }) => ({
+      product_id,
       name,
       total_cents,
       access_days,

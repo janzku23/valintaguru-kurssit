@@ -75,7 +75,11 @@ export type Order = {
   cancellation_requested_at: string | null;
   new_user: boolean;
   terms_version: string;
-  terms_snapshot: { version: string; paragraphs: string[] };
+  terms_snapshot: {
+    version: string;
+    paragraphs: string[];
+    checkout_consents?: string[];
+  };
   immediate_consent: boolean;
   withdrawal_ack: boolean;
 };
@@ -116,7 +120,10 @@ export type PublicOrder = {
   amount_cents: number;
   fulfillment_status: Order["fulfillment_status"];
   payment_status: PaymentStatus | null;
-  items: Pick<OrderItem, "name" | "total_cents" | "access_days">[];
+  items: Pick<
+    OrderItem,
+    "product_id" | "name" | "total_cents" | "access_days"
+  >[];
   access_email_sent: boolean;
   cancellation_requested: boolean;
   mode: Order["mode"];

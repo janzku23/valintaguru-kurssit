@@ -47,7 +47,10 @@ export async function sendOrderEmail(
     subject = `Maksunpalautus #${order.number}`;
     intro = `Palautus ${money(data.amount_cents)} on vahvistettu Paytrailissa. Palautus näkyy maksutavallasi sen käsittelyajan mukaisesti. ${revoked.length ? `Tästä tilauksesta päättyvät oikeudet: ${revoked.join(", ")}. Muusta lähteestä saadut oikeutesi säilyvät.` : "Kurssioikeuksiasi ei muutettu tämän osapalautuksen yhteydessä."}`;
   }
-  const consent = `Välitön toimitus pyydetty: ${order.immediate_consent ? "kyllä" : "ei"}. Digitaalisen sisällön peruuttamisoikeuden menettäminen toimituksen alettua hyväksytty: ${order.withdrawal_ack ? "kyllä" : "ei / ei sovellu"}. Palvelun peruuttamisoikeutta arvioidaan erikseen. Ehtoversio ${order.terms_version}.`;
+  let consent = `Välitön toimitus pyydetty: ${order.immediate_consent ? "kyllä" : "ei"}. Digitaalisen sisällön peruuttamisoikeuden menettäminen toimituksen alettua hyväksytty: ${order.withdrawal_ack ? "kyllä" : "ei / ei sovellu"}. Palvelun peruuttamisoikeutta arvioidaan erikseen. Ehtoversio ${order.terms_version}.`;
+  if (order.terms_snapshot.checkout_consents?.length) {
+    consent = `Hyväksytyt käyttö- ja peruutusehdot: ${order.terms_version}. ${order.terms_snapshot.checkout_consents.join(" ")}`;
+  }
   const summary = items
     .map(
       (item) =>

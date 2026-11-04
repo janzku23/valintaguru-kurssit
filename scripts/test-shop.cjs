@@ -155,7 +155,9 @@ test("Paytrail redirect cannot send visitors to arbitrary hosts (mock transport)
     api.safePaytrailHref("https://pay.paytrail.com/pay/" + a, a),
     "https://pay.paytrail.com/pay/" + a,
   );
-  assert.throws(() => api.safePaytrailHref("https://pay.paytrail.com/pay/" + a, b));
+  assert.throws(() =>
+    api.safePaytrailHref("https://pay.paytrail.com/pay/" + a, b),
+  );
   for (const url of [
     "javascript:alert(1)",
     "https://evil.test/pay/x",
@@ -225,7 +227,13 @@ function jobHarness({
     auth: {
       admin: {
         getUserById: async () => ({
-          data: { user: { id: a, email: order.email, email_confirmed_at: confirmed ? "confirmed" : undefined } },
+          data: {
+            user: {
+              id: a,
+              email: order.email,
+              email_confirmed_at: confirmed ? "confirmed" : undefined,
+            },
+          },
           error: null,
         }),
         inviteUserByEmail: async (email, options) => {
@@ -302,11 +310,12 @@ test("access job uses the Supabase invitation for unconfirmed accounts and skips
     assert.equal((await h.jobs.processJobs(a, 1)).completed, 1);
     const invite = h.calls.find((c) => c[0] === "invite");
     if (confirmed) assert.equal(invite, undefined);
-    else assert.deepEqual(invite, [
-      "invite",
-      h.order.email,
-      { redirectTo: "https://example.test/aseta-salasana" },
-    ]);
+    else
+      assert.deepEqual(invite, [
+        "invite",
+        h.order.email,
+        { redirectTo: "https://example.test/aseta-salasana" },
+      ]);
   }
 });
 test("failed email remains retryable and does not undo payment or course rights (mock Resend)", async () => {
@@ -924,4 +933,116 @@ test("invalid Paytrail credentials cannot initialize the production database bin
     assert.equal(h.state.inserts.length, 0);
     assert.equal(h.state.marker, null);
   });
+});
+
+test("checkout preserves explicit mixed-cart consents and rejects missing acceptance before creating a payment", async () => {
+  const { checkoutConsent, checkoutConsentVersion } = load(
+    "lib/shop/checkout-consent.ts",
+  );
+  const orders = [];
+  const api = loader({
+    "@/lib/shop/config": { shopConfig: () => cfg },
+    "@/lib/shop/server": {
+      guardRequest: async () => {},
+      checkDatabaseEnvironment: async () => {},
+      bodyOf: (request) => request.json(),
+      shopSession: async () => "session",
+      tokenHash: () => "hash",
+      shopError: () => new Response(null, { status: 400 }),
+      rpc: async (name, args) => {
+        if (name === "shop_quote")
+          return {
+            items: [
+              { legal_kind: "digital_content" },
+              { legal_kind: "service" },
+            ],
+          };
+        assert.equal(name, "shop_checkout");
+        orders.push(args);
+        return a;
+      },
+      orderById: async () => ({ id: a }),
+      createPayment: async () => "https://pay.paytrail.com/pay/" + b,
+    },
+  })("app/api/shop/checkout/route.ts");
+
+  const submit = (overrides) =>
+    api.POST(
+      new Request("https://example.test/api/shop/checkout", {
+        method: "POST",
+        body: JSON.stringify({
+          productIds: [a, b],
+          name: "Test Student",
+          email: "test@example.test",
+          key: a,
+          expectedAmount: 12900,
+          terms: true,
+          immediate: true,
+          consentVersion: checkoutConsentVersion,
+          withdrawalAck: true,
+          serviceAck: true,
+          ...overrides,
+        }),
+      }),
+    );
+  for (const missing of ["terms", "immediate", "withdrawalAck", "serviceAck"])
+    assert.equal((await submit({ [missing]: false })).status, 400);
+  assert.equal(orders.length, 0);
+  assert.equal((await submit({})).status, 200);
+  assert.deepEqual(orders[0].p_terms.checkout_consents, [
+    checkoutConsent.immediate,
+    checkoutConsent.digital,
+    checkoutConsent.service,
+  ]);
+  assert.equal(orders[0].p_immediate, true);
+  assert.equal(orders[0].p_ack, true);
+});
+
+test("Paytrail banner only appears when every displayed method is returned for the amount", async () => {
+  const logos = [
+    "osuuspankki",
+    "nordea",
+    "danske",
+    "spankki",
+    "pop",
+    "omasp",
+    "aktia",
+    "saastopankki",
+    "alandsbanken",
+    "visa",
+    "mastercard",
+    "mobilepay",
+    "walley",
+    "klarna",
+  ].map((name) => ({
+    name,
+    svg: `https://resources.paytrail.com/images/payment-method-logos/${name}.svg`,
+  }));
+  let methods = logos;
+  const api = loader({
+    "@/lib/shop/server": {
+      guardRequest: async () => {},
+      bodyOf: (request) => request.json(),
+    },
+    "@/lib/shop/paytrail": {
+      paytrail: async (method, url) => {
+        assert.equal(method, "GET");
+        assert.equal(url, "/merchants/payment-providers?amount=12900");
+        return { data: methods };
+      },
+    },
+  })("app/api/shop/payment-methods/route.ts");
+  const request = () =>
+    new Request("https://example.test/api/shop/payment-methods", {
+      method: "POST",
+      body: JSON.stringify({ amount: 12900 }),
+    });
+  assert.equal((await (await api.POST(request())).json()).banner, true);
+  methods = [
+    ...logos.slice(0, -1),
+    { name: "Wrong origin", svg: "https://example.test/logo.svg" },
+  ];
+  const fallback = await (await api.POST(request())).json();
+  assert.equal(fallback.banner, false);
+  assert.equal(fallback.logos.length, 13);
 });

@@ -50,3 +50,20 @@ export function useCart() {
   }
   return { ids, setIds, ready };
 }
+
+export function removePaidOrderItems(orderId: string, productIds: string[]) {
+  try {
+    if (localStorage.getItem("vg-last-order") !== orderId) return;
+    const ids: unknown = JSON.parse(snapshot());
+    if (Array.isArray(ids)) {
+      localStorage.setItem(
+        KEY,
+        JSON.stringify(ids.filter((id) => !productIds.includes(id))),
+      );
+      window.dispatchEvent(new Event("vg-cart"));
+    }
+    localStorage.removeItem("vg-last-order");
+  } catch {
+    // Storage access must not prevent the confirmed order from rendering.
+  }
+}

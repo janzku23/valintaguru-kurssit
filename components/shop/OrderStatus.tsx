@@ -2,6 +2,7 @@
 import { shopFetch, shopJson } from "./client-api";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { removePaidOrderItems } from "./cart";
 import { accessDuration, money, type PublicOrder } from "@/lib/shop/types";
 export default function OrderStatus({ id }: { id: string }) {
   const [order, setOrder] = useState<PublicOrder | null>(null),
@@ -15,8 +16,13 @@ export default function OrderStatus({ id }: { id: string }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ orderId: id, refresh: check }),
         });
-        const data = await shopJson(r);
-        if (!r.ok) throw new Error(data.error);
+        const data: PublicOrder = await shopJson(r);
+        if (data.status !== "unpaid") {
+          removePaidOrderItems(
+            data.id,
+            data.items.map((item) => item.product_id),
+          );
+        }
         setOrder(data);
         setError("");
       } catch (e) {
@@ -52,7 +58,9 @@ export default function OrderStatus({ id }: { id: string }) {
   const paid = !!order && order.status !== "unpaid",
     failed = order?.payment_status === "fail",
     refunded = order?.status === "refunded",
-    unconfirmedLink = order?.payment_status === "unknown" || order?.payment_status === "creating";
+    unconfirmedLink =
+      order?.payment_status === "unknown" ||
+      order?.payment_status === "creating";
   return (
     <main className="vg-shop-section">
       <section
@@ -124,8 +132,9 @@ export default function OrderStatus({ id }: { id: string }) {
               <div className="vg-shop-note">
                 <strong>Kirjautuminen kursseille</strong>
                 <p>
-                  Uusi käyttäjä saa sähköpostikutsun salasanan asettamista varten.
-                  Jos sinulla on jo tunnus, kirjaudu nykyisellä salasanallasi.
+                  Uusi käyttäjä saa sähköpostikutsun salasanan asettamista
+                  varten. Jos sinulla on jo tunnus, kirjaudu nykyisellä
+                  salasanallasi.
                 </p>
                 <div className="vg-shop-actions">
                   <Link href="/kirjaudu" className="vg-shop-btn">

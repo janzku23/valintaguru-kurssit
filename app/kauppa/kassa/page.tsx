@@ -1,3 +1,4 @@
+import { sellerAddress } from "@/lib/shop/settings-model";
 import Checkout from "@/components/shop/Checkout";
 import { catalog, checkDatabaseEnvironment } from "@/lib/shop/server";
 export const dynamic = "force-dynamic";
@@ -29,6 +30,7 @@ export default async function CheckoutPage() {
       products={products}
       checkout
       paymentAvailable={paymentAvailable}
+      sellerAddress={sellerAddress(process.env)}
     />
   );
 }

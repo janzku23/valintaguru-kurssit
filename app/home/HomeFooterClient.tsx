@@ -186,6 +186,15 @@ export default function HomeFooterClient() {
           Oikeudellinen huomautus
         </Link>
       </div>
+
+      <Image
+        src="/paytrail-maksutavat.svg"
+        alt="Paytrailin maksutavat"
+        width={1562}
+        height={400}
+        unoptimized
+        className="mt-5 h-auto w-full max-w-xs rounded-md bg-white"
+      />
     </div>
   </div>
 

@@ -56,46 +56,21 @@ export default async function ProductPage({
               className="vg-product-image"
             />
           )}
-          <p className="vg-shop-eyebrow vg-shop-muted">Oma seuraava askel</p>
           <div className="vg-product-price">
             {p.sale_price_cents && <del>{money(p.price_cents)}</del>}
             {money(p.sale_price_cents ?? p.price_cents)}
           </div>
           <p className="vg-shop-muted">
-            Sis. ALV {p.vat_percentage} % · Ei toimituskuluja
+            Sis. ALV{" "}
+            {new Intl.NumberFormat("fi-FI").format(p.vat_percentage ?? 0)} % ·
+            Ei toimituskuluja
           </p>
-          <div className="vg-shop-note">
-            <strong>
-              {p.access_days === null
-                ? "Henkilökohtainen kurssioikeus"
-                : `Käyttöoikeus ${accessDuration(p.access_days)}`}
-            </strong>
-            <p className="vg-shop-muted">
-              Voimassa maksun vahvistamisesta.{" "}
-              {p.course_ids.length > 1
-                ? `Paketti avaa ${p.course_ids.length} kurssia.`
-                : "Henkilökohtainen kurssioikeus."}
-            </p>
-          </div>
-          <p className="vg-shop-muted">
-            {p.legal_kind === "service"
-              ? "Opetusta tai palvelua sisältävä kurssi. Peruuttamisoikeutta arvioidaan palvelua koskevien sääntöjen mukaan."
-              : "Sähköisesti toimitettava digitaalinen sisältö. Välitön toimitus edellyttää kassalla erillistä suostumusta."}
-          </p>
-          <div className="vg-shop-actions">
-            <AddToCart product={p} products={products} checkout />
-          </div>
+          {p.access_days !== null && (
+            <p>Käyttöoikeus {accessDuration(p.access_days)}</p>
+          )}
           <div className="vg-shop-actions">
             <AddToCart product={p} products={products} />
           </div>
-          <div className="vg-shop-actions">
-            <Link href="/kauppa/ostoskori" className="vg-shop-btn secondary">
-              Siirry ostoskoriin →
-            </Link>
-          </div>
-          <p style={{ marginTop: 20, fontSize: 13 }}>
-            <Link href="/kauppa/ehdot">Lue osto- ja toimitusehdot</Link>
-          </p>
         </aside>
       </div>
     </main>

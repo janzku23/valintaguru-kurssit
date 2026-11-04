@@ -1,377 +1,417 @@
 "use client";
-import { shopFetch, shopJson } from "./client-api";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useCart } from "./cart";
+import {
+  checkoutConsent,
+  checkoutConsentVersion,
+} from "@/lib/shop/checkout-consent";
 import {
   accessDuration,
   money,
   type Product,
   type Quote,
 } from "@/lib/shop/types";
-async function post(path: string, body: unknown) {
+import { SHOP_SELLER } from "@/data/shop/seller";
+import { shopFetch, shopJson } from "./client-api";
+import { useCart } from "./cart";
+import PaymentMethods from "./PaymentMethods";
+
+async function post(path: string, body: string, signal?: AbortSignal) {
   const response = await shopFetch(`/api/shop/${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body,
+    signal,
   });
-  const data = await shopJson(response);
-  if (!response.ok) throw new Error(data.error ?? "Pyyntö epäonnistui.");
-  return data;
+  return shopJson(response);
 }
+
 export default function Checkout({
   products,
   checkout = false,
   paymentAvailable = true,
+  sellerAddress = SHOP_SELLER.postalAddress,
 }: {
   products: Product[];
   checkout?: boolean;
   paymentAvailable?: boolean;
+  sellerAddress?: string;
 }) {
   const { ids, setIds, ready } = useCart();
   const [code, setCode] = useState("");
   const [appliedCode, setAppliedCode] = useState("");
-  const [quote, setQuote] = useState<Quote | null>(null),
-    [quotedKey, setQuotedKey] = useState("");
-  const [error, setError] = useState("");
+  const [quoteResult, setQuoteResult] = useState<{
+    key: string;
+    quote?: Quote;
+    error?: string;
+  }>();
+  const [quoteVersion, setQuoteVersion] = useState(0);
+  const [paymentError, setPaymentError] = useState("");
   const [busy, setBusy] = useState(false);
-  const fingerprint = useMemo(
-    () => JSON.stringify({ productIds: ids, code: appliedCode }),
-    [ids, appliedCode],
+  const submitting = useRef(false);
+  const fingerprint = JSON.stringify({ productIds: ids, code: appliedCode });
+  const quoteKey = `${quoteVersion}:${fingerprint}`;
+  const quote = quoteResult?.key === quoteKey ? quoteResult.quote : undefined;
+  const quoteError =
+    quoteResult?.key === quoteKey ? quoteResult.error : undefined;
+  const hasDigital = quote?.items.some(
+    (item) => item.legal_kind === "digital_content",
   );
+  const hasService = quote?.items.some((item) => item.legal_kind === "service");
+
   useEffect(() => {
     if (!ids.length) return;
     const controller = new AbortController();
-    shopFetch("/api/shop/quote", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: fingerprint,
-      signal: controller.signal,
-    })
-      .then(async (response) => {
-        const data = await shopJson(response);
-        if (!response.ok)
-          throw new Error(data.error ?? "Hintatietoja ei saatu.");
-        return data as Quote;
+    post("quote", fingerprint, controller.signal)
+      .then((data: Quote) => {
+        if (!controller.signal.aborted)
+          setQuoteResult({ key: quoteKey, quote: data });
       })
-      .then((data) => {
-        setQuote(data);
-        setQuotedKey(fingerprint);
-        setError("");
-      })
-      .catch((e) => {
-        if (!controller.signal.aborted) setError(e.message);
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted)
+          setQuoteResult({
+            key: quoteKey,
+            error:
+              error instanceof Error
+                ? error.message
+                : "Hintaa ei saatu tarkistettua.",
+          });
       });
     return () => controller.abort();
-  }, [fingerprint, ids.length]);
-  const fresh = quotedKey === fingerprint && !!quote;
-  const hasDigital =
-    quote?.items.some((i) => i.legal_kind === "digital_content") ?? false;
-  const unavailable = ids.filter((id) => !products.some((p) => p.id === id));
-  async function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!paymentAvailable || !fresh || !quote || busy) return;
+  }, [fingerprint, ids.length, quoteKey]);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!paymentAvailable || !quote || submitting.current) return;
+    const form = new FormData(event.currentTarget);
+    if (form.get("terms") !== "on" || form.get("immediate") !== "on") return;
+    submitting.current = true;
     setBusy(true);
-    setError("");
-    const form = new FormData(e.currentTarget);
+    setPaymentError("");
     try {
-      // Retain idempotency key across an ambiguous network retry; a changed cart gets a new key.
       const storageKey = `vg-checkout:${fingerprint}:${String(form.get("email")).trim().toLowerCase()}`;
       let key = sessionStorage.getItem(storageKey);
       if (!key) {
         key = crypto.randomUUID();
         sessionStorage.setItem(storageKey, key);
       }
-      const result = await post("checkout", {
-        productIds: ids,
-        code: appliedCode,
-        email: form.get("email"),
-        name: form.get("name"),
-        terms: form.get("terms") === "on",
-        immediate: form.get("immediate") === "on",
-        withdrawalAck: form.get("withdrawalAck") === "on",
-        expectedAmount: quote.amount_cents,
-        key,
-      });
-      // Basket intentionally survives failed/cancelled payments; fulfillment never depends on localStorage.
-      localStorage.setItem("vg-last-order", result.orderId);
+      const result = await post(
+        "checkout",
+        JSON.stringify({
+          productIds: ids,
+          code: appliedCode,
+          email: form.get("email"),
+          name: form.get("name"),
+          terms: true,
+          immediate: true,
+          withdrawalAck: hasDigital === true,
+          serviceAck: hasService === true,
+          consentVersion: checkoutConsentVersion,
+          expectedAmount: quote.amount_cents,
+          key,
+        }),
+      );
+      try {
+        localStorage.setItem("vg-last-order", result.orderId);
+      } catch {
+        // Order navigation remains available if the browser denies storage.
+      }
       window.location.assign(
         result.href ?? `/kauppa/tilaus?order=${result.orderId}`,
       );
-    } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Maksun aloittaminen epäonnistui.",
+    } catch (error) {
+      setPaymentError(
+        error instanceof Error
+          ? error.message
+          : "Maksun aloittaminen epäonnistui.",
       );
+      submitting.current = false;
       setBusy(false);
     }
   }
+
   if (!ready)
     return (
       <main className="vg-shop-loading" role="status">
         Ladataan ostoskoria…
       </main>
     );
+  const rows = ids.map((id) => ({
+    id,
+    product: products.find((product) => product.id === id),
+    item: quote?.items.find((item) => item.product_id === id),
+  }));
+  const unavailable = rows.some(({ product }) => !product);
+
   return (
-    <main className="vg-shop-section">
-      <p className="vg-shop-eyebrow vg-shop-muted">
-        {checkout ? "02 / Kassa" : "01 / Ostoskori"}
-      </p>
-      <h1>{checkout ? "Melkein valmista." : "Oma kurssivalintasi."}</h1>
-      <p className="vg-shop-muted">
-        {checkout
-          ? "Sinun ei tarvitse rekisteröityä. Käytä sähköpostia, jolla haluat kirjautua kursseillesi."
-          : "Yksi kurssioikeus riittää. Saman kurssin sisältäviä tuotteita ei voi ostaa samaan tilaukseen."}
-      </p>
+    <main className="vg-shop-section vg-checkout">
+      <h1>{checkout ? "Kassa" : "Ostoskori"}</h1>
       {!ids.length ? (
-        <div className="vg-shop-note">
-          <h2>Ostoskorisi on vielä tyhjä</h2>
-          <p>
-            Valitse tavoitteeseesi sopiva valmennus ja palaa sitten kassalle.
-          </p>
-          <div className="vg-shop-actions">
-            <Link href="/kauppa" className="vg-shop-btn">
-              Tutustu kursseihin →
-            </Link>
-          </div>
+        <div className="vg-checkout-empty">
+          <p>Ostoskorisi on tyhjä.</p>
+          <Link href="/kauppa" className="vg-shop-btn">
+            Katso kursseja
+          </Link>
         </div>
       ) : (
-        <div className="vg-shop-columns">
-          <section className="vg-shop-panel">
-            {checkout ? (
-              <form className="vg-shop-form" id="vg-checkout" onSubmit={submit}>
-                <h2>Asiakastiedot</h2>
-                <label>
-                  Nimi
-                  <input
-                    name="name"
-                    autoComplete="name"
-                    required
-                    minLength={2}
-                    maxLength={160}
-                  />
-                </label>
-                <label>
-                  Sähköpostiosoite
-                  <input
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    maxLength={254}
-                  />
-                </label>
-                <p className="vg-shop-muted">
-                  Jos sinulla on jo tunnus, ostamasi kurssit lisätään sille.
-                  Tarkista omat kurssisi ennen tilaamista, jotta et osta samaa
-                  kurssia tarpeettomasti uudelleen.
-                </p>
-                <h2>Toimitus ja hyväksynnät</h2>
-                <label className="vg-shop-check">
-                  <input name="terms" type="checkbox" required />
-                  <span>
-                    Hyväksyn{" "}
-                    <Link href="/kauppa/ehdot" target="_blank">
-                      osto- ja toimitusehdot
-                    </Link>{" "}
-                    ja olen tutustunut{" "}
-                    <Link href="/ehdot/tietosuojakaytanto" target="_blank">
-                      tietosuojakäytäntöön
-                    </Link>
-                    .
-                  </span>
-                </label>
-                <label className="vg-shop-check">
-                  <input name="immediate" type="checkbox" required />
-                  <span>
-                    Pyydän kurssin tai palvelun toimituksen aloittamista heti
-                    maksun vahvistamisen jälkeen ennen 14 päivän peruuttamisajan
-                    päättymistä. Palvelun peruuttamisesta voidaan lain
-                    edellytysten täyttyessä periä suoritusta vastaava
-                    kohtuullinen korvaus.
-                  </span>
-                </label>
-                {hasDigital && (
-                  <label className="vg-shop-check">
-                    <input name="withdrawalAck" type="checkbox" required />
-                    <span>
-                      Hyväksyn, että sähköisesti toimitettavan digitaalisen
-                      sisällön peruuttamisoikeus päättyy, kun toimitus
-                      aloitetaan suostumuksellani. Tämä ei automaattisesti
-                      poista opetusta tai muuta palvelua koskevaa
-                      peruuttamisoikeutta.
-                    </span>
-                  </label>
-                )}
-                <p className="vg-shop-muted">
-                  Vahvistamme nämä suostumukset tilausvahvistuksessa. Tietosi
-                  eivät liity markkinointilupaan.
-                </p>
-              </form>
-            ) : (
-              <>
-                <h2>Valitut kurssit</h2>
-                {ids.map((id) => {
-                  const p = products.find((p) => p.id === id);
-                  return (
-                    <div key={id} className="vg-shop-line">
-                      <div>
-                        <strong>
-                          {p?.name ?? "Tuote ei enää ole myynnissä"}
-                        </strong>
-                        <small className="vg-shop-muted">
-                          Määrä 1
-                          {p && p.access_days !== null
-                            ? ` · Käyttöoikeus ${accessDuration(p.access_days)}`
-                            : ""}
-                        </small>
-                        <br />
-                        <button
-                          onClick={() => setIds(ids.filter((x) => x !== id))}
-                        >
-                          Poista korista
-                        </button>
-                      </div>
-                      <strong>
-                        {p ? money(p.sale_price_cents ?? p.price_cents) : "—"}
-                      </strong>
-                    </div>
-                  );
-                })}
-                <div className="vg-shop-actions">
-                  <Link href="/kauppa" className="vg-shop-btn secondary">
-                    Jatka kurssien selailua
-                  </Link>
-                </div>
-              </>
-            )}
-          </section>
-          <aside className="vg-shop-panel">
-            <h2>Tilausyhteenveto</h2>
-            {fresh &&
-              quote?.items.map((i) => (
-                <div className="vg-shop-line" key={i.product_id}>
-                  <div>
-                    <strong>{i.name}</strong>
+        <div
+          className={`vg-checkout-grid ${checkout ? "" : "vg-checkout-cart"}`}
+        >
+          <section
+            className="vg-shop-panel vg-checkout-summary"
+            aria-labelledby="vg-order-heading"
+          >
+            <h2 id="vg-order-heading">Tilauksesi</h2>
+            {rows.map(({ id, product, item }) => (
+              <div className="vg-shop-line" key={id}>
+                <div>
+                  <strong>
+                    {product ? (
+                      <Link
+                        href={`/kauppa/${product.slug}`}
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        {item?.name ?? product.name}
+                      </Link>
+                    ) : (
+                      "Tuote ei enää ole myynnissä"
+                    )}
+                  </strong>
+                  {product && (
                     <small className="vg-shop-muted">
-                      {i.access_days !== null &&
-                        `${accessDuration(i.access_days)} · `}
-                      ALV {i.vat_percentage} %
-                      <br />
-                      {i.legal_kind === "service"
-                        ? "Opetusta / palvelu"
-                        : "Digitaalinen sisältö"}
+                      Sis. ALV{" "}
+                      {new Intl.NumberFormat("fi-FI").format(
+                        item?.vat_percentage ?? product.vat_percentage ?? 0,
+                      )}{" "}
+                      %
+                      {item &&
+                        ` · ${money(Math.round((item.total_cents * item.vat_percentage) / (100 + item.vat_percentage)))}`}
+                      {product.access_days !== null &&
+                        ` · Käyttöoikeus ${accessDuration(product.access_days)}`}
                     </small>
-                  </div>
-                  <strong>{money(i.total_cents)}</strong>
+                  )}
+                  {!checkout && (
+                    <button
+                      type="button"
+                      aria-label={`Poista ${product?.name ?? "tuote"} korista`}
+                      onClick={() =>
+                        setIds(ids.filter((value) => value !== id))
+                      }
+                    >
+                      Poista
+                    </button>
+                  )}
                 </div>
-              ))}
-            <form
-              className="vg-shop-form"
-              style={{ marginTop: 20 }}
-              onSubmit={(e) => {
-                e.preventDefault();
-                setAppliedCode(code.trim().toUpperCase());
-              }}
-            >
-              <label htmlFor="vg-discount">Alennuskoodi</label>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input
-                  id="vg-discount"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  maxLength={40}
-                  placeholder="Syötä koodi"
-                />
-                <button className="vg-shop-btn secondary" type="submit">
-                  Käytä
-                </button>
+                {product && (
+                  <strong>
+                    {money(
+                      item?.total_cents ??
+                        product.sale_price_cents ??
+                        product.price_cents,
+                    )}
+                  </strong>
+                )}
               </div>
-              {appliedCode && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCode("");
-                    setAppliedCode("");
+            ))}
+            {checkout && (
+              <details className="vg-checkout-discount">
+                <summary>
+                  Alennuskoodi{appliedCode ? ` · ${appliedCode}` : ""}
+                </summary>
+                <form
+                  className="vg-shop-form"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    setAppliedCode(code.trim().toUpperCase());
+                    setQuoteVersion((version) => version + 1);
+                    setPaymentError("");
                   }}
                 >
-                  Poista koodi
-                </button>
-              )}
-            </form>
-            {fresh && quote && (
-              <>
-                <div className="vg-shop-line">
-                  <span>Välisumma</span>
-                  <span>{money(quote.subtotal_cents)}</span>
-                </div>
-                {quote.discount_cents > 0 && (
-                  <div className="vg-shop-line">
-                    <span>Alennus</span>
-                    <span>−{money(quote.discount_cents)}</span>
+                  <label htmlFor="vg-discount">Koodi</label>
+                  <div className="vg-checkout-code">
+                    <input
+                      id="vg-discount"
+                      value={code}
+                      onChange={(event) => setCode(event.target.value)}
+                      maxLength={40}
+                      disabled={busy}
+                    />
+                    <button
+                      className="vg-shop-btn secondary"
+                      type="submit"
+                      disabled={busy}
+                    >
+                      Käytä
+                    </button>
                   </div>
+                  {appliedCode && (
+                    <button
+                      type="button"
+                      className="vg-checkout-text-button"
+                      disabled={busy}
+                      onClick={() => {
+                        setCode("");
+                        setAppliedCode("");
+                        setPaymentError("");
+                      }}
+                    >
+                      Poista koodi
+                    </button>
+                  )}
+                </form>
+              </details>
+            )}
+            {quote ? (
+              <>
+                {quote.discount_cents > 0 && (
+                  <p className="vg-shop-muted">
+                    Alennus {money(quote.discount_cents)}
+                  </p>
                 )}
                 <div className="vg-shop-total">
                   <span>Yhteensä</span>
                   <span>{money(quote.amount_cents)}</span>
                 </div>
-                <small className="vg-shop-muted">
-                  Sisältää tuotekohtaisen ALV:n. Ei toimituskuluja.
-                </small>
+                <small className="vg-shop-muted">Ei toimituskuluja.</small>
               </>
+            ) : (
+              !quoteError && <p role="status">Tarkistetaan hintaa…</p>
             )}
-            {!fresh && !error && <p role="status">Tarkistetaan hinnat…</p>}
-            {error && (
-              <p className="vg-shop-error" role="alert">
-                {error}
+            {quoteError && (
+              <p role="alert" className="vg-shop-error">
+                {quoteError}
               </p>
             )}
-            {unavailable.length > 0 && (
-              <div className="vg-shop-error">
-                Poista korista tuotteet, jotka eivät enää ole myynnissä.{" "}
-                <Link href="/kauppa/ostoskori">Muokkaa ostoskoria</Link>
+            {unavailable && checkout && (
+              <p>
+                <Link href="/kauppa/ostoskori">
+                  Poista myynnistä poistuneet tuotteet ostoskorista
+                </Link>
+              </p>
+            )}
+            {checkout ? (
+              <div className="vg-checkout-seller">
+                <small>
+                  {SHOP_SELLER.name} · Y-tunnus {SHOP_SELLER.businessId}
+                </small>
+                <small>
+                  {sellerAddress} ·{" "}
+                  <a href={`mailto:${SHOP_SELLER.email}`}>
+                    {SHOP_SELLER.email}
+                  </a>
+                </small>
+              </div>
+            ) : (
+              <div className="vg-shop-actions">
+                {quote && !unavailable && (
+                  <Link href="/kauppa/kassa" className="vg-shop-btn">
+                    Siirry kassalle
+                  </Link>
+                )}
+                <Link href="/kauppa" className="vg-shop-btn secondary">
+                  Jatka kurssien selailua
+                </Link>
               </div>
             )}
-            {checkout && !paymentAvailable && (
-              <p className="vg-shop-note" role="status">
-                Maksaminen ei ole vielä käytössä tässä ympäristössä. Voit
-                tarkistaa tilauksesi tiedot, mutta maksua ei veloiteta.
-              </p>
-            )}
-            <div className="vg-shop-actions">
-              {checkout ? (
-                <button
-                  className="vg-shop-btn"
-                  type="submit"
-                  form="vg-checkout"
-                  disabled={
-                    !paymentAvailable || !fresh || busy || !!unavailable.length
-                  }
-                >
-                  {busy
-                    ? "Avataan Paytrailia…"
-                    : `Tilaa ja maksa ${quote ? money(quote.amount_cents) : ""}`}
-                </button>
-              ) : fresh && !unavailable.length ? (
-                <Link href="/kauppa/kassa" className="vg-shop-btn">
-                  Jatka kassalle →
-                </Link>
-              ) : (
-                <button className="vg-shop-btn" disabled>
-                  Jatka kassalle →
-                </button>
+          </section>
+          {checkout && (
+            <form
+              className="vg-shop-panel vg-shop-form vg-checkout-form"
+              onSubmit={submit}
+            >
+              <h2>Tilaajan tiedot</h2>
+              <label>
+                Nimi
+                <input
+                  name="name"
+                  autoComplete="name"
+                  required
+                  minLength={2}
+                  maxLength={160}
+                />
+              </label>
+              <label>
+                Sähköpostiosoite
+                <input
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  maxLength={254}
+                />
+              </label>
+              <small className="vg-shop-muted">
+                Kurssioikeus liitetään tähän sähköpostiosoitteeseen.
+              </small>
+              <h2>Tilausehdot</h2>
+              <label className="vg-shop-check">
+                <input name="terms" type="checkbox" required />
+                <span>
+                  Olen lukenut ja hyväksyn{" "}
+                  <Link
+                    href="/ehdot/palautuskaytanto"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    peruutusehdot
+                  </Link>{" "}
+                  sekä kurssin{" "}
+                  <Link href="/kauppa/ehdot" target="_blank" rel="noopener">
+                    käyttöehdot
+                  </Link>
+                  . Ymmärrän, että kurssi ja sen materiaalit on tarkoitettu vain
+                  henkilökohtaiseen käyttööni, eikä materiaaleja tai
+                  käyttäjätunnuksia saa jakaa ulkopuolisille.
+                </span>
+              </label>
+              {quote && (
+                <label className="vg-shop-check" key={quoteKey}>
+                  <input name="immediate" type="checkbox" required />
+                  <span>
+                    {checkoutConsent.immediate}{" "}
+                    {hasDigital && checkoutConsent.digital}{" "}
+                    {hasService && checkoutConsent.service}
+                  </span>
+                </label>
               )}
-            </div>
-            {checkout && (
-              <p
-                className="vg-shop-muted"
-                style={{ fontSize: 13, marginTop: 18 }}
+              <small>
+                <Link
+                  href="/ehdot/tietosuojakaytanto"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Tietosuojakäytäntö
+                </Link>
+              </small>
+              <h2>Maksaminen</h2>
+              {quote && (
+                <PaymentMethods
+                  key={quote.amount_cents}
+                  amount={quote.amount_cents}
+                />
+              )}
+              {!paymentAvailable && (
+                <p className="vg-shop-muted" role="status">
+                  Maksaminen ei ole käytössä tässä ympäristössä.
+                </p>
+              )}
+              {paymentError && (
+                <p className="vg-shop-error" role="alert">
+                  {paymentError}
+                </p>
+              )}
+              <button
+                className="vg-shop-btn"
+                type="submit"
+                disabled={!paymentAvailable || !quote || busy || unavailable}
               >
-                Valitset käytettävissä olevan verkkopankin, kortin tai muun
-                maksutavan seuraavaksi Paytrailin suojatulla maksusivulla.
-                Maksun jälkeen palaat tilauksesi seurantaan.
-              </p>
-            )}
-          </aside>
+                {busy
+                  ? "Avataan Paytrailia…"
+                  : `Tilaa ja maksa${quote ? ` ${money(quote.amount_cents)}` : ""}`}
+              </button>
+            </form>
+          )}
         </div>
       )}
     </main>
