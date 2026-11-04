@@ -55,6 +55,15 @@ const entries: SiteUpdate[] = [
       "Yleisiä parannuksia ja korjauksia"
     ],
   },
+      {
+    date: "2026-11-04",
+    title: "Sivuston päivityshistoria",
+    changes: [
+      "Ostopolkua parannettu",
+      "Visuaalisia muutoksia",
+      "Ota yhteyttä -lomaketta parannettu",
+    ],
+  },
 ];
 
 const siteUpdates = [...entries].sort((a, b) =>
