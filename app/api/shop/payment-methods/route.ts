@@ -20,6 +20,7 @@ const bannerLogos = [
   "walley",
   "klarna",
 ];
+const mobileLogoIds = new Set(["siirto", "apple-pay", "google-pay"]);
 const headers = { "Cache-Control": "no-store" };
 
 export async function POST(request: Request) {
@@ -50,18 +51,14 @@ export async function POST(request: Request) {
           ),
       )
       .map(({ name, svg }) => ({ name, svg }));
-    const available = new Set(
-      logos.map(({ svg }) =>
-        new URL(svg).pathname
-          .split("/")
-          .pop()
-          ?.replace(/\.svg$/, ""),
-      ),
-    );
-    return Response.json(
-      { banner: bannerLogos.every((logo) => available.has(logo)), logos },
-      { headers },
-    );
+    const logoId = ({ svg }: (typeof logos)[number]) =>
+      new URL(svg).pathname.split("/").pop()?.replace(/\.svg$/, "") ?? "";
+    const available = new Set(logos.map(logoId));
+    const banner = bannerLogos.every((logo) => available.has(logo));
+    const individualLogos = banner
+      ? logos.filter((logo) => mobileLogoIds.has(logoId(logo)))
+      : logos;
+    return Response.json({ banner, logos: individualLogos }, { headers });
   } catch {
     return Response.json({ banner: false, logos: [] }, { headers });
   }

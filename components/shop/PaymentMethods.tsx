@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import PaytrailLogoRow from "./PaytrailLogoRow";
 import { useEffect, useState } from "react";
 import { shopFetch, shopJson } from "./client-api";
 
@@ -23,7 +24,7 @@ export default function PaymentMethods({ amount }: { amount: number }) {
   return (
     <div className="vg-payment-methods">
       <small className="vg-shop-muted">Maksutapa valitaan Paytrailissa.</small>
-      {methods?.banner ? (
+      {methods?.banner && (
         <Image
           unoptimized
           src="/paytrail-maksutavat.svg"
@@ -31,23 +32,8 @@ export default function PaymentMethods({ amount }: { amount: number }) {
           height={400}
           alt="Paytrail: suomalaiset verkkopankit, Visa, Mastercard, MobilePay, Walley ja Klarna"
         />
-      ) : (
-        methods?.logos && (
-          <ul aria-label="Paytrailin maksutavat">
-            {methods.logos.map(({ name, svg }) => (
-              <li key={svg}>
-                <Image
-                  unoptimized
-                  src={svg}
-                  width={62}
-                  height={28}
-                  alt={name}
-                />
-              </li>
-            ))}
-          </ul>
-        )
       )}
+      {methods && <PaytrailLogoRow logos={methods.logos} />}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import ShopTheme from "@/components/shop/ShopTheme";
 import Link from "next/link";
 import Image from "next/image";
+import PaytrailLogoRow from "@/components/shop/PaytrailLogoRow";
 import { HomeAuthProvider } from "@/app/home/HomeAuthProvider";
 import HomeHeaderClient from "@/app/home/HomeHeaderClient";
 import ShopNav from "@/components/shop/ShopNav";
@@ -35,6 +36,7 @@ export default function ShopLayout({
                 height={400}
                 unoptimized
               />
+              <PaytrailLogoRow />
             </figure>
           </footer>
         </div>

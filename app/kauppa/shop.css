@@ -295,7 +295,7 @@
   width: min(100%, 240px);
   margin: 0;
 }
-.vg-shop-footer-payments img {
+.vg-shop-footer-payments > img {
   width: 100%;
   height: auto;
   border-radius: 8px;
@@ -742,19 +742,8 @@
   max-width: 440px;
   margin-top: 6px;
 }
-.vg-payment-methods ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  padding: 0;
-  margin: 6px 0 0;
-  list-style: none;
-}
-.vg-payment-methods li img {
-  object-fit: contain;
-  padding: 3px;
-  background: white;
-  border-radius: 4px;
+.vg-shop-container:has(.vg-payment-methods img) .vg-shop-footer-payments {
+  display: none;
 }
 .vg-checkout :focus-visible {
   outline: 2px solid #6878ff;

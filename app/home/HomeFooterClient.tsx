@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import PaytrailLogoRow from "@/components/shop/PaytrailLogoRow";
 import logo from "../../assets/logo.png";
 import { courses, SHOP_STORE_URL } from "../../data/courses";
 import type { CourseId } from "../../data/courses";
@@ -195,6 +196,7 @@ export default function HomeFooterClient() {
         unoptimized
         className="mt-5 h-auto w-full max-w-xs rounded-md bg-white"
       />
+      <PaytrailLogoRow />
     </div>
   </div>
 

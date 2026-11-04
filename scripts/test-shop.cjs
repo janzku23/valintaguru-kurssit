@@ -1018,7 +1018,13 @@ test("Paytrail banner only appears when every displayed method is returned for t
     name,
     svg: `https://resources.paytrail.com/images/payment-method-logos/${name}.svg`,
   }));
-  let methods = logos;
+  const extraLogos = ["apple-pay", "google-pay", "siirto", "walley-yrityslasku"].map(
+    (name) => ({
+      name,
+      svg: `https://resources.paytrail.com/images/payment-method-logos/${name}.svg`,
+    }),
+  );
+  let methods = [...logos, ...extraLogos];
   const api = loader({
     "@/lib/shop/server": {
       guardRequest: async () => {},
@@ -1037,7 +1043,9 @@ test("Paytrail banner only appears when every displayed method is returned for t
       method: "POST",
       body: JSON.stringify({ amount: 12900 }),
     });
-  assert.equal((await (await api.POST(request())).json()).banner, true);
+  const combined = await (await api.POST(request())).json();
+  assert.equal(combined.banner, true);
+  assert.deepEqual(combined.logos, extraLogos.slice(0, 3));
   methods = [
     ...logos.slice(0, -1),
     { name: "Wrong origin", svg: "https://example.test/logo.svg" },
