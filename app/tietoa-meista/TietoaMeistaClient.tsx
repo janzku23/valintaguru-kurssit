@@ -7,17 +7,18 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type WheelEvent as ReactWheelEvent,
 } from "react";
 import logo from "../../assets/logo.png";
 import styles from "./TietoaMeista.module.css";
+import cardLayout from "./TietoaMeistaCards.module.css";
 
 type TeamMember = {
   id: string;
   name: string;
-  role: string;
   description: string;
   image?: string;
 };
@@ -26,27 +27,24 @@ type TeamMember = {
  * MUOKKAA TÄHÄN OIKEAT HENKILÖT.
  * Kuvat: public/tiimi/etunimi.webp -> image: "/tiimi/etunimi.webp"
  * Voit lisätä tai poistaa henkilöitä. Karuselli toimii myös 1–2 henkilöllä.
- * Nimet ja tehtävät ovat esimerkkitekstejä, eivät oikeita henkilöesittelyjä.
+ * Kuvaukset näkyvät kokonaisuudessaan kortin sisällä.
  */
 const team: TeamMember[] = [
   {
     id: "henkilo-3",
     name: "Iina Lindholm",
-    role: "ValintaGurun tiimi",
     description: "ValintaGurun opettaja. Oikeustieteiden maisteri ja tradenomi.",
     // image: "/tiimi/henkilo-3.webp",
   },
   {
     id: "henkilo-1",
     name: "Jani Tuomaala",
-    role: "ValintaGurun tiimi",
     description: "Tekninen tuki, vastaa myös alustasta ja kehityksestä.",
-     image: "/tiimi/jani.jpeg",
+   image: "/tiimi/jani1.png",
   },
   {
     id: "henkilo-2",
     name: "Julianna Lintukangas",
-    role: "ValintaGurun tiimi",
     description: "Vastaa myynnistä, asiakaspalvelusta ja markkinoinnista.",
     // image: "/tiimi/henkilo-2.webp",
   },
@@ -55,16 +53,14 @@ const team: TeamMember[] = [
   {
     id: "henkilo-4",
     name: "Juulia Tuominen",
-    role: "Viestinnän ammattilainen",
     description: "Juulia on viestinnän ammattilainen, joka opettaa kurssilla kriittistä ja analyyttistä lukemista, tehokasta lukutekniikkaa aineistokokeessa sekä usean aineiston soveltamista ja vertailua.",
     // image: "/tiimi/henkilo-4.webp",
   },
   {
     id: "henkilo-5",
     name: "Päivi Huovinen",
-    role: "Valintagurun opettaja",
     description: "Päivi on juuri valmistuva kasvatustieteiden maisteri, jolle tieteelliset tekstit ja niiden parissa työskentely ovat aina olleet sydämenasia. Hän haluaa jakaa osaamistaan ja auttaa opiskelijoita kehittämään erityisesti tieteellisten tekstien tulkinta- ja analysointitaitoja sekä valintakokeessa tarvittavaa vastaustekniikkaa.",
-    // image: "/tiimi/henkilo-5.webp",
+     image: "/tiimi/paivihuovinen.jpg",
   },
   
 ];
@@ -78,6 +74,9 @@ const navLinks = [
 ];
 
 const mod = (n: number, length: number) => ((n % length) + length) % length;
+
+// Palvelin ja selain muodostavat saman transform-merkkijonon.
+const cssNumber = (n: number) => n.toFixed(4);
 
 function Arrow({ backwards = false }: { backwards?: boolean }) {
   return (
@@ -98,14 +97,15 @@ function PersonPortrait({ person }: { person: TeamMember }) {
   const showPhoto = Boolean(person.image) && !imageFailed;
 
   return (
-    <span className={styles.portrait}>
+    <span className={`${styles.portrait} ${cardLayout.portrait}`} data-team-portrait>
       {showPhoto ? (
         <Image
           src={person.image!}
           alt={`Valokuva: ${person.name}`}
           fill
-          sizes="(max-width: 600px) 260px, 350px"
+          sizes="(max-width: 600px) 70vw, 300px"
           className={styles.portraitPhoto}
+          loading={person.id === "henkilo-1" ? "eager" : "lazy"}
           onError={() => setImageFailed(true)}
         />
       ) : (
@@ -129,6 +129,7 @@ export default function TietoaMeistaClient() {
   const [active, setActive] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [width, setWidth] = useState(1100);
+  const [cardHeight, setCardHeight] = useState(660);
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -147,15 +148,44 @@ export default function TietoaMeistaClient() {
   useEffect(() => {
     const element = stageRef.current;
     if (!element) return;
-    const measure = () => setWidth(element.getBoundingClientRect().width || 1100);
+
+    // Mittaa näkyvien ja sivussa olevien korttien sisältö ilman transform-skaalausta.
+    // Korkein kuvaus määrää yhteisen korkeuden kaikille korteille.
+    const measure = () => {
+      const stageWidth = element.getBoundingClientRect().width;
+      if (stageWidth) setWidth(stageWidth);
+
+      let required = 630;
+      element.querySelectorAll<HTMLButtonElement>("[data-team-card]").forEach((card) => {
+        const portrait = card.querySelector<HTMLElement>("[data-team-portrait]");
+        const info = card.querySelector<HTMLElement>("[data-team-info]");
+        if (!portrait || !info) return;
+
+        const computed = window.getComputedStyle(card);
+        const padding =
+          (Number.parseFloat(computed.paddingTop) || 0) +
+          (Number.parseFloat(computed.paddingBottom) || 0);
+        const gap = Number.parseFloat(computed.rowGap || computed.gap) || 0;
+        const needed = Math.ceil(
+          portrait.offsetHeight + info.scrollHeight + padding + gap + 18
+        );
+        required = Math.max(required, needed);
+      });
+      setCardHeight((old) => old === required ? old : required);
+    };
+
     measure();
-    if (typeof ResizeObserver === "undefined") {
-      window.addEventListener("resize", measure);
-      return () => window.removeEventListener("resize", measure);
-    }
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
+    const observer = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(measure)
+      : null;
+    observer?.observe(element);
+    window.addEventListener("resize", measure);
+    // Fonttien lataus voi muuttaa tekstien rivittymistä.
+    void document.fonts?.ready.then(measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, []);
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -234,8 +264,8 @@ export default function TietoaMeistaClient() {
     const opacity = Math.max(0.45, 1 - Math.abs(position) * 0.20);
 
     return {
-      transform: `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateY(${rotate}deg) scale(${scale})`,
-      opacity,
+      transform: `translate(-50%, -50%) translate3d(${cssNumber(x)}px, ${cssNumber(y)}px, ${cssNumber(z)}px) rotateY(${cssNumber(rotate)}deg) scale(${cssNumber(scale)})`,
+      opacity: Number(opacity.toFixed(3)),
       zIndex: 100 - Math.round(Math.abs(position) * 10),
       pointerEvents: Math.abs(position) > 2.6 ? "none" as const : "auto" as const,
     };
@@ -289,10 +319,16 @@ export default function TietoaMeistaClient() {
             <h2>Ihmiset ValintaGurun takana</h2>
           </div>
 
-          <div className={styles.carouselContainer}>
+          <div
+            className={`${styles.carouselContainer} ${cardLayout.container}`}
+            style={{
+              "--team-card-height": `${cardHeight}px`,
+              "--team-stage-height": `${cardHeight + 140}px`,
+            } as CSSProperties}
+          >
             <div
               ref={stageRef}
-              className={`${styles.carouselStage} ${dragging ? styles.stageDragging : ""}`}
+              className={`${styles.carouselStage} ${cardLayout.stage} ${dragging ? styles.stageDragging : ""}`}
               role="region"
               aria-roledescription="karuselli"
               aria-label="ValintaGurun henkilöt, kaareva karuselli"
@@ -308,9 +344,10 @@ export default function TietoaMeistaClient() {
                 <button
                   type="button"
                   key={person.id}
-                  className={`${styles.memberCard} ${index === active ? styles.memberActive : ""}`}
+                  className={`${styles.memberCard} ${cardLayout.card} ${index === active ? styles.memberActive : ""}`}
                   style={cardStyle(index)}
-                  aria-label={`Näytä ${person.name}: ${person.role}`}
+                  data-team-card
+                  aria-label={`Näytä ${person.name}`}
                   aria-current={index === active ? "true" : undefined}
                   tabIndex={index === active ? 0 : -1}
                   onClick={() => {
@@ -319,10 +356,11 @@ export default function TietoaMeistaClient() {
                   }}
                 >
                   <PersonPortrait person={person} />
-                  <span className={styles.memberInfo}>
-                    <span className={styles.memberRole}>{person.role}</span>
-                    <span className={styles.memberName}>{person.name}</span>
-                    <span className={styles.memberDescription}>{person.description}</span>
+                  <span className={`${styles.memberInfo} ${cardLayout.info}`} data-team-info>
+                    <span className={`${styles.memberName} ${cardLayout.name}`}>{person.name}</span>
+                    <span className={`${styles.memberDescription} ${cardLayout.description}`}>
+                      {person.description}
+                    </span>
                   </span>
                 </button>
               ))}

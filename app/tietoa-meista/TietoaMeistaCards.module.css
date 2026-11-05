@@ -1,0 +1,111 @@
+/*
+ * Täydentää alkuperäistä TietoaMeista.module.css-tiedostoa.
+ * Ei määrittele taustavärejä, tekstivärejä, varjoja, reunuksia
+ * eikä kuvien muotoa: alkuperäinen ValintaGuru-teema säilyy.
+ */
+.container {
+  width: 100%;
+  max-width: 100%;
+  height: auto !important;
+  overflow: clip;
+}
+
+.stage {
+  box-sizing: border-box;
+  height: var(--team-stage-height) !important;
+  min-height: var(--team-stage-height) !important;
+  overflow: visible !important;
+}
+
+.card {
+  box-sizing: border-box !important;
+  width: clamp(360px, 38vw, 450px) !important;
+  height: var(--team-card-height) !important;
+  min-height: var(--team-card-height) !important;
+  max-height: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 18px !important;
+  padding: 28px 30px !important;
+  overflow: hidden !important;
+}
+
+/* Suuri kuva. Kuvan alkuperäinen reunamuoto, maski ja väritys säilyvät. */
+.portrait {
+  box-sizing: border-box !important;
+  position: relative !important;
+  display: block !important;
+  flex: 0 0 auto !important;
+  width: clamp(255px, 26vw, 300px) !important;
+  height: clamp(255px, 26vw, 300px) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 auto !important;
+}
+
+.info {
+  box-sizing: border-box !important;
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.name,
+.description {
+  box-sizing: border-box !important;
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  -webkit-box-orient: initial !important;
+}
+
+/* Nimet ja kuvaukset säilyttävät alkuperäiset fontit, fonttikoot ja värit. */
+@media (max-width: 600px) {
+  .card {
+    width: min(88vw, 450px) !important;
+    padding: 22px 20px !important;
+    gap: 14px !important;
+  }
+
+  .portrait {
+    width: min(65vw, 280px) !important;
+    height: min(65vw, 280px) !important;
+  }
+
+  .info {
+    gap: 8px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none !important;
+  }
+}
