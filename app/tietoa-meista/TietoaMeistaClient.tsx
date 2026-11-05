@@ -54,16 +54,16 @@ const team: TeamMember[] = [
   
   {
     id: "henkilo-4",
-    name: "Opettaja",
-    role: "ValintaGurun opettaja",
-    description: "Tieteellisten tekstien tulkinta, tilastollinen päättely ja vastaustekniikka",
+    name: "Juulia Tuominen",
+    role: "Viestinnän ammattilainen",
+    description: "Juulia on viestinnän ammattilainen, joka opettaa kurssilla kriittistä ja analyyttistä lukemista, tehokasta lukutekniikkaa aineistokokeessa sekä usean aineiston soveltamista ja vertailua.",
     // image: "/tiimi/henkilo-4.webp",
   },
   {
     id: "henkilo-5",
-    name: "Opettaja",
-    role: "ValintaGurun opettaja",
-    description: "Viestintätieteiden ammattilainen",
+    name: "Päivi Huovinen",
+    role: "Valintagurun opettaja",
+    description: "Päivi on juuri valmistuva kasvatustieteiden maisteri, jolle tieteelliset tekstit ja niiden parissa työskentely ovat aina olleet sydämenasia. Hän haluaa jakaa osaamistaan ja auttaa opiskelijoita kehittämään erityisesti tieteellisten tekstien tulkinta- ja analysointitaitoja sekä valintakokeessa tarvittavaa vastaustekniikkaa.",
     // image: "/tiimi/henkilo-5.webp",
   },
   
