@@ -64,6 +64,14 @@ const entries: SiteUpdate[] = [
       "Ota yhteyttä -lomaketta parannettu",
     ],
   },
+        {
+    date: "2026-11-05",
+    title: "Sivuston päivityshistoria",
+    changes: [
+      "Valintakoe G -kurssin keskitason harjoituksia lisätty.",
+      "Harjoitukset 4-11 ovat nyt saatavilla.",
+    ],
+  },
 ];
 
 const siteUpdates = [...entries].sort((a, b) =>
