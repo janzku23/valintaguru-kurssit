@@ -30,7 +30,7 @@ export const COURSE_FEATURES: Record<
   CourseFeatureFlags
 > = {
   oikis: {
-    theory: true,
+    theory: false,
     tasks: false,
     flashcards: false,
     podcast: false,
