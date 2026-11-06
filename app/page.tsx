@@ -88,7 +88,7 @@ export default function HomePage() {
       />
 
       <HomeAuthProvider>
-        <main className="min-h-screen overflow-x-hidden bg-[#fffdf8] text-slate-950">
+        <main className="min-h-screen overflow-x-clip bg-[#fffdf8] text-slate-950">
           <HomeHeaderClient />
           <FreeCoursePromoBar />
           <HomeHero />

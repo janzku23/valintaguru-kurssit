@@ -1,11 +1,8 @@
 import "server-only";
-import { SHOP_SELLER } from "@/data/shop/seller";
-const sellerAddress =
-  process.env.SHOP_SELLER_POSTAL_ADDRESS?.trim() || SHOP_SELLER.postalAddress;
 export const SHOP_TERMS = {
-  version: "2026-11-04.2",
+  version: "2026-11-06",
   paragraphs: [
-    `Myyjä: ValintaGuru Oy, Y-tunnus 3573013-4. Asiakaspalvelu: info@valintaguru.com.${sellerAddress ? ` Postiosoite: ${sellerAddress}.` : ""} Tuotekohtaiset hinnat sisältävät ilmoitetun arvonlisäveron. Toimitus tapahtuu sähköisesti ilman toimituskuluja.`,
+    `Myyjä: ValintaGuru Oy, Y-tunnus 3573013-4. Asiakaspalvelu: info@valintaguru.com. Tuotekohtaiset hinnat sisältävät ilmoitetun arvonlisäveron. Toimitus tapahtuu sähköisesti ilman toimituskuluja.`,
     "Tuotteen sisältö, soveltuvuus, käyttöoikeuden kesto ja toimituksen luonne ilmoitetaan tuotesivulla ja tilausyhteenvedossa. Käyttöoikeuden kesto alkaa maksun vahvistamisesta. Kurssioikeus ja materiaalit on tarkoitettu vain henkilökohtaiseen käyttöön. Materiaaleja tai käyttäjätunnuksia ei saa jakaa ulkopuolisille. Aiempi omistus ei pidennä aikaisemman tilauksen oikeutta: uusi oikeus on voimassa oman tilauksensa mukaisen ajan.",
     "Maksunvälittäjänä toimii Paytrail Oyj (Y-tunnus 2122839-7), Innova 2, Lutakonaukio 7, 40100 Jyväskylä. Paytrail Oyj näkyy maksunsaajana ja välittää maksun myyjälle. Maksutavat esitetään Paytrailin maksusivulla. Reklamaatioissa ota ensin yhteyttä ValintaGuruun.",
     "Kurssioikeudet toimitetaan vasta palvelimella vahvistetun maksun jälkeen. Uusi käyttäjätili luodaan tarvittaessa samalla sähköpostilla. Kirjautuminen edellyttää sähköpostilinkin avaamista tai aiempaa turvallista kirjautumista. Maksu ei itsessään kirjaa asiakasta sisään. Viivästyneen maksun toimitus odottaa vahvistusta.",

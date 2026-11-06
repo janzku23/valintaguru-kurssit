@@ -70,6 +70,7 @@ export default function HomeHeaderClient() {
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Link
               href="/#kurssit"
+              data-header-action="secondary"
               className="hidden rounded-full border border-slate-300 px-5 py-2.5 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7] lg:inline-flex"
             >
               Tutustu kursseihin
@@ -77,6 +78,7 @@ export default function HomeHeaderClient() {
 
             <Link
               href={isLoggedIn ? "/profiili" : "/kirjaudu"}
+              data-header-action="primary"
               className="hidden whitespace-nowrap rounded-full bg-[#3f51e7] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:-translate-y-0.5 hover:bg-[#3142d6] sm:inline-flex"
             >
               {loading
@@ -96,6 +98,7 @@ export default function HomeHeaderClient() {
               }
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
+              data-header-action="toggle"
               className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-950 shadow-sm transition hover:border-[#3f51e7] hover:text-[#3f51e7] lg:hidden"
             >
               {mobileMenuOpen ? (
@@ -179,6 +182,7 @@ export default function HomeHeaderClient() {
               <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
                 <Link
                   href="/#kurssit"
+                  data-header-action="secondary"
                   onClick={() => setMobileMenuOpen(false)}
                   className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3.5 text-center font-bold text-slate-900 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
                 >
@@ -187,6 +191,7 @@ export default function HomeHeaderClient() {
 
                 <Link
                   href={isLoggedIn ? "/profiili" : "/kirjaudu"}
+                  data-header-action="primary"
                   onClick={() => setMobileMenuOpen(false)}
                   className="inline-flex items-center justify-center rounded-full bg-[#3f51e7] px-5 py-3.5 text-center font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-[#3142d6]"
                 >

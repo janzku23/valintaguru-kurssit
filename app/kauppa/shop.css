@@ -1,4 +1,5 @@
 .vg-shop {
+  color-scheme: light;
   --shop-bg: #f5f8ff;
   --shop-card: #fff;
   --shop-ink: #0f172a;
@@ -369,28 +370,13 @@
 }
 
 .vg-shop[data-theme="dark"] {
+  color-scheme: dark;
   --shop-bg: #0f172a;
   --shop-card: #172136;
   --shop-ink: #f1f5f9;
   --shop-muted: #b6c2d7;
   --shop-border: #334155;
   --shop-soft: #242e50;
-}
-.vg-shop[data-theme="dark"] > header {
-  background: #111b2e;
-  border-color: #334155;
-}
-.vg-shop[data-theme="dark"] > header nav,
-.vg-shop[data-theme="dark"] > header a {
-  color: #e2e8f0;
-}
-.vg-shop[data-theme="dark"] > header button {
-  background: #172136;
-  color: #f1f5f9;
-  border-color: #334155;
-}
-.vg-shop[data-theme="dark"] > header > div + div {
-  background: #111b2e;
 }
 .vg-shop[data-theme="dark"] .vg-product-badge {
   color: #c7d2fe;
@@ -403,28 +389,13 @@
 
 @media (prefers-color-scheme: dark) {
   .vg-shop:not([data-theme="light"]) {
+    color-scheme: dark;
     --shop-bg: #0f172a;
     --shop-card: #172136;
     --shop-ink: #f1f5f9;
     --shop-muted: #b6c2d7;
     --shop-border: #334155;
     --shop-soft: #242e50;
-  }
-  .vg-shop:not([data-theme="light"]) > header {
-    background: #111b2e;
-    border-color: #334155;
-  }
-  .vg-shop:not([data-theme="light"]) > header nav,
-  .vg-shop:not([data-theme="light"]) > header a {
-    color: #e2e8f0;
-  }
-  .vg-shop:not([data-theme="light"]) > header button {
-    background: #172136;
-    color: #f1f5f9;
-    border-color: #334155;
-  }
-  .vg-shop:not([data-theme="light"]) > header > div + div {
-    background: #111b2e;
   }
   .vg-shop:not([data-theme="light"]) .vg-product-badge {
     color: #c7d2fe;
@@ -774,4 +745,41 @@
 .vg-checkout-summary .vg-shop-line a {
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* Header controls share the active shop theme in both desktop and mobile menus. */
+.vg-shop > header,
+.vg-shop > header #mobile-navigation {
+  background: var(--shop-card);
+  color: var(--shop-ink);
+  border-color: var(--shop-border);
+}
+.vg-shop > header nav,
+.vg-shop > header a:not([data-header-action]) {
+  color: var(--shop-ink);
+}
+.vg-shop > header [data-header-action="secondary"],
+.vg-shop > header [data-header-action="toggle"] {
+  background: var(--shop-card);
+  color: var(--shop-ink);
+  border-color: var(--shop-border);
+}
+.vg-shop > header [data-header-action="primary"] {
+  background: #3f51e7;
+  color: #fff;
+}
+.vg-shop > header [data-header-action="primary"]:hover {
+  background: #3142d6;
+}
+.vg-shop > header [data-header-action="secondary"]:hover,
+.vg-shop > header [data-header-action="toggle"]:hover {
+  border-color: #818cf8;
+  color: var(--shop-ink);
+}
+.vg-shop > header #mobile-navigation .border-t {
+  border-color: var(--shop-border);
+}
+.vg-shop > header nav a:hover {
+  background: var(--shop-soft);
+  color: var(--shop-ink);
 }

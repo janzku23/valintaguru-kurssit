@@ -30,12 +30,10 @@ export default function Checkout({
   products,
   checkout = false,
   paymentAvailable = true,
-  sellerAddress = SHOP_SELLER.postalAddress,
 }: {
   products: Product[];
   checkout?: boolean;
   paymentAvailable?: boolean;
-  sellerAddress?: string;
 }) {
   const { ids, setIds, ready } = useCart();
   const [code, setCode] = useState("");
@@ -296,7 +294,6 @@ export default function Checkout({
                   {SHOP_SELLER.name} · Y-tunnus {SHOP_SELLER.businessId}
                 </small>
                 <small>
-                  {sellerAddress} ·{" "}
                   <a href={`mailto:${SHOP_SELLER.email}`}>
                     {SHOP_SELLER.email}
                   </a>

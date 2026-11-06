@@ -98,10 +98,10 @@ export default function FreeCourseSignup() {
   if (checkingAuth || isLoggedIn) return null;
 
   return (
-    <section id="ilmainen-kurssi" className="px-4 py-8 sm:px-5 sm:py-12 md:px-8">
+    <section id="ilmainen-kurssi" className="min-w-0 [overflow-wrap:anywhere] px-4 py-8 sm:px-5 sm:py-12 md:px-8">
       <div className="mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-indigo-100 bg-white shadow-xl shadow-slate-900/5">
-        <div className="grid lg:grid-cols-[0.92fr_1.08fr]">
-          <div className="bg-gradient-to-br from-[#173aa5] via-[#2458d8] to-[#3f51e7] p-7 text-white sm:p-9 lg:p-11">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+          <div className="min-w-0 bg-gradient-to-br from-[#173aa5] via-[#2458d8] to-[#3f51e7] p-5 text-white sm:p-9 lg:p-11">
             <span className="inline-flex rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-black uppercase tracking-[0.18em]">
               Maksuton
             </span>
@@ -117,22 +117,22 @@ export default function FreeCourseSignup() {
             </p>
 
             <div className="mt-7 grid gap-3 text-sm font-bold text-blue-50 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
+              <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
                 10.11.2026 Webinaari klo 18:00
               </div>
-              <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
+              <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
                 Testaa ilmaiseksi lähtötasosi
               </div>
-               <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
+               <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
                 Ennakkokysymyksiä voi lähettää info@valintaguru.com
               </div>
             </div>
           </div>
 
-          <div className="p-7 sm:p-9 lg:p-11">
+          <div className="min-w-0 p-5 sm:p-9 lg:p-11">
             <p className="text-sm font-black uppercase tracking-[0.16em] text-[#3f51e7]">
               Ilmoittaudu mukaan
             </p>
@@ -156,7 +156,7 @@ export default function FreeCourseSignup() {
                   placeholder="sahkoposti@esimerkki.fi"
                   autoComplete="email"
                   required
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-4 text-base font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#3f51e7] focus:ring-4 focus:ring-indigo-100"
+                  className="min-w-0 w-full rounded-2xl border border-slate-300 bg-white px-4 py-4 text-base font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#3f51e7] focus:ring-4 focus:ring-indigo-100"
                 />
               </label>
 
@@ -179,7 +179,7 @@ export default function FreeCourseSignup() {
                   onChange={(event) => setMarketingConsent(event.target.checked)}
                   className="mt-0.5 h-5 w-5 shrink-0 accent-[#3f51e7]"
                 />
-                <span className="text-sm font-semibold leading-6 text-slate-700">
+                <span className="min-w-0 text-sm font-semibold leading-6 text-slate-700">
                   Kyllä, haluan jatkossa sähköpostitse ValintaGurun uutisia,
                   opiskeluvinkkejä ja tietoa tulevista tapahtumista.
                 </span>
@@ -212,7 +212,7 @@ export default function FreeCourseSignup() {
                 disabled={sending}
                 className="inline-flex w-full items-center justify-center rounded-2xl bg-[#173f9f] px-5 py-4 text-base font-black text-white shadow-lg shadow-blue-900/15 transition hover:bg-[#123482] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {sending ? "Ilmoittaudutaan..." : "Ilmoittaudu maksuttomalle kurssille"}
+                <span className="min-w-0">{sending ? "Ilmoittaudutaan..." : "Ilmoittaudu maksuttomalle kurssille"}</span>
               </button>
             </form>
           </div>
