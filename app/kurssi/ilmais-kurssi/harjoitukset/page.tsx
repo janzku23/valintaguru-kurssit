@@ -1,3 +1,4 @@
+import Link from "next/link";
 import FreeCourseSidebar from "@/components/FreeCourseSidebar";
 
 const exams = [
@@ -31,17 +32,17 @@ export default function FreeCourseExercisesPage() {
           </h1>
 
           <p className="mt-4 max-w-3xl leading-7 text-blue-50 sm:text-lg">
-            Valitse harjoiteltava koe. Molemmat ovat omia kokonaisia
-            koesuorituksiaan ja tallentuvat käyttäjäkohtaisesti.
+            Valitse harjoiteltava osio. Seuraavalla sivulla näet lähdelinkit ja
+            aloitusohjeet ennen ajanoton käynnistämistä.
           </p>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
           <FreeCourseSidebar active="exercises" />
 
           <section className="grid min-w-0 gap-5 md:grid-cols-2">
             {exams.map((exam) => (
-              <a
+              <Link
                 key={exam.href}
                 href={exam.href}
                 className="group flex min-h-72 flex-col rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
@@ -71,9 +72,9 @@ export default function FreeCourseExercisesPage() {
                       : "text-blue-700"
                   }`}
                 >
-                  Avaa koe →
+                  Aineistot ja aloitusohjeet →
                 </span>
-              </a>
+              </Link>
             ))}
           </section>
         </div>

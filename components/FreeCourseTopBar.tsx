@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 
 const links = [
   { href: "/kurssi/ilmais-kurssi", label: "Kurssin etusivu" },
-  { href: "/kurssi/ilmais-kurssi/teoria", label: "Teoria" },
   { href: "/kurssi/ilmais-kurssi/harjoitukset", label: "Harjoituskokeet" },
 ];
 
@@ -25,7 +24,7 @@ export default function FreeCourseTopBar() {
 
         <nav className="ml-auto hidden items-center gap-1 lg:flex">
           {links.map((link) => {
-            const active = pathname === link.href;
+            const active = pathname === link.href || (link.href.endsWith("/harjoitukset") && pathname.startsWith(`${link.href}/`));
             return (
               <a
                 key={link.href}
@@ -52,7 +51,7 @@ export default function FreeCourseTopBar() {
 
       <nav className="flex gap-2 overflow-x-auto border-t border-slate-100 px-4 py-2 lg:hidden">
         {links.map((link) => {
-          const active = pathname === link.href;
+          const active = pathname === link.href || (link.href.endsWith("/harjoitukset") && pathname.startsWith(`${link.href}/`));
           return (
             <a
               key={link.href}

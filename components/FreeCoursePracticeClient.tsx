@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createClient } from "@/utils/supabase/client";
+import FreeCourseExamMaterials from "@/components/FreeCourseExamMaterials";
 import {
   freeExam2026Questions,
   freeExamTaskArticles,
@@ -159,7 +160,11 @@ function formatTime(totalSeconds: number) {
     .join(":");
 }
 
-export default function FreeCoursePracticeClient() {
+export default function FreeCoursePracticeClient({
+  readingContent = {},
+}: {
+  readingContent?: Record<string, ReactNode>;
+}) {
   const supabase = useMemo(() => createClient(), []);
   const submissionInProgress = useRef(false);
 
@@ -447,28 +452,30 @@ export default function FreeCoursePracticeClient() {
             Harjoituskoe
           </p>
           <h2 className="mt-2 text-3xl font-black text-slate-950">
-            Valintakoe G 2026
+            Aineistot ja aloitus
           </h2>
         </div>
 
         <div className="p-6 sm:p-8">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-sm font-bold text-slate-500">Kesto</p>
-              <p className="mt-1 text-2xl font-black text-slate-950">2 tuntia</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+              <p className="break-words text-[11px] font-bold text-slate-500 sm:text-sm">Kesto</p>
+              <p className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">2 tuntia</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-sm font-bold text-slate-500">Kysymyksiä</p>
-              <p className="mt-1 text-2xl font-black text-slate-950">70</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+              <p className="break-words text-[11px] font-bold text-slate-500 sm:text-sm">Kysymyksiä</p>
+              <p className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">70</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-sm font-bold text-slate-500">Maksimipisteet</p>
-              <p className="mt-1 text-2xl font-black text-slate-950">70 p</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+              <p className="break-words text-[11px] font-bold text-slate-500 sm:text-sm">Maksimipisteet</p>
+              <p className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">70 p</p>
             </div>
           </div>
 
+          <FreeCourseExamMaterials exam="g" readingContent={readingContent} />
+
           <div className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50 p-5">
-            <h3 className="font-black text-slate-950">Ennen kuin aloitat</h3>
+            <h3 className="font-black text-slate-950">02 / Aloitusohjeet</h3>
             <p className="mt-2 leading-7 text-slate-700">
               Kun painat Aloita koe, kahden tunnin aika alkaa kulua. Koe sisältää
               vuoden 2026 Valintakoe G:n yhteisen osion tehtävät A1–A14 yhtenä

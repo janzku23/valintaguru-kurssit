@@ -1,7 +1,21 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import KirjauduClient from "./KirjauduClient";
+
+export const metadata: Metadata = {
+  title: "Kirjaudu",
+  description: "Kirjaudu ValintaGurun kurssialustalle.",
+  robots: {
+    index: false,
+    follow: true,
+    googleBot: {
+      index: false,
+      follow: true,
+    },
+  },
+};
 
 export default function KirjauduPage() {
   return (

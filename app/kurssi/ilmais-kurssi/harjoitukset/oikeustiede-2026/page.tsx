@@ -18,7 +18,7 @@ export default function FreeCourseLawExam2026Page() {
           </p>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
           <FreeCourseSidebar active="exercises" />
 
           <section className="min-w-0">

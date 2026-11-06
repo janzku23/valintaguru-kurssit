@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import TietoaMeistaClient from "./TietoaMeistaClient";
 
 export const metadata: Metadata = {
-  title: "Tietoa meistä | ValintaGuru",
+  title: "Tietoa meistä",
   description: "Tutustu ValintaGurun taustalla oleviin ihmisiin ja tiimiin.",
   alternates: { canonical: "https://www.valintaguru.fi/tietoa-meista" },
   openGraph: {

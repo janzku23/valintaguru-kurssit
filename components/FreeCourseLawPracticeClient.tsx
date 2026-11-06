@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import FreeCourseExamMaterials from "@/components/FreeCourseExamMaterials";
 import {
   freeCourseLaw2026Questions,
   LAW_EXAM_DURATION_SECONDS,
@@ -456,33 +457,30 @@ export default function FreeCourseLawPracticeClient() {
         </div>
 
         <h2 className="mt-4 font-serif text-3xl font-semibold text-slate-950 sm:text-4xl">
-          Oikeustieteen eriytyvä osio 2026
+          Aineistot ja aloitus
         </h2>
 
-        <p className="mt-4 max-w-3xl leading-7 text-slate-700">
-          Vuoden 2026 alkuperäinen oikeustieteen eriytyvä osio. Koe sisältää
-          tehtävät C1–C30 yhtenä 60 minuutin kokeena.
-        </p>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-            <p className="text-sm font-bold text-slate-500">Kesto</p>
-            <p className="mt-1 text-2xl font-black text-slate-950">60 min</p>
+        <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-4">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-5">
+            <p className="break-words text-[11px] font-bold text-slate-500 sm:text-sm">Kesto</p>
+            <p className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">60 min</p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-            <p className="text-sm font-bold text-slate-500">Kysymyksiä</p>
-            <p className="mt-1 text-2xl font-black text-slate-950">30</p>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-5">
+            <p className="break-words text-[11px] font-bold text-slate-500 sm:text-sm">Kysymyksiä</p>
+            <p className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">30</p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-            <p className="text-sm font-bold text-slate-500">Maksimipisteet</p>
-            <p className="mt-1 text-2xl font-black text-slate-950">30 p</p>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-5">
+            <p className="break-words text-[11px] font-bold text-slate-500 sm:text-sm">Maksimipisteet</p>
+            <p className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">30 p</p>
           </div>
         </div>
 
+        <FreeCourseExamMaterials exam="law" />
+
         <div className="mt-6 rounded-2xl border border-violet-100 bg-violet-50 p-5">
-          <h3 className="font-black text-slate-950">Ennen kuin aloitat</h3>
+          <h3 className="font-black text-slate-950">02 / Aloitusohjeet</h3>
 
           <p className="mt-2 leading-7 text-slate-700">
             Kun painat Aloita koe, 60 minuutin aika alkaa kulua. C1–C15

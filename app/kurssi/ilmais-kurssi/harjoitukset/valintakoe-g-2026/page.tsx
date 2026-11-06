@@ -1,7 +1,15 @@
+import FreeCourseMaterialText from "@/components/FreeCourseMaterialText";
+import { freeCourseTheory2026 } from "@/data/freeCourseTheory2026";
 import FreeCourseSidebar from "@/components/FreeCourseSidebar";
 import FreeCoursePracticeClient from "@/components/FreeCoursePracticeClient";
 
 export default function FreeCourseValintakoeG2026Page() {
+  const readingContent = Object.fromEntries(
+    freeCourseTheory2026.map((article) => [
+      article.id,
+      <FreeCourseMaterialText key={article.id} article={article} />,
+    ]),
+  );
   return (
     <main className="min-h-screen bg-[#f5f8ff] px-4 py-8 text-slate-950 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-7xl">
@@ -18,11 +26,11 @@ export default function FreeCourseValintakoeG2026Page() {
           </p>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
           <FreeCourseSidebar active="exercises" />
 
           <section className="min-w-0">
-            <FreeCoursePracticeClient />
+            <FreeCoursePracticeClient readingContent={readingContent} />
           </section>
         </div>
       </div>
