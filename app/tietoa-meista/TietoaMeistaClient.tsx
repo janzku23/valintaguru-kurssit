@@ -46,7 +46,7 @@ const team: TeamMember[] = [
     id: "henkilo-2",
     name: "Julianna Lintukangas",
     description: "Vastaa myynnistä, asiakaspalvelusta ja markkinoinnista.",
-    // image: "/tiimi/henkilo-2.webp",
+     image: "/tiimi/juli.jpg",
   },
   
   
