@@ -92,7 +92,7 @@
 .memberInfo { display: flex; flex-direction: column; min-height: 0; padding: 20px 16px 12px; }
 .memberRole { display: block; font-size: 12px; font-weight: 800; letter-spacing: .06em; color: var(--blue); }
 .memberName { display: block; margin-top: 6px; color: #0f172a; font-family: Georgia, 'Times New Roman', serif; font-size: 29px; line-height: 1.14; font-weight: 600; }
-.memberDescription { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 12px; color: #1e293b; font-size: 15px; font-weight: 600; line-height: 1.6; }
+.memberDescription { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 12px; color: #1e293b; font-size: 15px; font-weight: 600; line-height: 1.6; }
 .controls { display: flex; align-items: center; justify-content: center; gap: 30px; margin: -8px 0 0; position: relative; z-index: 110; }
 .arrowButton { display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: 100%; border: 1px solid #d9def3; color: var(--blue); background: #fff; box-shadow: 0 5px 16px rgb(15 23 42 / 7%); transition: background .2s, transform .2s; }
 .arrowButton:hover:not(:disabled) { background: #e9ebff; transform: translateY(-2px); }
@@ -132,7 +132,7 @@
   .personIllustration { width: 122px; height: 122px; }
   .memberInfo { padding: 17px 12px 8px; }
   .memberName { font-size: 25px; }
-  .memberDescription { font-size: 14px; margin-top: 10px; line-height: 1.55; -webkit-line-clamp: 4; }
+  .memberDescription { font-size: 14px; margin-top: 10px; line-height: 1.55; -webkit-line-clamp: 4; line-clamp: 4; }
   .controls { margin-top: 0; gap: 22px; }
   .footer { padding: 22px 20px; }
 }
