@@ -22,6 +22,13 @@ import { valintakoeGMediumExercise8Base } from "./mediumExercise8";
 import { valintakoeGMediumExercise9Base } from "./mediumExercise9";
 import { valintakoeGMediumExercise10Base } from "./mediumExercise10";
 import { valintakoeGMediumExercise11Base } from "./mediumExercise11";
+import { valintakoeGMediumExercise12Base } from "./mediumExercise12";
+import { valintakoeGMediumExercise13Base } from "./mediumExercise13";
+import { valintakoeGMediumExercise14Base } from "./mediumExercise14";
+import { valintakoeGMediumExercise15Base } from "./mediumExercise15";
+import { valintakoeGMediumExercise16Base } from "./mediumExercise16";
+import { valintakoeGMediumExercise17Base } from "./mediumExercise17";
+import { valintakoeGMediumExercise18Base } from "./mediumExercise18";
 
 import type {
   PublicValintakoeGExercise,
@@ -65,6 +72,13 @@ const baseExercises = [
   valintakoeGMediumExercise9Base,
   valintakoeGMediumExercise10Base,
   valintakoeGMediumExercise11Base,
+  valintakoeGMediumExercise12Base,
+  valintakoeGMediumExercise13Base,
+  valintakoeGMediumExercise14Base,
+  valintakoeGMediumExercise15Base,
+  valintakoeGMediumExercise16Base,
+  valintakoeGMediumExercise17Base,
+  valintakoeGMediumExercise18Base,
 ];
 
 export function getValintakoeGExercises(

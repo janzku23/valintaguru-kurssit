@@ -72,6 +72,15 @@ const entries: SiteUpdate[] = [
       "Harjoitukset 4-11 ovat nyt saatavilla.",
     ],
   },
+          {
+    date: "2026-11-06",
+    title: "Sivuston päivityshistoria",
+    changes: [
+      "Valintakoe G -kurssin keskitason harjoituksia lisätty.",
+      "Harjoitukset 12-18 ovat nyt saatavilla.",
+      "Tietoa meistä päivitetty",
+    ],
+  },
 ];
 
 const siteUpdates = [...entries].sort((a, b) =>
