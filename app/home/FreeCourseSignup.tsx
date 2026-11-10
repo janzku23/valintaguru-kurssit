@@ -109,7 +109,7 @@ export default function FreeCourseSignup() {
               Ilmainen ValintaGuru-kurssi
             </h2>
             <p className="mt-4 max-w-xl text-base leading-7 text-blue-50 sm:text-lg">
-              Luo maksuton käyttäjätunnus. Webinaarilinkki julkaistaan lähempänä
+              Luo maksuton käyttäjätunnus.
               
             </p>
              <p className="mt-4 max-w-xl text-base leading-7 text-blue-50 sm:text-lg">
@@ -119,16 +119,13 @@ export default function FreeCourseSignup() {
             <div className="mt-7 grid gap-3 text-sm font-bold text-blue-50 sm:grid-cols-2 lg:grid-cols-1">
               <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
-                10.11.2026 Webinaari klo 18:00
+                10.11 Pidetty webinaari tulossa jälkikäteen katsottavaksi
               </div>
               <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
                 Testaa ilmaiseksi lähtötasosi
               </div>
-               <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
-                Webinaarin osoite : https://meet.google.com/rhg-jfip-evw
-              </div>
+              
             </div>
           </div>
 
