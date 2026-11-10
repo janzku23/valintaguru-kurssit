@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
+import { emailLinkRedirectScript } from "@/lib/emailLinkRedirect";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import PrivacyAnalytics from "@/components/shop/PrivacyAnalytics";
@@ -160,6 +162,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        <Script
+          id="email-link-redirect"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: emailLinkRedirectScript }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
