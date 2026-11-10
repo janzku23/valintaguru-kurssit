@@ -13,6 +13,7 @@ export default function FreeCourseWebinarCard() {
         </time>
       </div>
       <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-700">Osallistumislinkki lisätään tähän ennen webinaaria. Ilmaiskurssin käyttäjänä sinun ei tarvitse ilmoittautua uudelleen.</p>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-700">Kopioitava linkki alapuolella !</p>
       <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-indigo-800"><span className="h-2 w-2 rounded-full bg-indigo-400" aria-hidden="true" />https://meet.google.com/rhg-jfip-evw</p>
     </section>
   );

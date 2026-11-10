@@ -56,6 +56,9 @@ export default function FreeCourseAccessCard() {
                 Käyttäjätunnuksellasi pääset automaattisesti maksuttomaan
                 webinaariin ja harjoituskokeeseen
               </p>
+              <p className="mt-3 max-w-2xl leading-7 text-slate-600">
+                Linkki webinaariin : https://meet.google.com/rhg-jfip-evw
+              </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <a
