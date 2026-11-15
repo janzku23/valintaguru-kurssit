@@ -990,9 +990,8 @@ test("checkout preserves explicit mixed-cart consents and rejects missing accept
   assert.equal(orders.length, 0);
   assert.equal((await submit({})).status, 200);
   assert.deepEqual(orders[0].p_terms.checkout_consents, [
-    checkoutConsent.immediate,
+    checkoutConsent.terms,
     checkoutConsent.digital,
-    checkoutConsent.service,
   ]);
   assert.equal(orders[0].p_immediate, true);
   assert.equal(orders[0].p_ack, true);

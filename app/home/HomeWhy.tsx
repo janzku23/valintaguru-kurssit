@@ -5,14 +5,7 @@ export default function HomeWhy() {
   return (
       <section id="miksi" className="scroll-mt-20 mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16 md:px-8 lg:py-24">
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="overflow-hidden rounded-[2rem] bg-[#eee9df] p-3 shadow-xl shadow-slate-900/10">
-            <Image
-              src={uudetkurssit}
-              alt="Opiskelua ValintaGurun avulla"
-              sizes="(max-width: 1024px) 100vw, 520px"
-              className="aspect-square w-full rounded-[1.4rem] object-cover"
-            />
-          </div>
+         
           <div>
             <p className="font-bold uppercase tracking-[0.18em] text-[#3f51e7]">Miksi ValintaGuru?</p>
             <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl md:text-5xl">Tavoitteellista opiskelua ilman turhaa säätöä</h2>

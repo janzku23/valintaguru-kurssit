@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Valintakoe G pisterajat 2026 – ValintaGuru",
+        alt: "Valintakoe G pisterajat – ValintaGuru",
       },
     ],
   },
@@ -357,11 +357,11 @@ export default function ValintakoeGPisterajatPage() {
         <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="max-w-4xl">
             <p className="text-sm font-black uppercase tracking-[0.18em] text-[#3f51e7]">
-              Valintakoe G
+              Mikä on valintakoe G:n pisterajat?
             </p>
 
             <h1 className="mt-4 font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Valintakoe G pisterajat 2026
+              Valintakoe G pisterajat
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-700 sm:text-xl">

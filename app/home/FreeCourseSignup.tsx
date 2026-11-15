@@ -112,14 +112,12 @@ export default function FreeCourseSignup() {
               Luo maksuton käyttäjätunnus.
               
             </p>
-             <p className="mt-4 max-w-xl text-base leading-7 text-blue-50 sm:text-lg">
-              Jo kurssin ostaneiden ei tarvitse erikseen ilmottautua
-            </p>
+            
 
             <div className="mt-7 grid gap-3 text-sm font-bold text-blue-50 sm:grid-cols-2 lg:grid-cols-1">
               <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>
-                10.11 Pidetty webinaari tulossa jälkikäteen katsottavaksi
+                10.11. Pidetty webinaari tulossa jälkikäteen katsottavaksi
               </div>
               <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#2458d8]">✓</span>

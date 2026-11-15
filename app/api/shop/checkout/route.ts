@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         p_products: products,
         p_code: code,
       });
-      consentTexts.push(checkoutConsent.immediate);
+      consentTexts.push(checkoutConsent.terms);
       if (quote.items.some((item) => item.legal_kind === "digital_content")) {
         if (body.withdrawalAck !== true)
           throw new Error("Virheellinen ostoskori tai suostumus.");
@@ -61,7 +61,6 @@ export async function POST(request: Request) {
       if (quote.items.some((item) => item.legal_kind === "service")) {
         if (body.serviceAck !== true)
           throw new Error("Virheellinen ostoskori tai suostumus.");
-        consentTexts.push(checkoutConsent.service);
       }
     }
     const key = createHmac("sha256", config.internalSecret)

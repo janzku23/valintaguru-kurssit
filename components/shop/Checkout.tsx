@@ -82,7 +82,7 @@ export default function Checkout({
     event.preventDefault();
     if (!paymentAvailable || !quote || submitting.current) return;
     const form = new FormData(event.currentTarget);
-    if (form.get("terms") !== "on" || form.get("immediate") !== "on") return;
+    if (form.get("terms") !== "on") return;
     submitting.current = true;
     setBusy(true);
     setPaymentError("");
@@ -342,8 +342,8 @@ export default function Checkout({
                 Kurssioikeus liitetään tähän sähköpostiosoitteeseen.
               </small>
               <h2>Tilausehdot</h2>
-              <label className="vg-shop-check">
-                <input name="terms" type="checkbox" required />
+              <label className="vg-shop-check" key={quoteKey}>
+                <input name="terms" type="checkbox" required disabled={!quote} />
                 <span>
                   Olen lukenut ja hyväksyn{" "}
                   <Link
@@ -360,18 +360,13 @@ export default function Checkout({
                   . Ymmärrän, että kurssi ja sen materiaalit on tarkoitettu vain
                   henkilökohtaiseen käyttööni, eikä materiaaleja tai
                   käyttäjätunnuksia saa jakaa ulkopuolisille.
+                  {quote && hasDigital && (
+                    <span className="vg-checkout-consent-details">
+                      {hasDigital && checkoutConsent.digital}
+                    </span>
+                  )}
                 </span>
               </label>
-              {quote && (
-                <label className="vg-shop-check" key={quoteKey}>
-                  <input name="immediate" type="checkbox" required />
-                  <span>
-                    {checkoutConsent.immediate}{" "}
-                    {hasDigital && checkoutConsent.digital}{" "}
-                    {hasService && checkoutConsent.service}
-                  </span>
-                </label>
-              )}
               <small>
                 <Link
                   href="/ehdot/tietosuojakaytanto"

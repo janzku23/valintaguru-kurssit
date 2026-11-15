@@ -34,7 +34,7 @@ const team: TeamMember[] = [
     id: "henkilo-3",
     name: "Iina Lindholm",
     description: "ValintaGurun opettaja. Oikeustieteiden maisteri ja tradenomi.",
-    // image: "/tiimi/henkilo-3.webp",
+    image: "/tiimi/Iina.jpg",
   },
   {
     id: "henkilo-1",
@@ -53,7 +53,7 @@ const team: TeamMember[] = [
   {
     id: "henkilo-4",
     name: "Juulia Tuominen",
-    description: "Juulia on viestinnän ammattilainen, joka opettaa kurssilla kriittistä ja analyyttistä lukemista, tehokasta lukutekniikkaa aineistokokeessa sekä usean aineiston soveltamista ja vertailua.",
+    description: "Juulia on viestinnän ammattilainen, joka opettaa kurssilla kriittistä ja analyyttistä lukemista, tehokasta lukutekniikkaa aineistokokeessa sekä usean aineiston soveltamista ja vertailua. Juulia on koulutukseltaan viestintätieteiden maisteri",
     // image: "/tiimi/henkilo-4.webp",
   },
   {
@@ -62,7 +62,14 @@ const team: TeamMember[] = [
     description: "Päivi on juuri valmistuva kasvatustieteiden maisteri, jolle tieteelliset tekstit ja niiden parissa työskentely ovat aina olleet sydämenasia. Hän haluaa jakaa osaamistaan ja auttaa opiskelijoita kehittämään erityisesti tieteellisten tekstien tulkinta- ja analysointitaitoja sekä valintakokeessa tarvittavaa vastaustekniikkaa.",
      image: "/tiimi/paivihuovinen.jpg",
   },
-  
+/*
+   {
+    id: "henkilo-6",
+    name: "Sara Kalske",
+    description: "Vastaa yrityksen somesta",
+    // image: "/tiimi/paivihuovinen.jpg",
+  },
+  */
 ];
 
 const navLinks = [

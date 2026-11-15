@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useHomeAuth } from "@/app/home/HomeAuthProvider";
 import { useCart } from "./cart";
@@ -109,18 +110,32 @@ export default function Catalog({
           className={`vg-product-card ${selected && product.course_ids.includes(selected) ? "selected" : ""}`}
           key={product.id}
         >
-          <h2>
-            <Link href={`/kauppa/${product.slug}`}>{product.name}</Link>
-          </h2>
-          <div className="vg-product-price">
-            {money(product.sale_price_cents ?? product.price_cents)}
+          <div className="vg-product-card-heading">
+            <div className="vg-product-card-info">
+              <h2>
+                <Link href={`/kauppa/${product.slug}`}>{product.name}</Link>
+              </h2>
+              <div className="vg-product-price">
+                {money(product.sale_price_cents ?? product.price_cents)}
+              </div>
+              {product.vat_percentage !== null && (
+                <small className="vg-shop-muted">
+                  Sis. ALV{" "}
+                  {new Intl.NumberFormat("fi-FI").format(product.vat_percentage)} %
+                </small>
+              )}
+            </div>
+            {product.image_url && (
+              <Image
+                src={product.image_url}
+                alt=""
+                width={88}
+                height={88}
+                className="vg-product-logo"
+                unoptimized
+              />
+            )}
           </div>
-          {product.vat_percentage !== null && (
-            <small className="vg-shop-muted">
-              Sis. ALV{" "}
-              {new Intl.NumberFormat("fi-FI").format(product.vat_percentage)} %
-            </small>
-          )}
           <div className="vg-shop-actions">
             <AddToCart product={product} products={products} />
           </div>

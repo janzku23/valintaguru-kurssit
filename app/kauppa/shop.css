@@ -783,3 +783,40 @@
   background: var(--shop-soft);
   color: var(--shop-ink);
 }
+
+
+.vg-product-card-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+}
+.vg-product-logo {
+  flex: 0 0 88px;
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid #e7eaf2;
+  border-radius: 12px;
+  padding: 4px;
+}
+.vg-product-card-info {
+  flex: 1;
+  min-width: 0;
+}
+.vg-shop-catalog .vg-product-card-info h2 {
+  padding-bottom: 4px;
+  overflow-wrap: anywhere;
+}
+.vg-checkout-consent-details {
+  display: block;
+  margin-top: 8px;
+}
+@media (max-width: 380px) {
+  .vg-product-logo {
+    flex-basis: 68px;
+    width: 68px;
+    height: 68px;
+  }
+}

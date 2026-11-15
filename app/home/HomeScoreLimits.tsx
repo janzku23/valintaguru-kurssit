@@ -19,7 +19,7 @@ export default function HomeScoreLimits() {
                 </div>
 
                 <h2 className="mt-4 font-serif text-3xl font-semibold leading-tight text-slate-950 sm:text-4xl">
-                  Katso Valintakoe G:n lopulliset pisterajat
+                  Katso valintakoe G:n lopulliset pisterajat
                 </h2>
 
                 <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">

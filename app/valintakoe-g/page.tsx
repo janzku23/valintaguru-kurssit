@@ -6,7 +6,7 @@ const siteUrl =
   "https://www.valintaguru.fi";
 
 export const metadata: Metadata = {
-  title: { absolute: "Mikä on valintakoe G? | ValintaGuru" },
+  title: { absolute: "Valintakoe G | ValintaGuru" },
   description:
     "Valintakoe G on useiden yhteiskunnallisten alojen yhteinen yliopistojen valintakoe. Lue, miten koe toteutetaan ja mitä taitoja siinä tarvitaan.",
   alternates: {
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     locale: "fi_FI",
     siteName: "ValintaGuru",
     url: `${siteUrl}/valintakoe-g`,
-    title: "Mikä on valintakoe G? | ValintaGuru",
+    title: "Valintakoe G | ValintaGuru",
     description:
       "Tietoa valintakoe G:stä, vuoden 2027 koepäivästä, digitaalisesta toteutuksesta ja kokeessa tarvittavista taidoista.",
     images: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mikä on valintakoe G? | ValintaGuru",
+    title: "valintakoe G | ValintaGuru",
     description:
       "Tietoa valintakoe G:stä ja kokeessa tarvittavista taidoista.",
     images: ["/og-image.png"],
@@ -44,7 +44,7 @@ const pageJsonLd = {
     {
       "@type": "WebPage",
       "@id": `${siteUrl}/valintakoe-g#webpage`,
-      name: "Mikä on valintakoe G?",
+      name: "Valintakoe G?",
       description:
         "Tietoa valintakoe G:stä, sen toteutuksesta ja kokeessa tarvittavista taidoista.",
       inLanguage: "fi-FI",
@@ -124,11 +124,11 @@ export default function ValintakoeGPage() {
           <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
             <div className="max-w-4xl">
               <p className="text-sm font-black uppercase tracking-[0.18em] text-[#3f51e7]">
-                Valintakoe G
+                Mikä on valintakoe G?
               </p>
 
               <h1 className="mt-4 font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-                Mikä on valintakoe G?
+                Valintakoe G
               </h1>
 
               <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-700 sm:text-xl">
@@ -157,9 +157,9 @@ export default function ValintakoeGPage() {
         <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
           <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
             <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8 lg:p-10">
-              <p className="font-bold uppercase tracking-[0.16em] text-[#3f51e7]">
+              <h1 className="mt-4 font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-xl lg:text-2xl">
                 Valintakoe G 2027
-              </p>
+              </h1>
 
               <div className="mt-6 space-y-6 text-base leading-8 text-slate-700 sm:text-lg">
                 <p>
@@ -171,15 +171,11 @@ export default function ValintakoeGPage() {
                 </p>
 
                 <p>
-                  Valintakoe on digitaalinen ja suoritetaan omalla kannettavalla tietokoneella.
+                  Koe on digitaalinen, ja se suoritetaan omalla kannettavalla tietokoneella.
                 </p>
 
                 <p>
-                  Valintakoe G{" "}
-                  <strong className="font-extrabold text-slate-950">
-                    ei edellytetä tiettyjen sisältöjen opiskelua tai hallintaa etukäteen
-                  </strong>
-                  . Kokeessa tarvittaville valmiuksille on kuitenkin muodostunut pohjaa jo lukio-opinnoissa ja muissa toisen asteen opinnoissa.
+                 Valintakoe G mittaa erityisesti hakijan kykyä ymmärtää, analysoida ja soveltaa tieteellistä tekstiä. Kokeessa menestyminen ei perustu ulkoa opetteluun, vaan siihen, kuinka tehokkaasti osaat käsitellä annettua aineistoa ja ratkaista siihen liittyviä tehtäviä rajatussa ajassa.
                 </p>
 
                 <p>
@@ -192,6 +188,22 @@ export default function ValintakoeGPage() {
 
                 <p>
                   Vuoden 2027 kokeen tarkempia sisältö- ja rakennetietoja ei ole vielä kokonaisuudessaan julkaistu. Tietoja täydennetään sitä mukaa, kun yliopistot julkaisevat vuoden 2027 valintaperusteita ja tarkempia tietoja kokeesta.
+                </p>
+
+                <p>
+                  PADELIA
+                </p>
+                 <p>
+                  PAATELIA
+                </p>
+                 <p>
+                  TARVITSEN UUTEN MAILAN
+                </p>
+                 <p>
+                  HAJOTTANUT X3
+                </p>
+                 <p>
+                  3KK SISÄÄN
                 </p>
               </div>
             </article>
