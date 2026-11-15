@@ -189,22 +189,6 @@ export default function ValintakoeGPage() {
                 <p>
                   Vuoden 2027 kokeen tarkempia sisältö- ja rakennetietoja ei ole vielä kokonaisuudessaan julkaistu. Tietoja täydennetään sitä mukaa, kun yliopistot julkaisevat vuoden 2027 valintaperusteita ja tarkempia tietoja kokeesta.
                 </p>
-
-                <p>
-                  PADELIA
-                </p>
-                 <p>
-                  PAATELIA
-                </p>
-                 <p>
-                  TARVITSEN UUTEN MAILAN
-                </p>
-                 <p>
-                  HAJOTTANUT X3
-                </p>
-                 <p>
-                  3KK SISÄÄN
-                </p>
               </div>
             </article>
 
