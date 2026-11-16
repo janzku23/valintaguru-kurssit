@@ -131,9 +131,15 @@ export default function ValintakoeGPage() {
                 Valintakoe G
               </h1>
 
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-700 sm:text-xl">
-                Valintakoe G on useiden yhteiskunnallisten alojen yhteinen yliopistojen valintakoe. Sen kautta voi hakea muun muassa oikeustieteen, hallintotieteiden, sosiaalitieteiden, yhteiskuntatieteiden ja viestintätieteiden koulutuksiin.
-              </p>
+              <div className="mt-6 max-w-3xl space-y-6 text-lg leading-8 text-slate-700 sm:text-xl">
+                <p>
+                  <strong className="font-extrabold text-slate-950">Valintakoe G järjestetään keskiviikkona 9.6.2027 klo 14.00.</strong> Koe on digitaalinen, ja se suoritetaan omalla kannettavalla tietokoneella.
+                </p>
+
+                <p>
+                  Valintakoe G mittaa erityisesti hakijan kykyä ymmärtää, analysoida ja soveltaa tieteellistä tekstiä. Kokeessa menestyminen ei perustu ulkoa opetteluun, vaan siihen, kuinka tehokkaasti osaat käsitellä annettua aineistoa ja ratkaista siihen liittyviä tehtäviä rajatussa ajassa.
+                </p>
+              </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
@@ -157,74 +163,101 @@ export default function ValintakoeGPage() {
         <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
           <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
             <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8 lg:p-10">
-              <h1 className="mt-4 font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-xl lg:text-2xl">
-                Valintakoe G 2027
-              </h1>
+              <div className="space-y-8 text-base leading-8 text-slate-700 sm:text-lg">
+                <section className="space-y-6">
+                  <h2 className="font-serif text-2xl font-semibold leading-tight text-slate-950 sm:text-3xl">
+                    Mitä valintakokeessa G testataan?
+                  </h2>
 
-              <div className="mt-6 space-y-6 text-base leading-8 text-slate-700 sm:text-lg">
-                <p>
-                  Vuoden 2027 valintakoe G järjestetään{" "}
-                  <strong className="font-extrabold text-slate-950">
-                    keskiviikkona 9.6.2027 klo 14.00
-                  </strong>
-                  .
-                </p>
+                  <p>
+                    Valintakoe G ei edellytä tiettyjen oppisisältöjen opiskelua etukäteen. Kokeessa tarvittavat taidot ovat kuitenkin kehittyneet jo lukio-opinnoissa ja muissa toisen asteen opinnoissa.
+                  </p>
 
-                <p>
-                  Koe on digitaalinen, ja se suoritetaan omalla kannettavalla tietokoneella.
-                </p>
+                  <p>
+                    Kokeessa korostuvat erityisesti seuraavat taidot:
+                  </p>
 
-                <p>
-                 Valintakoe G mittaa erityisesti hakijan kykyä ymmärtää, analysoida ja soveltaa tieteellistä tekstiä. Kokeessa menestyminen ei perustu ulkoa opetteluun, vaan siihen, kuinka tehokkaasti osaat käsitellä annettua aineistoa ja ratkaista siihen liittyviä tehtäviä rajatussa ajassa.
-                </p>
+                  <ul className="list-disc space-y-4 pl-6">
+                    <li><strong className="font-extrabold text-slate-950">Tieteellisen tekstin lukeminen ja ymmärtäminen:</strong> Kyky hahmottaa vaativiakin tekstejä, tunnistaa keskeiset käsitteet ja ymmärtää asiayhteyksiä.</li>
+                    <li><strong className="font-extrabold text-slate-950">Olennaisen tiedon löytäminen:</strong> Kyky paikantaa aineistosta tehtävän ratkaisemisen kannalta merkityksellinen tieto nopeasti.</li>
+                    <li><strong className="font-extrabold text-slate-950">Tiedon analysointi ja soveltaminen:</strong> Kyky tehdä johtopäätöksiä, yhdistellä tietoja ja soveltaa aineistossa esitettyjä asioita.</li>
+                    <li><strong className="font-extrabold text-slate-950">Kriittinen lukutaito:</strong> Kyky erottaa toisistaan väitteet, perustelut, tulkinnat ja johtopäätökset.</li>
+                    <li><strong className="font-extrabold text-slate-950">Ajankäyttö ja vastaustekniikka:</strong> Kyky ratkaista tehtäviä tarkasti ja tehokkaasti kokeen aikarajoissa.</li>
+                  </ul>
+                </section>
 
-                <p>
-                  Kokeessa keskeistä on kyky{" "}
-                  <strong className="font-extrabold text-slate-950">
-                    lukea ja ymmärtää tieteellistä tekstiä, löytää aineistosta olennaista tietoa sekä analysoida ja soveltaa annettua tietoa tehokkaasti rajatussa ajassa
-                  </strong>
-                  . Olennaista ei siis ole ulkoa opettelu, vaan se, miten osaat työskennellä kokeessa annettavan aineiston kanssa.
-                </p>
+                <section className="space-y-6">
+                  <h2 className="font-serif text-2xl font-semibold leading-tight text-slate-950 sm:text-3xl">
+                    Miten valintakokeeseen G kannattaa valmistautua?
+                  </h2>
 
-                <p>
-                  Vuoden 2027 kokeen tarkempia sisältö- ja rakennetietoja ei ole vielä kokonaisuudessaan julkaistu. Tietoja täydennetään sitä mukaa, kun yliopistot julkaisevat vuoden 2027 valintaperusteita ja tarkempia tietoja kokeesta.
-                </p>
+                  <p>
+                    Vaikka valintakoe G ei edellytä ennakkoon opeteltavia sisältöjä, kokeessa tarvittavia taitoja voi ja kannattaa harjoitella.
+                  </p>
+
+                  <p>
+                    Tehokas valmistautuminen perustuu erityisesti tieteellisten tekstien lukemiseen, erilaisten aineistopohjaisten tehtävien ratkaisemiseen sekä ajankäytön ja vastaustekniikan kehittämiseen.
+                  </p>
+
+                  <p>
+                    Pelkkä tekstien lukeminen ei kuitenkaan riitä. On tärkeää harjoitella myös sitä, miten luettua tietoa hyödynnetään tehtävissä ja kuinka oikea vastaus löydetään mahdollisimman tehokkaasti.
+                  </p>
+
+                  <p>
+                    <strong className="font-extrabold text-slate-950">ValintaGurun valmennuksessa keskitymme juuri näihin taitoihin.</strong> Harjoittelet tieteellisten aineistojen käsittelyä, erilaisia tehtävätyyppejä ja koetilanteessa tarvittavaa vastaustekniikkaa. Tavoitteena on, että opit työskentelemään aineiston kanssa nopeasti, järjestelmällisesti ja tarkasti.
+                  </p>
+                </section>
+
+                <section className="space-y-6">
+                  <h2 className="font-serif text-2xl font-semibold leading-tight text-slate-950 sm:text-3xl">
+                    Valintakokeen G rakenne 2027
+                  </h2>
+
+                  <p>
+                    Valintakoe G koostuu kaikille hakijoille yhteisestä osiosta sekä kahdesta mahdollisesta eriytyvästä osiosta.
+                  </p>
+
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-extrabold text-slate-950">Yhteinen osio – 2 tuntia</h3>
+                    <p>
+                      Kaikki hakijat suorittavat yhteisen osion. Se mittaa tieteellisen tiedon omaksumista ja soveltamista, aineistojen kriittistä analysointia sekä lähdekritiikkiä. Tehtävät perustuvat kokeessa annettavaan aineistoon.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-extrabold text-slate-950">Oikeustieteen eriytyvä osio – 1 tunti</h3>
+                    <p>
+                      Oikeustieteen eriytyvä osio mittaa oikeustieteen opinnoissa tarvittavaa osaamista. Osion ennakkomateriaali julkaistaan 7.6.2027 klo 8.00.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-extrabold text-slate-950">Viestintätieteiden eriytyvä osio – 1 tunti</h3>
+                    <p>
+                      Viestintätieteiden eriytyvä osio mittaa yleistajuisen tekstin kirjoittamisen valmiuksia. Kaikki viestintätieteiden hakukohteet eivät edellytä tämän osion suorittamista.
+                    </p>
+                  </div>
+
+                  <p>
+                    Valintakokeen kokonaiskesto on 2–4 tuntia riippuen hakukohteista. Yhteinen osio suoritetaan aina ensin. Kun koeosiosta siirtyy eteenpäin, siihen ei voi enää palata.
+                  </p>
+                </section>
               </div>
             </article>
 
             <aside className="grid gap-4">
               <div className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-[#3f51e7]">
-                  Ajankohta
-                </p>
+                <h2 className="font-serif text-2xl font-semibold leading-tight text-slate-950">
+                  Valintakoe G 2027 – tärkeimmät tiedot
+                </h2>
 
-                <p className="mt-2 text-2xl font-extrabold text-slate-950">
-                  9.6.2027 klo 14.00
-                </p>
-              </div>
-
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
-                  Toteutus
-                </p>
-
-                <p className="mt-2 text-xl font-extrabold text-slate-950">
-                  Digitaalinen koe
-                </p>
-
-                <p className="mt-2 leading-7 text-slate-600">
-                  Valintakoe suoritetaan omalla kannettavalla tietokoneella.
-                </p>
-              </div>
-
-              <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-800">
-                  Kokeessa keskeistä
-                </p>
-
-                <p className="mt-2 leading-7 text-slate-700">
-                  Kyky lukea ja ymmärtää tieteellistä tekstiä, löytää aineistosta olennaista tietoa sekä analysoida ja soveltaa annettua tietoa tehokkaasti rajatussa ajassa.
-                </p>
+                <ul className="mt-6 space-y-4 leading-7 text-slate-700">
+                  <li><strong className="font-extrabold text-slate-950">Koepäivä:</strong> Keskiviikko 9.6.2027</li>
+                  <li><strong className="font-extrabold text-slate-950">Aloitusaika:</strong> Klo 14.00</li>
+                  <li><strong className="font-extrabold text-slate-950">Koemuoto:</strong> Digitaalinen valintakoe</li>
+                  <li><strong className="font-extrabold text-slate-950">Välineet:</strong> Oma kannettava tietokone</li>
+                  <li><strong className="font-extrabold text-slate-950">Ennakkoon opiskeltava aineisto:</strong> Ei tiettyjä ennakkoon hallittavia oppisisältöjä</li>
+                </ul>
               </div>
             </aside>
           </div>
