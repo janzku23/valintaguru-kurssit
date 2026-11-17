@@ -1,0 +1,8 @@
+import type { GuruGameQuestion } from '@/data/gurupath/types';
+export function importedGuruQuestion(row: unknown): GuruGameQuestion | null {
+ if(!row||typeof row!=='object')return null;const r=row as Record<string,unknown>,q=r.question as Record<string,unknown>;
+ if(!q||typeof q!=='object'||typeof r.id!=='string'||!/^gona-[a-z0-9-]{1,120}$/.test(r.id)||q.id!==r.id||!['oikis','valintakoe-g','shared'].includes(String(r.category))||!Number.isSafeInteger(Number(r.ordinal))||Number(r.ordinal)<1000000||q.type!=='multiple-choice'||q.points!==1||typeof q.title!=='string'||typeof q.prompt!=='string'||typeof q.explanation!=='string'||!Array.isArray(q.answers)||q.answers.length!==4||!Array.isArray(q.correctAnswerIds)||q.correctAnswerIds.length!==1)return null;
+ const correctIds=q.correctAnswerIds as unknown[];const answers=q.answers as {id:string,text:string}[];if(answers.some((a,i)=>!a||a.id!==['a','b','c','d'][i]||typeof a.text!=='string')||!answers.some(a=>a.id===correctIds[0])||new Set(answers.map(a=>a.text)).size!==4)return null;
+ const order=Number(r.ordinal);return {id:r.id,type:'multiple-choice',title:q.title,prompt:q.prompt,answers:answers.map(a=>({id:a.id,text:a.text})),correctAnswerIds:[String(q.correctAnswerIds[0])],explanation:q.explanation,points:1,placements:{...(r.category!=='oikis'?{'valintakoe-g':order}:{}),...(r.category!=='valintakoe-g'?{oikis:order}:{})},combinedOrder:order};
+}
+export function mergeGuruQuestions(base: GuruGameQuestion[], rows: unknown[]){const result=[...base],seen=new Set(base.map(q=>q.id));for(const row of rows){const q=importedGuruQuestion(row);if(q&&!seen.has(q.id)){result.push(q);seen.add(q.id)}}return result}

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getGuruGameAccessState } from "@/lib/gurupath/hasGuruGameAccess";
-import { getGuruPath, getGuruGameQuestion } from "@/data/gurupath";
+import { getGuruPathWithImports as getGuruPath, getGuruQuestionWithImports as getGuruGameQuestion } from "@/lib/gurupath/questionBank";
 import type { GuruGameQuestion, GuruPathNode } from "@/data/gurupath/types";
 import type { CourseId } from "@/data/courses";
 
@@ -22,12 +22,12 @@ export async function authorizeGuruNode(
 
   const access = await getGuruGameAccessState();
   if (!access.viewId) return null;
-  const path = getGuruPath(access.viewId);
+  const path = await getGuruPath(access.viewId);
   const questionId = nodeId.slice("gurupeli:".length);
   const index = path.levels.findIndex((node) => node.questionId === questionId);
   if (index < 0) return null;
   const node = path.levels[index];
-  const question = getGuruGameQuestion(questionId);
+  const question = await getGuruGameQuestion(questionId);
   if (!question) return null;
 
   // This is the same course selection logic as the combined game map.

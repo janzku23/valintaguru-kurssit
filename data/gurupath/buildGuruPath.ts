@@ -1,5 +1,5 @@
 import { getGuruGameQuestionsForView } from "./questions";
-import type { GuruGameViewId, GuruPathCourse, GuruPathNode } from "./types";
+import type { GuruGameViewId, GuruPathCourse, GuruPathNode, GuruGameQuestion } from "./types";
 
 const VIEW_COPY: Record<GuruGameViewId, { title: string; description: string }> = {
   oikis: {
@@ -16,8 +16,8 @@ const VIEW_COPY: Record<GuruGameViewId, { title: string; description: string }> 
   },
 };
 
-export function buildGuruPath(viewId: GuruGameViewId): GuruPathCourse {
-  const levels: GuruPathNode[] = getGuruGameQuestionsForView(viewId).map(
+export function buildGuruPath(viewId: GuruGameViewId, bank?: GuruGameQuestion[]): GuruPathCourse {
+  const levels: GuruPathNode[] = getGuruGameQuestionsForView(viewId, bank).map(
     ({ question, category }, index) => ({
       id: `${viewId}:${question.id}`,
       questionId: question.id,

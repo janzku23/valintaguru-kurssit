@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import GuruPathMap from "@/components/gurupath/GuruPathMap";
-import { isGuruGameViewId, getGuruPath, getGuruGameQuestion } from "@/data/gurupath";
+import { isGuruGameViewId } from "@/data/gurupath";
+import { getGuruPathWithImports as getGuruPath, getGuruQuestionWithImports as getGuruGameQuestion } from "@/lib/gurupath/questionBank";
 import type { GuruPublicQuestion } from "@/data/gurupath/types";
 import { getGuruGameAccessState } from "@/lib/gurupath/hasGuruGameAccess";
 import type { CourseId } from "@/data/courses";
@@ -37,10 +38,10 @@ export default async function GuruPathCoursePage({
 
   if (!progressCourseIds.length) redirect("/gurupath");
 
-  const path = getGuruPath(courseId);
+  const path = await getGuruPath(courseId);
   const publicQuestions: Record<string, GuruPublicQuestion> = {};
   for (const node of path.levels) {
-    const question = getGuruGameQuestion(node.questionId);
+    const question = await getGuruGameQuestion(node.questionId);
     if (!question) continue;
     // Explicit allowlist: never send correctAnswerIds or explanation to the browser.
     publicQuestions[question.id] = {

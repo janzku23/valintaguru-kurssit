@@ -787,8 +787,8 @@ function automaticCombinedOrder(question: GuruGameQuestion) {
   return values.length ? Math.min(...values) : Number.MAX_SAFE_INTEGER;
 }
 
-export function getGuruGameQuestion(questionId: string): GuruGameQuestion | null {
-  return guruGameQuestions.find((q) => q.id === questionId) ?? null;
+export function getGuruGameQuestion(questionId: string, bank: GuruGameQuestion[] = guruGameQuestions): GuruGameQuestion | null {
+  return bank.find((q) => q.id === questionId) ?? null;
 }
 
 export function getGuruQuestionSourceId(questionId: string) {
@@ -800,9 +800,9 @@ export function isCompletedSourceForQuestion(sourceId: string, questionId: strin
   return sourceId === getGuruQuestionSourceId(questionId) || sourceId.endsWith(`:${questionId}`);
 }
 
-export function getGuruGameQuestionsForView(viewId: GuruGameViewId) {
+export function getGuruGameQuestionsForView(viewId: GuruGameViewId, bank: GuruGameQuestion[] = guruGameQuestions) {
   const seen = new Set<string>();
-  const selected = guruGameQuestions
+  const selected = bank
     .filter((question) => {
       if (seen.has(question.id)) return false;
       const belongs =
