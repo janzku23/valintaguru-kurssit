@@ -10,7 +10,7 @@ type Props = {
 export default function FreeCourseExamMaterials({ exam, readingContent = {} }: Props) {
   const isLaw = exam === "law";
   return (
-    <section aria-label="Kokeen aineistot ja lähdelinkit" className="mt-7 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-6">
+    <section aria-label="Kokeen aineistot ja lähdelinkit" className="mt-7 min-w-0 sm:rounded-2xl sm:border sm:border-slate-200 sm:bg-slate-50 sm:p-6">
       <p className="text-xs font-black uppercase tracking-[0.14em] text-[#3f51e7]">01 / Aineistot</p>
       <h3 className="mt-2 text-xl font-extrabold text-slate-950">
         {isLaw ? "Lue ennakkomateriaalit ennen koetta" : "Avaa koeaineistot valmiiksi"}
@@ -22,7 +22,7 @@ export default function FreeCourseExamMaterials({ exam, readingContent = {} }: P
       </p>
       <div className="mt-5 grid min-w-0 gap-4 xl:grid-cols-2">
         {freeCourseMaterials[exam].map((material) => (
-          <article key={material.id} className="flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-white p-5 xl:has-[details[open]]:col-span-2">
+          <article key={material.id} className="flex min-w-0 flex-col border-t border-slate-200 bg-white py-5 sm:rounded-2xl sm:border sm:p-5 xl:has-[details[open]]:col-span-2">
             <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{material.label}</p>
             <h4 className="mt-2 break-words text-base font-bold leading-6 text-slate-950">{material.title}</h4>
             {material.author && <p className="mt-2 text-sm text-slate-500">{material.author}</p>}
@@ -36,8 +36,8 @@ export default function FreeCourseExamMaterials({ exam, readingContent = {} }: P
               <p className="mt-3 text-xs text-slate-500">Lähde: Yliopistovalinnat.fi</p>
             </div>
             {(readingContent[material.id] || isLaw) && (
-              <details className="mt-4 rounded-xl border border-slate-200">
-                <summary className="cursor-pointer rounded-xl px-4 py-3 text-sm font-bold text-[#3f51e7] hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f51e7]">
+              <details className="mt-4 min-w-0 sm:rounded-xl sm:border sm:border-slate-200">
+                <summary className="cursor-pointer rounded-xl py-3 text-sm font-bold text-[#3f51e7] hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f51e7] sm:px-4">
                   Lue {isLaw ? "ennakkomateriaali" : material.label.toLowerCase()} tällä sivulla
                 </summary>
                 {isLaw ? (

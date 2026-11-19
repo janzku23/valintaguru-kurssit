@@ -456,7 +456,7 @@ export default function FreeCoursePracticeClient({
           </h2>
         </div>
 
-        <div className="p-6 sm:p-8">
+        <div className="px-3 py-6 sm:p-8">
           <div className="grid grid-cols-3 gap-2 sm:gap-4">
             <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
               <p className="break-words text-[11px] font-bold text-slate-500 sm:text-sm">Kesto</p>
@@ -550,7 +550,7 @@ export default function FreeCoursePracticeClient({
 
   return (
     <div id="koe-alku" className="space-y-6 scroll-mt-32">
-      <section className="sticky top-24 z-20 rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-md backdrop-blur sm:px-5">
+      <section className="rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-md backdrop-blur sm:px-5 lg:sticky lg:top-24 lg:z-20">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-700">

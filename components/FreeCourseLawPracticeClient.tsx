@@ -445,7 +445,7 @@ export default function FreeCourseLawPracticeClient() {
     return (
       <section
         id="oikeustiede-koe-aloitus"
-        className="scroll-mt-32 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+        className="scroll-mt-32 rounded-3xl border border-slate-200 bg-white px-3 py-6 shadow-sm sm:p-8"
       >
         <div className="flex flex-wrap gap-2">
           <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-violet-700">
@@ -565,7 +565,7 @@ export default function FreeCourseLawPracticeClient() {
 
   return (
     <div id="oikeustiede-koe-alku" className="space-y-6 scroll-mt-32">
-      <section className="sticky top-24 z-20 rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-md backdrop-blur sm:px-5">
+      <section className="rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-md backdrop-blur sm:px-5 lg:sticky lg:top-24 lg:z-20">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.14em] text-violet-700">
