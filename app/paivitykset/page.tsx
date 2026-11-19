@@ -81,6 +81,13 @@ const entries: SiteUpdate[] = [
       "Tietoa meistä päivitetty",
     ],
   },
+            {
+    date: "2026-11-19",
+    title: "Sivuston päivityshistoria",
+    changes: [
+      "Appstore + Google Play julkaisu",
+    ],
+  },
 ];
 
 const siteUpdates = [...entries].sort((a, b) =>
