@@ -1,5 +1,8 @@
 import Image from "next/image";
-import frontLogo from "../../assets/frontlogo.png";
+import logo from "../../assets/logo.png";
+// import frontLogo from "../../assets/frontlogo.png"; // Palauta alkuperäisen kortin kanssa.
+import { Suspense } from "react";
+import BlackWeekHeroPrices from "./BlackWeekHeroPrices";
 import Etusivulogo from "../../assets/Etusivulogo.png";
 import HeroPrimaryAction from "./HeroPrimaryAction";
 
@@ -92,8 +95,39 @@ export default function HomeHero() {
       </div>
     </div>
 
-    {/* OIKEA PUOLI */}
-{/* OIKEA PUOLI */}
+    {/* BLACK WEEK: poista kampanjakortti ja palauta alla kommentoitu alkuperäinen osio. */}
+    <aside aria-labelledby="black-week-title" className="relative mx-auto w-full max-w-xl overflow-hidden rounded-[2rem] border border-[#d9a944]/50 bg-[#0c0d11] text-white shadow-2xl shadow-amber-950/20">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[#d9a944]/15 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#3f51e7]/15 blur-3xl" />
+      <div className="relative p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-bold uppercase tracking-[0.18em]">
+          <span className="inline-flex items-center gap-2.5 font-serif text-lg font-bold normal-case tracking-normal text-[#f5cf78]">
+            <Image src={logo} alt="" width={36} height={36} className="h-9 w-9 rounded-full bg-white p-0.5" />
+            ValintaGuru
+          </span>
+          <span className="rounded-full border border-[#d9a944]/35 px-3 py-1.5 text-[#f5cf78]">23.–29.11.</span>
+        </div>
+        <h2 id="black-week-title" className="mt-5 text-[clamp(2.5rem,6vw,4rem)] font-black uppercase leading-[0.9] tracking-[-0.055em]">
+          Black <span className="block text-[#f5cf78]">Week.</span>
+        </h2>
+        <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
+          <p className="max-w-40 text-base font-medium leading-6 text-white/80">Valmistaudu unelmiesi opiskelupaikkaan.</p>
+          <p className="text-5xl font-black leading-none tracking-tighter text-[#f5cf78] sm:text-6xl">−40<span className="ml-1 text-3xl">%</span></p>
+        </div>
+        <div className="mt-4 border-t border-white/15 pt-3">
+          <Suspense fallback={<p className="py-6 text-sm text-white/70">Ladataan kurssitarjouksia…</p>}>
+            <BlackWeekHeroPrices />
+          </Suspense>
+        </div>
+        <p className="mt-3 text-center text-sm text-white/80">Kaikki kurssit −40 % koodilla <strong className="font-black tracking-wider text-[#f5cf78]">BLACKWEEK</strong></p>
+        <a href="/kauppa" className="mt-3 flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#f5d78d] to-[#e9b950] px-5 py-3 text-sm font-bold text-[#211808] transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f5cf78]">
+          Hyödynnä Black Week -etu <span aria-hidden="true">→</span>
+        </a>
+        <p className="mt-2 text-center text-xs leading-5 text-white/60">Syötä alennuskoodi kassalla. Voimassa 23.–29.11.</p>
+      </div>
+    </aside>
+
+{/* ALKUPERÄINEN KURSSIALUSTAKORTTI — palauta kampanjan jälkeen.
 <div className="relative mx-auto w-full max-w-xl px-1 sm:px-0">
   <div className="absolute -inset-2 rounded-[1.75rem] bg-[#f3a31b] sm:-inset-4 sm:rounded-[2.25rem]" />
 
@@ -116,6 +150,7 @@ export default function HomeHero() {
     </div>
   </div>
 </div>
+*/}
   </div>
 </section>
     </>
