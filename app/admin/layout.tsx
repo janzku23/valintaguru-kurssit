@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { requireAdminPage } from "@/lib/adminAccess";
 
 const nav = [
+  { href: "/admin/blogi", label: "Blogi", icon: "✎" },
   { href: "/admin/kauppa", label: "Verkkokauppa", icon: "€" },
   { href: "/admin", label: "Yleiskuva", icon: "⌂" },
   { href: "/admin/raportit", label: "Aiempi yleiskuva", icon: "▤" },

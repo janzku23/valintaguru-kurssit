@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { listPublishedPosts } from "@/lib/blog/server";
+import { blogDate, readingMinutes } from "@/lib/blog/model";
+import { getCurrentAdmin } from "@/lib/adminAccess";
+
+export const dynamic = "force-dynamic";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.valintaguru.fi";
@@ -77,28 +82,14 @@ const blogJsonLd = {
   ],
 };
 
-const upcomingArticles = [
-  {
-    category: "Valintakoe G",
-    title: "Miten Valintakoe G:hen kannattaa valmistautua?",
-    description:
-      "Mistä valmistautuminen kannattaa aloittaa ja millaisia taitoja harjoittelussa kannattaa painottaa?",
-  },
-  {
-    category: "Oikeustiede",
-    title: "Oikeustieteen eriytyvä osio – mitä kannattaa harjoitella?",
-    description:
-      "Aineistojen lukeminen, oikeudellinen päättely ja ajankäyttö ovat keskeisiä taitoja valmistautumisessa.",
-  },
-  {
-    category: "Opiskelutekniikka",
-    title: "Näin rakennat tehokkaan opiskelusuunnitelman",
-    description:
-      "Hyvä opiskelusuunnitelma auttaa jakamaan harjoittelun sopiviin kokonaisuuksiin ja seuraamaan omaa etenemistä.",
-  },
-];
-
-export default function BlogPage() {
+export default async function BlogPage() {
+  const [postsResult, adminResult] = await Promise.allSettled([
+    listPublishedPosts(),
+    getCurrentAdmin(),
+  ]);
+  const posts = postsResult.status === "fulfilled" ? postsResult.value : [];
+  const unavailable = postsResult.status === "rejected";
+  const isAdmin = adminResult.status === "fulfilled" && Boolean(adminResult.value);
   return (
     <>
       <script
@@ -120,29 +111,7 @@ export default function BlogPage() {
               Blogi
             </h1>
 
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-blue-50 sm:text-xl">
-              Tietoa valintakokeista, opiskelusta ja tehokkaasta
-              valmistautumisesta.
-            </p>
           </div>
-
-          {/* INTRO */}
-          <section className="mt-10 rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm sm:p-9">
-            <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
-              ValintaGurun blogi
-            </p>
-
-            <h2 className="mt-2 text-3xl font-extrabold">
-              Parempaa valmistautumista valintakokeisiin
-            </h2>
-
-            <p className="mt-4 max-w-4xl text-lg leading-8 text-slate-700">
-              Blogissa käsittelemme valintakokeisiin valmistautumista,
-              opiskelutekniikoita, päättelyä, aineistojen analysointia ja
-              ajankäyttöä. Lisäksi löydät tietoa Valintakoe G:stä ja
-              oikeustieteen eriytyvästä osiosta.
-            </p>
-          </section>
 
           {/* ARTICLES */}
           <section className="mt-12">
@@ -153,37 +122,32 @@ export default function BlogPage() {
                 </p>
 
                 <h2 className="mt-2 text-3xl font-extrabold">
-                  Tulossa blogiin
+                  Uusimmat kirjoitukset
                 </h2>
               </div>
-            </div>
-
-            <div className="mt-7 grid gap-6 md:grid-cols-3">
-              {upcomingArticles.map((article) => (
-                <article
-                  key={article.title}
-                  className="flex flex-col rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"
+              {isAdmin && (
+                <Link
+                  href="/admin/blogi"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#3f51e7] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#3142d6] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600"
                 >
-                  <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
-                    {article.category}
-                  </p>
-
-                  <h3 className="mt-3 text-2xl font-extrabold leading-tight">
-                    {article.title}
-                  </h3>
-
-                  <p className="mt-4 flex-1 leading-7 text-slate-700">
-                    {article.description}
-                  </p>
-
-                  <div className="mt-6">
-                    <span className="inline-flex rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600">
-                      Artikkeli tulossa
-                    </span>
-                  </div>
-                </article>
-              ))}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4" aria-hidden="true">
+                    <path d="m16 3 5 5M4 20l4-1 13-13a2.1 2.1 0 0 0-5-3L3 16l-1 5 5-1" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Hallitse blogia
+                </Link>
+              )}
             </div>
+
+            {unavailable ? <p role="alert" className="mt-7 rounded-2xl border border-amber-200 bg-amber-50 p-7 text-amber-900">Kirjoituksia ei juuri nyt saatu ladattua. Kokeile hetken kuluttua uudelleen.</p> : posts.length === 0 ? <div className="mt-7 rounded-3xl border border-slate-200 bg-white p-8"><h3 className="text-xl font-bold">Ensimmäiset kirjoitukset ovat tulossa</h3><p className="mt-3 leading-7 text-slate-600">Pian löydät täältä vinkkejä opiskeluun ja valintakokeisiin valmistautumiseen. Kaikki kirjoitukset ovat luettavissa maksutta ilman kirjautumista.</p></div> : <div className="mt-7 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post) => <article key={post.id} className="flex min-w-0 flex-col rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:border-blue-300 hover:shadow-md">
+                <p className="text-sm font-bold uppercase tracking-wide text-blue-700">{post.category}</p>
+                <h3 className="mt-3 break-words text-2xl font-extrabold leading-tight"><Link href={`/blogi/${post.slug}`} className="hover:text-blue-700">{post.title}</Link></h3>
+                <p className="mt-3 text-sm text-slate-500"><time dateTime={post.published_at!}>{blogDate(post.published_at!)}</time> · {readingMinutes(post.content)} min</p>
+                <p className="mt-4 flex-1 break-words leading-7 text-slate-700">{post.excerpt}</p>
+                <Link href={`/blogi/${post.slug}`} className="mt-6 inline-flex font-bold text-blue-700">Lue kirjoitus <span className="sr-only">: {post.title}</span><span aria-hidden="true"> →</span></Link>
+              </article>)}
+            </div>}
+
           </section>
 
           {/* SEO CONTENT */}

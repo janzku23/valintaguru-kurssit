@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import PracticeWorkspace from "@/components/PracticeWorkspace";
 import type { Course } from "@/data/courses";
 import type { PublicPracticeExam } from "@/data/practiceExams/types";
 import PracticeExamRunner from "@/components/PracticeExamRunner";
@@ -34,6 +35,13 @@ export default function PracticeExercisesView({
 
   const [showIntro, setShowIntro] =
     useState(isOikisPracticeCourse && !validInitialExamId);
+
+  const [navigationOpen, setNavigationOpen] = useState(true);
+  const [focused, setFocused] = useState(false);
+  const handleModeChange = useCallback((mode: string) => {
+    setFocused(mode === "exam");
+    setNavigationOpen(mode !== "exam");
+  }, []);
 
   const [tasksOpen, setTasksOpen] =
     useState(true);
@@ -98,6 +106,8 @@ export default function PracticeExercisesView({
   }
 
   function selectIntro() {
+    setNavigationOpen(true);
+    setFocused(false);
     setShowIntro(true);
     setActiveExamId("");
     setTasksOpen(true);
@@ -110,6 +120,7 @@ export default function PracticeExercisesView({
   function selectExam(
     examId: string
   ) {
+    setNavigationOpen(examId !== activeExamId || !focused);
     setShowIntro(false);
     setActiveExamId(examId);
     setTasksOpen(true);
@@ -130,243 +141,247 @@ export default function PracticeExercisesView({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
-      <aside className="w-full rounded-3xl border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-6 lg:self-start">
-        <div className="mb-5">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
-            {course.label}
-          </p>
+    <PracticeWorkspace
+      navigationOpen={navigationOpen}
+      onNavigationToggle={() => setNavigationOpen((open) => !open)}
+      navigation={
+        <>
+          <div className="mb-5">
+            <p className="text-sm font-bold uppercase tracking-wide text-blue-700">
+              {course.label}
+            </p>
 
-          <h2 className="mt-1 text-xl font-extrabold text-slate-950">
-            Sisällysluettelo
-          </h2>
-        </div>
+            <h2 className="mt-1 text-xl font-extrabold text-slate-950">
+              Sisällysluettelo
+            </h2>
+          </div>
 
-        <nav className="space-y-2">
-          <a
-            href={`/kurssi/${course.id}`}
-            className="block rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
-          >
-            Kurssin etusivu
-          </a>
+          <nav className="space-y-2">
+            <a
+              href={`/kurssi/${course.id}`}
+              className="block rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+            >
+              Kurssin etusivu
+            </a>
 
-          {availableModules.map(
-            (module) => {
-              const isTasksModule =
-                module.href ===
-                `/kurssi/${course.id}/harjoitukset`;
+            {availableModules.map(
+              (module) => {
+                const isTasksModule =
+                  module.href ===
+                  `/kurssi/${course.id}/harjoitukset`;
 
-              if (isTasksModule) {
-                return (
-                  <div
-                    key={module.id}
-                    className="overflow-hidden rounded-2xl border border-blue-200 bg-white"
-                  >
-                    <div className="flex items-center bg-blue-600 text-white">
-                      <button
-                        type="button"
-                        className="flex-1 px-4 py-3 text-left text-sm font-bold"
-                        onClick={() => {
-                          setTasksOpen(true);
+                if (isTasksModule) {
+                  return (
+                    <div
+                      key={module.id}
+                      className="overflow-hidden rounded-2xl border border-blue-200 bg-white"
+                    >
+                      <div className="flex items-center bg-blue-600 text-white">
+                        <button
+                          type="button"
+                          className="flex-1 px-4 py-3 text-left text-sm font-bold"
+                          onClick={() => {
+                            setTasksOpen(true);
 
-                          if (
-                            isOikisPracticeCourse
-                          ) {
-                            selectIntro();
+                            if (
+                              isOikisPracticeCourse
+                            ) {
+                              selectIntro();
+                            }
+                          }}
+                        >
+                          {module.title}
+                        </button>
+
+                        <button
+                          type="button"
+                          aria-label={
+                            tasksOpen
+                              ? "Pienennä Harjoitukset"
+                              : "Avaa Harjoitukset"
                           }
-                        }}
-                      >
-                        {module.title}
-                      </button>
-
-                      <button
-                        type="button"
-                        aria-label={
-                          tasksOpen
-                            ? "Pienennä Harjoitukset"
-                            : "Avaa Harjoitukset"
-                        }
-                        aria-expanded={
-                          tasksOpen
-                        }
-                        onClick={() =>
-                          setTasksOpen(
-                            (current) =>
-                              !current
-                          )
-                        }
-                        className="mr-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/15 text-base font-black transition hover:bg-white/25"
-                      >
-                        {tasksOpen
-                          ? "−"
-                          : "+"}
-                      </button>
-                    </div>
-
-                    {tasksOpen && (
-                      <div className="p-2">
-                        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                          <div className="flex items-center">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setExamGroupOpen(
-                                  (
-                                    current
-                                  ) =>
-                                    !current
-                                )
-                              }
-                              aria-expanded={
-                                examGroupOpen
-                              }
-                              className="flex flex-1 items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-slate-50"
-                            >
-                              <div>
-                                <p className="font-extrabold text-slate-900">
-                                  Harjoituskokeet
-                                </p>
-
-                                <p className="mt-0.5 text-xs font-medium text-slate-500">
-                                  {
-                                    exams.length
-                                  }{" "}
-                                  koetta
-                                </p>
-                              </div>
-
-                              <span className="text-sm font-black text-slate-400">
-                                {examGroupOpen
-                                  ? "−"
-                                  : "+"}
-                              </span>
-                            </button>
-                          </div>
-
-                          {examGroupOpen && (
-                            <div className="space-y-1 border-t border-slate-100 bg-white p-2">
-                              {isOikisPracticeCourse && (
-                                <button
-                                  type="button"
-                                  onClick={
-                                    selectIntro
-                                  }
-                                  className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-3 text-left transition ${
-                                    showIntro
-                                      ? "bg-blue-600 text-white shadow-sm"
-                                      : "text-slate-700 hover:bg-blue-50 hover:text-blue-800"
-                                  }`}
-                                >
-                                  <div>
-                                    <p className="text-sm font-extrabold">
-                                      Ohjeet harjoitustentteihin
-                                    </p>
-
-                                    <p
-                                      className={`mt-0.5 text-[11px] font-semibold ${
-                                        showIntro
-                                          ? "text-blue-100"
-                                          : "text-slate-500"
-                                      }`}
-                                    >
-                                      Lue ennen Tentti 1:tä
-                                    </p>
-                                  </div>
-
-                                  {showIntro && (
-                                    <span className="text-sm font-black text-white">
-                                      ✓
-                                    </span>
-                                  )}
-                                </button>
-                              )}
-
-                              {exams.map(
-                                (
-                                  exam
-                                ) => {
-                                  const active =
-                                    !showIntro &&
-                                    exam.id ===
-                                      activeExam?.id;
-
-                                  return (
-                                    <button
-                                      key={
-                                        exam.id
-                                      }
-                                      type="button"
-                                      onClick={() =>
-                                        selectExam(
-                                          exam.id
-                                        )
-                                      }
-                                      className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-3 text-left transition ${
-                                        active
-                                          ? "bg-blue-600 text-white shadow-sm"
-                                          : "text-slate-700 hover:bg-blue-50 hover:text-blue-800"
-                                      }`}
-                                    >
-                                      <div>
-                                        <p className="text-sm font-extrabold">
-                                          {
-                                            exam.title
-                                          }
-                                        </p>
-
-                                        <p
-                                          className={`mt-0.5 text-[11px] font-semibold ${
-                                            active
-                                              ? "text-blue-100"
-                                              : "text-slate-500"
-                                          }`}
-                                        >
-                                          {
-                                            exam.questionCount
-                                          }{" "}
-                                          kysymystä
-                                          ·{" "}
-                                          {
-                                            exam.durationMinutes
-                                          }{" "}
-                                          min
-                                        </p>
-                                      </div>
-
-                                      {active && (
-                                        <span className="text-sm font-black text-white">
-                                          ✓
-                                        </span>
-                                      )}
-                                    </button>
-                                  );
-                                }
-                              )}
-                            </div>
-                          )}
-                        </div>
+                          aria-expanded={
+                            tasksOpen
+                          }
+                          onClick={() =>
+                            setTasksOpen(
+                              (current) =>
+                                !current
+                            )
+                          }
+                          className="mr-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/15 text-base font-black transition hover:bg-white/25"
+                        >
+                          {tasksOpen
+                            ? "−"
+                            : "+"}
+                        </button>
                       </div>
-                    )}
-                  </div>
+
+                      {tasksOpen && (
+                        <div className="p-2">
+                          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                            <div className="flex items-center">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setExamGroupOpen(
+                                    (
+                                      current
+                                    ) =>
+                                      !current
+                                  )
+                                }
+                                aria-expanded={
+                                  examGroupOpen
+                                }
+                                className="flex flex-1 items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-slate-50"
+                              >
+                                <div>
+                                  <p className="font-extrabold text-slate-900">
+                                    Harjoituskokeet
+                                  </p>
+
+                                  <p className="mt-0.5 text-xs font-medium text-slate-500">
+                                    {
+                                      exams.length
+                                    }{" "}
+                                    koetta
+                                  </p>
+                                </div>
+
+                                <span className="text-sm font-black text-slate-400">
+                                  {examGroupOpen
+                                    ? "−"
+                                    : "+"}
+                                </span>
+                              </button>
+                            </div>
+
+                            {examGroupOpen && (
+                              <div className="space-y-1 border-t border-slate-100 bg-white p-2">
+                                {isOikisPracticeCourse && (
+                                  <button
+                                    type="button"
+                                    onClick={
+                                      selectIntro
+                                    }
+                                    className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-3 text-left transition ${
+                                      showIntro
+                                        ? "bg-blue-600 text-white shadow-sm"
+                                        : "text-slate-700 hover:bg-blue-50 hover:text-blue-800"
+                                    }`}
+                                  >
+                                    <div>
+                                      <p className="text-sm font-extrabold">
+                                        Ohjeet harjoitustentteihin
+                                      </p>
+
+                                      <p
+                                        className={`mt-0.5 text-[11px] font-semibold ${
+                                          showIntro
+                                            ? "text-blue-100"
+                                            : "text-slate-500"
+                                        }`}
+                                      >
+                                        Lue ennen Tentti 1:tä
+                                      </p>
+                                    </div>
+
+                                    {showIntro && (
+                                      <span className="text-sm font-black text-white">
+                                        ✓
+                                      </span>
+                                    )}
+                                  </button>
+                                )}
+
+                                {exams.map(
+                                  (
+                                    exam
+                                  ) => {
+                                    const active =
+                                      !showIntro &&
+                                      exam.id ===
+                                        activeExam?.id;
+
+                                    return (
+                                      <button
+                                        key={
+                                          exam.id
+                                        }
+                                        type="button"
+                                        onClick={() =>
+                                          selectExam(
+                                            exam.id
+                                          )
+                                        }
+                                        className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-3 text-left transition ${
+                                          active
+                                            ? "bg-blue-600 text-white shadow-sm"
+                                            : "text-slate-700 hover:bg-blue-50 hover:text-blue-800"
+                                        }`}
+                                      >
+                                        <div>
+                                          <p className="text-sm font-extrabold">
+                                            {
+                                              exam.title
+                                            }
+                                          </p>
+
+                                          <p
+                                            className={`mt-0.5 text-[11px] font-semibold ${
+                                              active
+                                                ? "text-blue-100"
+                                                : "text-slate-500"
+                                            }`}
+                                          >
+                                            {
+                                              exam.questionCount
+                                            }{" "}
+                                            kysymystä
+                                            ·{" "}
+                                            {
+                                              exam.durationMinutes
+                                            }{" "}
+                                            min
+                                          </p>
+                                        </div>
+
+                                        {active && (
+                                          <span className="text-sm font-black text-white">
+                                            ✓
+                                          </span>
+                                        )}
+                                      </button>
+                                    );
+                                  }
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                return (
+                  <a
+                    key={module.id}
+                    href={
+                      module.href
+                    }
+                    className="block rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+                  >
+                    {module.title}
+                  </a>
                 );
               }
-
-              return (
-                <a
-                  key={module.id}
-                  href={
-                    module.href
-                  }
-                  className="block rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
-                >
-                  {module.title}
-                </a>
-              );
-            }
-          )}
-        </nav>
-      </aside>
-
+            )}
+          </nav>
+        </>
+      }
+    >
       <section className="min-w-0 space-y-6">
         {showIntro &&
         isOikisPracticeCourse ? (
@@ -408,8 +423,8 @@ export default function PracticeExercisesView({
                       </h3>
 
                       <p className="mt-2 leading-7 text-slate-700">
-                        Vasemmassa sivupalkissa (mobiilissa ☰-valikosta)
-                        näet kaikki 8 harjoitustenttiä listattuna. Klikkaa
+                        Avaa sivun yläreunan sisällysluettelo, josta
+                        näet kaikki harjoitustentit listattuna. Klikkaa
                         haluamaasi tenttiä aloittaaksesi.
                       </p>
                     </div>
@@ -492,7 +507,7 @@ export default function PracticeExercisesView({
                 </h2>
 
                 <p className="mt-3 leading-7 text-blue-950/80">
-                  Valitse ensimmäinen tentti sivupalkista ja aloita
+                  Valitse ensimmäinen tentti sisällysluettelosta ja aloita
                   harjoittelu. Muista: mitä enemmän harjoittelet, sitä
                   varmempi olet koepäivänä!
                 </p>
@@ -519,20 +534,22 @@ export default function PracticeExercisesView({
           </div>
         ) : activeExam ? (
           <>
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-              <p className="text-sm font-black uppercase tracking-[0.14em] text-blue-700">
-                {course.label}
-              </p>
+            {!focused && (
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+                <p className="text-sm font-black uppercase tracking-[0.14em] text-blue-700">
+                  {course.label}
+                </p>
 
-              <h1 className="mt-2 text-4xl font-extrabold text-slate-950">
-                Harjoitukset
-              </h1>
+                <h1 className="mt-2 text-4xl font-extrabold text-slate-950">
+                  Harjoitukset
+                </h1>
 
-              <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-700">
-                Valitse vasemmalta harjoituskoe. Jokaisella kokeella on
-                oma historia, ajastin ja tallentuvat tulokset.
-              </p>
-            </div>
+                <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-700">
+                  Valitse harjoituskoe sisällysluettelosta. Jokaisella kokeella on
+                  oma historia, ajastin ja tallentuvat tulokset.
+                </p>
+              </div>
+            )}
 
             <PracticeExamRunner
               key={
@@ -541,10 +558,11 @@ export default function PracticeExercisesView({
               exam={
                 activeExam
               }
+              onModeChange={handleModeChange}
             />
           </>
         ) : null}
       </section>
-    </div>
+    </PracticeWorkspace>
   );
 }

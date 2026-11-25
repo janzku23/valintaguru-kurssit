@@ -11,8 +11,10 @@
     "test:shop": "node --test scripts/test-shop.cjs",
     "test:shop:sql": "node --test scripts/test-shop-sql.cjs",
     "test:admin": "node --test scripts/test-admin-dashboard.cjs",
-    "test": "npm run test:shop && npm run test:shop:sql && npm run test:admin",
-    "check:shop": "node scripts/check-shop-environment.cjs"
+    "test:blog": "node --test scripts/test-blog.cjs",
+    "test": "npm run test:shop && npm run test:shop:sql && npm run test:admin && npm run test:progress && npm run test:blog",
+    "check:shop": "node scripts/check-shop-environment.cjs",
+    "test:progress": "node --test scripts/test-progress.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

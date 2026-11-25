@@ -1,1292 +1,277 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
-import type { CourseId } from "../data/courses";
-import { UNSURE_ANSWER_ID } from "@/data/practiceExams/types";
+import type { CourseId } from "@/data/courses";
 import ValintakoeGReadingProfile from "@/components/ValintakoeGReadingProfile";
-import type { ValintakoeGCourseId } from "@/data/valintakoeGExercises/types";
+import { loadProgressRows } from "@/lib/loadProgress";
+import { subscribeToProgressRefresh } from "@/lib/progressRefresh";
+import {
+  buildProgressAnalytics, buildProgressSessions, formatProgressDuration,
+  getProgressStatus, progressForPeriod, questionKey,
+  type GroupStats, type ProgressPeriod, type ProgressRow, type ProgressStatus,
+} from "@/lib/progressAnalytics";
+import { buildPracticeReviews, nextPracticeStep, practiceForProgressRow, type ProgressPractice } from "@/lib/progressRecommendations";
+import { VALINTAKOE_G_READING_CATEGORIES } from "@/data/valintakoeGExercises/categories";
 
-type Props = {
+const card = "min-w-0 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6";
+const action = "inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2.5 text-sm font-bold transition focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600";
+const percent = (value: number | null) => value == null ? "–" : `${value} %`;
+const dateLabel = (value: string) => new Intl.DateTimeFormat("fi-FI", { timeZone: "Europe/Helsinki", dateStyle: "short", timeStyle: "short" }).format(new Date(value));
+
+export default function ProgressView({ courseId, practices = [] }: {
   courseId: CourseId;
-};
-
-type ProgressAttemptRow = {
-  id: string;
-  user_id: string;
-  course_id: string;
-  question_id: string;
-  question: string;
-  area: string | null;
-  category?: string | null;
-  selected_answer_ids: string[] | null;
-  correct_answer_ids: string[] | null;
-  is_correct: boolean;
-  answered_at: string;
-  answer_time_ms?: number | null;
-  answer_time_source?: string | null;
-  session_duration_ms?: number | null;
-  session_id?: string | null;
-  session_type?: string | null;
-  session_name?: string | null;
-};
-
-type ProgressAttempt = {
-  id: string;
-  courseId: CourseId;
-  questionId: string;
-  question: string;
-  area: string;
-  category: string;
-  selectedAnswerIds: string[];
-  correctAnswerIds: string[];
-  isCorrect: boolean;
-  answeredAt: string;
-  answerTimeMs: number | null;
-  answerTimeSource: string | null;
-  sessionDurationMs: number | null;
-  sessionId: string | null;
-  sessionType: string | null;
-  sessionName: string | null;
-};
-
-type GroupStats = {
-  name: string;
-  attempts: number;
-  correct: number;
-  wrong: number;
-  unsure: number;
-  accuracy: number;
-  avgTimeMs: number | null;
-};
-
-type QuestionStats = {
-  questionId: string;
-  question: string;
-  area: string;
-  category: string;
-  attempts: number;
-  correct: number;
-  wrong: number;
-  unsure: number;
-  accuracy: number;
-  avgTimeMs: number | null;
-  lastCorrect: boolean;
-  lastUnsure: boolean;
-  lastAnsweredAt: string;
-};
-
-type SessionStats = {
-  sessionId: string;
-  name: string;
-  attempts: number;
-  correct: number;
-  wrong: number;
-  unsure: number;
-  accuracy: number;
-  durationMs: number | null;
-  pacePerQuestionMs: number | null;
-  activeAnswerTimeMs: number | null;
-  startedAt: string;
-  finishedAt: string;
-};
-
-function normalizeText(value: string | null | undefined, fallback: string) {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed : fallback;
-}
-
-function safeTime(value: unknown): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) return null;
-  return value;
-}
-
-function mapRowToAttempt(row: ProgressAttemptRow): ProgressAttempt {
-  return {
-    id: row.id,
-    courseId: row.course_id as CourseId,
-    questionId: row.question_id,
-    question: row.question,
-    area: normalizeText(row.area, "Yleinen"),
-    category: normalizeText(row.category, "Yleinen"),
-    selectedAnswerIds: row.selected_answer_ids ?? [],
-    correctAnswerIds: row.correct_answer_ids ?? [],
-    isCorrect: row.is_correct,
-    answeredAt: row.answered_at,
-    answerTimeMs: safeTime(row.answer_time_ms),
-    answerTimeSource:
-      row.answer_time_source ?? null,
-    sessionDurationMs:
-      safeTime(row.session_duration_ms),
-    sessionId: row.session_id ?? null,
-    sessionType: row.session_type ?? null,
-    sessionName: row.session_name ?? null,
-  };
-}
-
-function isUnsureAttempt(
-  attempt: ProgressAttempt
-) {
-  return attempt.selectedAnswerIds.includes(
-    UNSURE_ANSWER_ID
-  );
-}
-
-function hasActualQuestionTiming(
-  attempt: ProgressAttempt
-) {
-  if (attempt.answerTimeMs == null) {
-    return false;
-  }
-
-  // Uudet harjoituskokeet merkitään eksplisiittisesti.
-  if (
-    attempt.answerTimeSource ===
-    "active_question"
-  ) {
-    return true;
-  }
-
-  // Vanhoissa harjoituskokeissa answer_time_ms oli vain
-  // koko kokeen kesto / kysymysten määrä. Niitä ei enää
-  // näytetä aktiivisena kysymysaikana.
-  if (
-    attempt.sessionType?.toLowerCase() ===
-    "harjoituskoe"
-  ) {
-    return false;
-  }
-
-  // Muissa tehtävätyypeissä vanha answer_time_ms voi olla
-  // oikea kysymyskohtainen ajastus.
-  return true;
-}
-
-function percentage(correct: number, total: number) {
-  return total > 0 ? Math.round((correct / total) * 100) : 0;
-}
-
-function average(values: number[]) {
-  if (values.length === 0) return null;
-  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
-}
-
-function formatDuration(ms: number | null) {
-  if (ms == null) return "Ei dataa";
-  if (ms < 1000) return "< 1 s";
-
-  const totalSeconds = Math.round(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  if (hours > 0) return `${hours} h ${minutes} min`;
-  if (minutes > 0) return `${minutes} min ${seconds} s`;
-  return `${seconds} s`;
-}
-
-function getStrengthLabel(accuracy: number, attempts: number) {
-  if (attempts < 3) return "Vähän dataa";
-  if (accuracy >= 85) return "Vahva";
-  if (accuracy >= 70) return "Hyvä";
-  if (accuracy >= 55) return "Kehittyvä";
-  return "Harjoittele";
-}
-
-function buildGroupStats(
-  attempts: ProgressAttempt[],
-  keyGetter: (attempt: ProgressAttempt) => string
-): GroupStats[] {
-  const grouped = new Map<string, ProgressAttempt[]>();
-
-  for (const attempt of attempts) {
-    const key = keyGetter(attempt);
-    const current = grouped.get(key) ?? [];
-    current.push(attempt);
-    grouped.set(key, current);
-  }
-
-  return Array.from(grouped.entries()).map(([name, rows]) => {
-    const correct = rows.filter(
-      (row) => row.isCorrect
-    ).length;
-
-    const unsure = rows.filter(
-      isUnsureAttempt
-    ).length;
-
-    const wrong = rows.filter(
-      (row) =>
-        !row.isCorrect &&
-        !isUnsureAttempt(row)
-    ).length;
-
-    const resolved = correct + wrong;
-
-    const times = rows
-      .filter(hasActualQuestionTiming)
-      .map((row) => row.answerTimeMs)
-      .filter(
-        (value): value is number =>
-          value != null
-      );
-
-    return {
-      name,
-      attempts: rows.length,
-      correct,
-      wrong,
-      unsure,
-      accuracy: percentage(
-        correct,
-        resolved
-      ),
-      avgTimeMs: average(times),
-    };
-  });
-}
-
-export default function ProgressView({ courseId }: Props) {
-  const router = useRouter();
-  const isValintakoeG =
-    courseId === "valintakoe-g" ||
-    courseId === "valintakoe-g-etaope";
-  const supabase = useMemo(() => createClient(), []);
-
-  const [attempts, setAttempts] = useState<ProgressAttempt[]>([]);
-  const [hasLoaded, setHasLoaded] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  practices?: ProgressPractice[];
+}) {
+  const client = useMemo(() => createClient(), []);
+  const [rows, setRows] = useState<ProgressRow[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [historyLimit, setHistoryLimit] = useState(20);
+  const [resetting, setResetting] = useState(false);
+  const [period, setPeriod] = useState<ProgressPeriod>("all");
+  const [historyLimit, setHistoryLimit] = useState(10);
+  const [sessionLimit, setSessionLimit] = useState(5);
+  const [reviewLimit, setReviewLimit] = useState(4);
+  const [historyFilter, setHistoryFilter] = useState<"all" | ProgressStatus>("all");
+  const requestId = useRef(0);
+  const historyFilterId = useId();
+  const isReadingCourse = courseId === "valintakoe-g" || courseId === "valintakoe-g-etaope";
 
-  const loadProgress = useCallback(async () => {
-    setHasLoaded(false);
-    setErrorMessage(null);
-
-    const { user, error: authError } = await getAuthenticatedUser();
-
-    if (authError || !user) {
-      setUserId(null);
-      setAttempts([]);
-      setErrorMessage(
-        authError?.message ??
-          "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta edistyminen voidaan hakea."
-      );
-      setHasLoaded(true);
-      return;
+  const load = useCallback(async (signal?: AbortSignal) => {
+    const id = ++requestId.current;
+    setRefreshing(true);
+    setError(null);
+    try {
+      const { user, error: authError } = await getAuthenticatedUser();
+      if (authError || !user) {
+        if (!signal?.aborted && id === requestId.current) { setRows([]); setUserId(null); }
+        throw new Error("Kirjaudu sisään, jotta voit nähdä oman edistymisesi.");
+      }
+      const data = await loadProgressRows(client, user.id, courseId, signal);
+      if (signal?.aborted || id !== requestId.current) return;
+      setRows(data);
+      setUserId(user.id);
+    } catch (err) {
+      if (signal?.aborted || id !== requestId.current) return;
+      setError(err instanceof Error ? err.message : "Edistymisen haku epäonnistui.");
+    } finally {
+      if (!signal?.aborted && id === requestId.current) {
+        setLoaded(true);
+        setRefreshing(false);
+      }
     }
-
-    setUserId(user.id);
-
-    // select("*") pitää näkymän taaksepäin yhteensopivana ja ottaa samalla
-    // automaattisesti käyttöön uudet analytiikkakentät, kun SQL-migraatio on ajettu.
-    const { data, error } = await supabase
-      .from("student_progress_attempts")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("course_id", courseId)
-      .order("answered_at", { ascending: true });
-
-    if (error) {
-      console.error("Progress fetch failed:", error);
-      setErrorMessage(`Edistymisen haku epäonnistui: ${error.message}`);
-      setAttempts([]);
-      setHasLoaded(true);
-      return;
-    }
-
-    setAttempts(((data ?? []) as ProgressAttemptRow[]).map(mapRowToAttempt));
-    setHasLoaded(true);
-  }, [courseId, supabase]);
+  }, [client, courseId]);
 
   useEffect(() => {
-    void loadProgress();
-  }, [loadProgress]);
-
-  const totalAttempts = attempts.length;
-
-  const correctAttempts = attempts.filter(
-    (attempt) => attempt.isCorrect
-  ).length;
-
-  const unsureAttempts = attempts.filter(
-    isUnsureAttempt
-  ).length;
-
-  const wrongAttempts = attempts.filter(
-    (attempt) =>
-      !attempt.isCorrect &&
-      !isUnsureAttempt(attempt)
-  ).length;
-
-  const resolvedAttempts =
-    correctAttempts + wrongAttempts;
-
-  const accuracy = percentage(
-    correctAttempts,
-    resolvedAttempts
-  );
-
-  const uniqueQuestionsDone = useMemo(
-    () => new Set(attempts.map((attempt) => attempt.questionId)).size,
-    [attempts]
-  );
-
-  const repeatedAttempts = Math.max(0, totalAttempts - uniqueQuestionsDone);
-
-  const activeDays = useMemo(() => {
-    return new Set(
-      attempts.map((attempt) => new Date(attempt.answeredAt).toISOString().slice(0, 10))
-    ).size;
-  }, [attempts]);
-
-  const timedAttempts = useMemo(
-    () =>
-      attempts.filter(
-        hasActualQuestionTiming
-      ),
-    [attempts]
-  );
-
-  const avgAnswerTimeMs = useMemo(
-    () => average(timedAttempts.map((attempt) => attempt.answerTimeMs as number)),
-    [timedAttempts]
-  );
-
-  const totalStudyTimeMs = useMemo(() => {
-    if (timedAttempts.length === 0) return null;
-    return timedAttempts.reduce((sum, attempt) => sum + (attempt.answerTimeMs ?? 0), 0);
-  }, [timedAttempts]);
-
-  const areaStats = useMemo(
-    () =>
-      buildGroupStats(attempts, (attempt) => attempt.area).sort((a, b) => {
-        if (a.accuracy !== b.accuracy) return a.accuracy - b.accuracy;
-        return b.attempts - a.attempts;
-      }),
-    [attempts]
-  );
-
-  const categoryStats = useMemo(
-    () =>
-      buildGroupStats(attempts, (attempt) => attempt.category).sort((a, b) => {
-        if (a.accuracy !== b.accuracy) return a.accuracy - b.accuracy;
-        return b.attempts - a.attempts;
-      }),
-    [attempts]
-  );
-
-  const questionStats = useMemo<QuestionStats[]>(() => {
-    const grouped = new Map<string, ProgressAttempt[]>();
-
-    for (const attempt of attempts) {
-      const current = grouped.get(attempt.questionId) ?? [];
-      current.push(attempt);
-      grouped.set(attempt.questionId, current);
-    }
-
-    return Array.from(grouped.entries()).map(([questionId, rows]) => {
-      const sorted = [...rows].sort(
-        (a, b) => new Date(a.answeredAt).getTime() - new Date(b.answeredAt).getTime()
-      );
-      const latest = sorted[sorted.length - 1];
-
-      const correct = rows.filter(
-        (row) => row.isCorrect
-      ).length;
-
-      const unsure = rows.filter(
-        isUnsureAttempt
-      ).length;
-
-      const wrong = rows.filter(
-        (row) =>
-          !row.isCorrect &&
-          !isUnsureAttempt(row)
-      ).length;
-
-      const resolved = correct + wrong;
-
-      const times = rows
-        .filter(hasActualQuestionTiming)
-        .map((row) => row.answerTimeMs)
-        .filter(
-          (value): value is number =>
-            value != null
-        );
-
-      return {
-        questionId,
-        question: latest.question,
-        area: latest.area,
-        category: latest.category,
-        attempts: rows.length,
-        correct,
-        wrong,
-        unsure,
-        accuracy: percentage(
-          correct,
-          resolved
-        ),
-        avgTimeMs: average(times),
-        lastCorrect: latest.isCorrect,
-        lastUnsure: isUnsureAttempt(
-          latest
-        ),
-        lastAnsweredAt: latest.answeredAt,
-      };
+    const controller = new AbortController();
+    void Promise.resolve().then(() => {
+      if (!controller.signal.aborted) return load(controller.signal);
     });
-  }, [attempts]);
+    const unsubscribe = subscribeToProgressRefresh(() => { void load(controller.signal); });
+    return () => { unsubscribe(); controller.abort(); requestId.current += 1; };
+  }, [load]);
 
-  const questionsToReview = useMemo(
-    () =>
-      [...questionStats]
-        .filter((question) => question.wrong > 0)
-        .sort((a, b) => {
-          if (a.lastCorrect !== b.lastCorrect) return a.lastCorrect ? 1 : -1;
-          if (a.accuracy !== b.accuracy) return a.accuracy - b.accuracy;
-          if (a.wrong !== b.wrong) return b.wrong - a.wrong;
-          return new Date(b.lastAnsweredAt).getTime() - new Date(a.lastAnsweredAt).getTime();
-        })
-        .slice(0, 8),
-    [questionStats]
-  );
-
-  const weakestArea = useMemo(() => {
-    const enoughData = areaStats.filter((item) => item.attempts >= 3);
-    return enoughData[0] ?? areaStats[0] ?? null;
-  }, [areaStats]);
-
-  const strongestArea = useMemo(() => {
-    const enoughData = areaStats
-      .filter((item) => item.attempts >= 3)
-      .sort((a, b) => b.accuracy - a.accuracy || b.attempts - a.attempts);
-    return enoughData[0] ?? [...areaStats].sort((a, b) => b.accuracy - a.accuracy)[0] ?? null;
-  }, [areaStats]);
-
-  const weakestCategory = useMemo(() => {
-    const realCategories = categoryStats.filter((item) => item.name !== "Yleinen");
-    const enoughData = realCategories.filter((item) => item.attempts >= 3);
-    return enoughData[0] ?? realCategories[0] ?? null;
-  }, [categoryStats]);
-
-  const strongestCategory = useMemo(() => {
-    const realCategories = categoryStats.filter((item) => item.name !== "Yleinen");
-    const enoughData = realCategories
-      .filter((item) => item.attempts >= 3)
-      .sort((a, b) => b.accuracy - a.accuracy || b.attempts - a.attempts);
-    return enoughData[0] ?? [...realCategories].sort((a, b) => b.accuracy - a.accuracy)[0] ?? null;
-  }, [categoryStats]);
-
-  const recentTrend = useMemo(() => {
-    const recent = attempts.slice(-20);
-    const previous = attempts.slice(-40, -20);
-
-    const recentCorrect = recent.filter(
-      (item) => item.isCorrect
-    ).length;
-    const recentWrong = recent.filter(
-      (item) =>
-        !item.isCorrect &&
-        !isUnsureAttempt(item)
-    ).length;
-
-    const previousCorrect = previous.filter(
-      (item) => item.isCorrect
-    ).length;
-    const previousWrong = previous.filter(
-      (item) =>
-        !item.isCorrect &&
-        !isUnsureAttempt(item)
-    ).length;
-
-    const recentResolved =
-      recentCorrect + recentWrong;
-    const previousResolved =
-      previousCorrect + previousWrong;
-
-    const recentAccuracy = percentage(
-      recentCorrect,
-      recentResolved
-    );
-    const previousAccuracy = percentage(
-      previousCorrect,
-      previousResolved
-    );
-
-    return {
-      recentAccuracy,
-      previousAccuracy,
-      change:
-        previousResolved > 0
-          ? recentAccuracy -
-            previousAccuracy
-          : null,
-      sampleSize: recent.length,
-    };
-  }, [attempts]);
-
-  const last7Days = useMemo(() => {
-    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    const rows = attempts.filter(
-      (attempt) =>
-        new Date(
-          attempt.answeredAt
-        ).getTime() >= cutoff
-    );
-
-    const correct = rows.filter(
-      (row) => row.isCorrect
-    ).length;
-
-    const unsure = rows.filter(
-      isUnsureAttempt
-    ).length;
-
-    const wrong = rows.filter(
-      (row) =>
-        !row.isCorrect &&
-        !isUnsureAttempt(row)
-    ).length;
-
-    return {
-      attempts: rows.length,
-      correct,
-      wrong,
-      unsure,
-      accuracy: percentage(
-        correct,
-        correct + wrong
-      ),
-    };
-  }, [attempts]);
-
-  const sessions = useMemo<SessionStats[]>(() => {
-    const grouped = new Map<string, ProgressAttempt[]>();
-
-    for (const attempt of attempts) {
-      if (!attempt.sessionId) continue;
-      const type = attempt.sessionType?.toLowerCase() ?? "";
-      if (type && !["exam", "koe", "test", "mock_exam", "harjoituskoe"].includes(type)) {
-        continue;
-      }
-      const current = grouped.get(attempt.sessionId) ?? [];
-      current.push(attempt);
-      grouped.set(attempt.sessionId, current);
-    }
-
-    return Array.from(grouped.entries())
-      .map(([sessionId, rows]) => {
-        const sorted = [...rows].sort(
-          (a, b) => new Date(a.answeredAt).getTime() - new Date(b.answeredAt).getTime()
-        );
-        const correct = rows.filter(
-          (row) => row.isCorrect
-        ).length;
-
-        const unsure = rows.filter(
-          isUnsureAttempt
-        ).length;
-
-        const wrong = rows.filter(
-          (row) =>
-            !row.isCorrect &&
-            !isUnsureAttempt(row)
-        ).length;
-
-        const actualQuestionTimes = rows
-          .filter(hasActualQuestionTiming)
-          .map((row) => row.answerTimeMs)
-          .filter(
-            (value): value is number =>
-              value != null
-          );
-
-        const first = sorted[0];
-        const last = sorted[sorted.length - 1];
-
-        const explicitSessionDuration =
-          rows
-            .map(
-              (row) =>
-                row.sessionDurationMs
-            )
-            .find(
-              (value): value is number =>
-                value != null
-            ) ?? null;
-
-        // Taaksepäin yhteensopivuus:
-        // vanhoissa harjoituskokeissa answer_time_ms oli
-        // kokeen kokonaisaika jaettuna kysymysten määrällä.
-        // Niiden summa vastaa siis likimain koko kokeen aikaa.
-        const legacyPracticeTimes = rows
-          .filter(
-            (row) =>
-              row.sessionType?.toLowerCase() ===
-                "harjoituskoe" &&
-              row.answerTimeSource !==
-                "active_question" &&
-              row.answerTimeMs != null
-          )
-          .map(
-            (row) =>
-              row.answerTimeMs as number
-          );
-
-        const legacySessionDuration =
-          legacyPracticeTimes.length > 0
-            ? legacyPracticeTimes.reduce(
-                (sum, value) =>
-                  sum + value,
-                0
-              )
-            : null;
-
-        const durationMs =
-          explicitSessionDuration ??
-          legacySessionDuration;
-
-        return {
-          sessionId,
-          name: last.sessionName || "Koe",
-          attempts: rows.length,
-          correct,
-          wrong,
-          unsure,
-          accuracy: percentage(
-            correct,
-            correct + wrong
-          ),
-          durationMs,
-          pacePerQuestionMs:
-            durationMs != null &&
-            rows.length > 0
-              ? Math.round(
-                  durationMs /
-                    rows.length
-                )
-              : null,
-          activeAnswerTimeMs:
-            average(
-              actualQuestionTimes
-            ),
-          startedAt: first.answeredAt,
-          finishedAt: last.answeredAt,
-        };
-      })
-      .sort((a, b) => new Date(b.finishedAt).getTime() - new Date(a.finishedAt).getTime());
-  }, [attempts]);
-
-  const averageExamTimeMs = useMemo(() => {
-    const durations = sessions
-      .map((session) => session.durationMs)
-      .filter((value): value is number => value != null);
-    return average(durations);
-  }, [sessions]);
-
-  const averageExamPacePerQuestionMs = useMemo(() => {
-    const validSessions = sessions.filter(
-      (session) =>
-        session.durationMs != null &&
-        session.attempts > 0
-    );
-
-    if (validSessions.length === 0) {
-      return null;
-    }
-
-    const totalDuration = validSessions.reduce(
-      (sum, session) =>
-        sum + (session.durationMs ?? 0),
-      0
-    );
-
-    const totalQuestions = validSessions.reduce(
-      (sum, session) =>
-        sum + session.attempts,
-      0
-    );
-
-    return totalQuestions > 0
-      ? Math.round(
-          totalDuration / totalQuestions
-        )
-      : null;
-  }, [sessions]);
-
-  const visibleHistory = useMemo(
-    () => [...attempts].reverse().slice(0, historyLimit),
-    [attempts, historyLimit]
-  );
+  const filteredRows = useMemo(() => progressForPeriod(rows, period), [rows, period]);
+  const data = useMemo(() => buildProgressAnalytics(filteredRows), [filteredRows]);
+  const history = useMemo(() => [...data.rows].reverse().filter((row) => historyFilter === "all" || getProgressStatus(row) === historyFilter), [data.rows, historyFilter]);
+  const practiceReviews = useMemo(() => buildPracticeReviews(filteredRows, practices), [filteredRows, practices]);
+  const nextStep = useMemo(() => nextPracticeStep(rows, practices), [rows, practices]);
+  const recommended = nextStep.kind === "review" ? nextStep.review : null;
+  const [recommendedLabel, ...recommendedTopicParts] = nextStep.practice?.title.split(/\s+[–—]\s+/) ?? [];
+  const recommendedTopic = recommendedTopicParts.join(" – ");
+  const sessions = useMemo(() => buildProgressSessions(rows, period), [rows, period]);
+  const repeatSessions = sessions.filter((session) => session.attemptNumber > 1).length;
+  const enoughData = data.groups.some((group) => group.resolved >= 5);
+  const tipRow = recommended?.rows.find((row) => getProgressStatus(row) === "incorrect") ?? recommended?.rows[0];
+  const readingTip = isReadingCourse && tipRow
+    ? VALINTAKOE_G_READING_CATEGORIES.find((category) => category.id === tipRow.category_id)?.studentTip
+    : null;
+  const practiceHref = `/kurssi/${courseId}/harjoitukset`;
 
   async function resetProgress() {
-    const confirmed = window.confirm(
-      "Haluatko varmasti nollata tämän kurssin edistymisen? Tämä poistaa kaikki tallennetut vastausyritykset tältä kurssilta."
-    );
-
-    if (!confirmed) return;
-
-    setErrorMessage(null);
-    const { user, error: authError } = await getAuthenticatedUser();
-
-    if (authError || !user) {
-      setUserId(null);
-      setErrorMessage(
-        authError?.message ??
-          "Kirjautumista ei löytynyt. Kirjaudu sisään, jotta edistyminen voidaan nollata."
-      );
-      return;
-    }
-
-    setUserId(user.id);
-    setIsResetting(true);
-
-    const { error } = await supabase
-      .from("student_progress_attempts")
-      .delete()
-      .eq("user_id", user.id)
-      .eq("course_id", courseId);
-
-    if (error) {
-      console.error("Progress reset failed:", error);
-      setErrorMessage(`Edistymisen nollaus epäonnistui: ${error.message}`);
-      setIsResetting(false);
-      return;
-    }
-
-    setAttempts([]);
-    setIsResetting(false);
+    if (!window.confirm("Poistetaanko tämän kurssin vastaushistoria? Harjoitusten ja kokeiden suoritukset säilyvät erikseen. Toimintoa ei voi perua.")) return;
+    setResetting(true);
+    setError(null);
+    try {
+      const { user, error: authError } = await getAuthenticatedUser();
+      if (authError || !user) throw new Error("Kirjaudu sisään uudelleen ennen nollausta.");
+      const { error: resetError } = await client.from("student_progress_attempts").delete().eq("user_id", user.id).eq("course_id", courseId);
+      if (resetError) throw new Error(resetError.message);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Vastaushistorian nollaus epäonnistui.");
+    } finally { setResetting(false); }
   }
 
-  function goToLogin() {
-    router.push(`/kirjaudu?next=/kurssi/${courseId}/edistyminen`);
-  }
-
-  if (!hasLoaded) {
-    return (
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h2 className="text-2xl font-extrabold text-slate-950">Ladataan edistymistä</h2>
-        <p className="mt-3 leading-8 text-slate-700">Haetaan käyttäjän tallennettuja tehtävätuloksia</p>
-      </div>
-    );
-  }
-
-  if (errorMessage) {
-    return (
-      <div className="rounded-3xl border border-red-200 bg-red-50 p-8 shadow-sm">
-        <p className="text-sm font-bold uppercase tracking-wide text-red-700">Edistymistä ei voitu näyttää</p>
-        <h2 className="mt-2 text-3xl font-extrabold text-red-950">Tallennuksen haku epäonnistui</h2>
-        <p className="mt-4 leading-8 text-red-950">{errorMessage}</p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <button type="button" onClick={() => void loadProgress()} className="rounded-full bg-red-600 px-6 py-3 font-bold text-white transition hover:bg-red-700">
-            Yritä uudelleen
-          </button>
-          {errorMessage.toLowerCase().includes("kirjaut") && (
-            <button type="button" onClick={goToLogin} className="rounded-full border border-red-200 bg-white px-6 py-3 font-bold text-red-700 transition hover:bg-red-100">
-              Kirjaudu sisään
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (attempts.length === 0) {
-    return (
-      <div className="space-y-6">
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-          <p className="text-sm font-bold uppercase tracking-wide text-blue-700">Ei dataa vielä</p>
-          <h2 className="mt-2 text-3xl font-extrabold text-slate-950">Et ole tehnyt vielä tehtäviä tällä kurssilla.</h2>
-          <p className="mt-4 leading-8 text-slate-700">Kun teet harjoituksia, tulokset tallentuvat automaattisesti</p>
-          <a href={`/kurssi/${courseId}/harjoitukset`} className="mt-6 inline-flex rounded-full bg-blue-600 px-6 py-3 font-bold text-white transition hover:bg-blue-700">
-            Siirry harjoituksiin
-          </a>
-        </div>
-
-        {isValintakoeG && (
-          <ValintakoeGReadingProfile
-            courseId={courseId as ValintakoeGCourseId}
-          />
-        )}
-      </div>
-    );
-  }
+  if (!loaded) return <div className={card} role="status"><h2 className="text-xl font-bold">Haetaan edistymistä…</h2><p className="mt-2 text-sm text-slate-500">Kootaan kurssin vastaushistoriaa.</p></div>;
 
   return (
-    <div className="min-w-0 max-w-full space-y-6 overflow-x-hidden">
-      <section className="rounded-[32px] bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-500 p-6 text-white shadow-lg md:p-8">
-        <p className="text-sm font-black uppercase tracking-[0.18em] text-blue-100">Oppimisanalytiikka</p>
-        <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <h2 className="text-3xl font-black md:text-4xl">Edistyminen ja osaamisprofiili</h2>
-            <p className="mt-3 max-w-3xl text-blue-50">Näet vastausmäärät, tarkkuuden, heikot ja vahvat alueet, kysymyskohtaiset ongelmakohdat, trendin sekä aika-analytiikan silloin kun ajankäyttö on tallennettu.</p>
+    <div className="min-w-0 space-y-5 [overflow-wrap:anywhere]">
+      <section className={card} aria-label="Edistymisen rajaus">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-widest text-blue-700">Oma oppimisesi</p>
+            <h2 className="mt-1 text-xl font-bold text-slate-950">Miten harjoittelusi etenee?</h2>
           </div>
-          <button type="button" onClick={() => void loadProgress()} className="w-fit rounded-full bg-white/15 px-5 py-3 font-extrabold text-white ring-1 ring-white/30 transition hover:bg-white/25">
-            Päivitä data
+          <button type="button" aria-label={refreshing ? "Päivitetään tietoja" : "Päivitä tiedot"} disabled={refreshing || resetting} onClick={() => void load()} className={`${action} shrink-0 gap-2 border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50`}>
+            <span aria-hidden="true" className="text-lg">↻</span><span className="hidden sm:inline">{refreshing ? "Päivitetään…" : "Päivitä tiedot"}</span>
           </button>
         </div>
+        <fieldset className="mt-5">
+          <legend className="mb-2 text-xs font-semibold text-slate-500">Näytettävä ajanjakso</legend>
+          <div className="flex flex-wrap gap-2">
+            {([ ["all", "Kaikki"], ["30", "30 päivää"], ["7", "7 päivää"] ] as const).map(([value, label]) => (
+              <button key={value} type="button" aria-pressed={period === value} onClick={() => { setPeriod(value); setHistoryLimit(10); setSessionLimit(5); setReviewLimit(4); }} className={`${action} ${period === value ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>{label}</button>
+            ))}
+          </div>
+        </fieldset>
       </section>
 
-      {isValintakoeG && (
-        <ValintakoeGReadingProfile
-          courseId={courseId as ValintakoeGCourseId}
-        />
-      )}
+      {error && <div role="alert" className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950">
+        <p className="font-bold">Tietoja ei voitu päivittää</p><p className="mt-1">{error}</p>
+        {rows.length > 0 && <p className="mt-1">Alla näkyvät aiemmin haetut tiedot.</p>}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" disabled={refreshing} onClick={() => void load()} className={`${action} bg-white`}>Yritä uudelleen</button>
+          {error.toLowerCase().includes("kirjaudu") && <a href={`/kirjaudu?next=${encodeURIComponent(`/kurssi/${courseId}/edistyminen`)}`} className={`${action} bg-white`}>Kirjaudu sisään</a>}
+        </div>
+      </div>}
 
-      <section className="grid min-w-0 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
-        <MetricCard
-          label="Vastauksia yhteensä"
-          value={totalAttempts.toString()}
-          detail={`${uniqueQuestionsDone} eri kysymystä`}
-        />
-        <MetricCard
-          label="Oikein"
-          value={correctAttempts.toString()}
-          detail={`${accuracy} % ratkaistuista`}
-          tone="green"
-        />
-        <MetricCard
-          label="Väärin"
-          value={wrongAttempts.toString()}
-          detail={
-            resolvedAttempts > 0
-              ? `${percentage(
-                  wrongAttempts,
-                  resolvedAttempts
-                )} % ratkaistuista`
-              : "Ei ratkaistuja vastauksia"
-          }
-          tone="red"
-        />
-        <MetricCard
-          label="En osaa sanoa"
-          value={unsureAttempts.toString()}
-          detail={
-            totalAttempts > 0
-              ? `${percentage(
-                  unsureAttempts,
-                  totalAttempts
-                )} % kaikista vastauksista`
-              : "0 % kaikista vastauksista"
-          }
-        />
-        <MetricCard
-          label="Uusintayrityksiä"
-          value={repeatedAttempts.toString()}
-          detail="Sama kysymys vastattu uudelleen"
-        />
-        <MetricCard label="Aktiivisia päiviä" value={activeDays.toString()} detail={`${last7Days.attempts} vastausta viimeisen 7 vrk aikana`} />
-        <MetricCard
-          label="Viimeiset 7 vrk"
-          value={`${last7Days.accuracy} %`}
-          detail={`${last7Days.correct} oikein · ${last7Days.wrong} väärin · ${last7Days.unsure} en osaa sanoa`}
-        />
-        <MetricCard
-          label="Keskim. koeaika / kysymys"
-          value={formatDuration(averageExamPacePerQuestionMs)}
-          detail={
-            sessions.length
-              ? "Koko kokeen kesto ÷ kokeen kysymykset"
-              : "Muodostuu suoritetuista harjoituskokeista"
-          }
-        />
-        <MetricCard
-          label="Keskim. aktiivinen vastausaika"
-          value={formatDuration(avgAnswerTimeMs)}
-          detail={
-            timedAttempts.length
-              ? `${timedAttempts.length} aidosti ajoitettua vastausta`
-              : "Uusi kysymyskohtainen ajastus näkyy uusista suorituksista"
-          }
-        />
-        <MetricCard
-          label="Aktiivinen työskentelyaika"
-          value={formatDuration(totalStudyTimeMs)}
-          detail="Kysymysten aktiivisten vastausaikojen summa"
-        />
-      </section>
-
-      <section className="grid min-w-0 gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-        <InsightCard
-          eyebrow="Heikoin osa-alue"
-          title={weakestArea?.name ?? "Ei vielä dataa"}
-          value={weakestArea ? `${weakestArea.accuracy} %` : "–"}
-          detail={
-            weakestArea
-              ? `${weakestArea.correct} oikein · ${weakestArea.wrong} väärin · ${weakestArea.unsure} en osaa sanoa`
-              : ""
-          }
-          tone="orange"
-        />
-        <InsightCard
-          eyebrow="Vahvin osa-alue"
-          title={strongestArea?.name ?? "Ei vielä dataa"}
-          value={strongestArea ? `${strongestArea.accuracy} %` : "–"}
-          detail={
-            strongestArea
-              ? `${strongestArea.correct} oikein · ${strongestArea.wrong} väärin · ${strongestArea.unsure} en osaa sanoa`
-              : ""
-          }
-          tone="green"
-        />
-        <InsightCard
-          eyebrow="Viimeaikainen suunta"
-          title={recentTrend.sampleSize ? `Viimeiset ${recentTrend.sampleSize} vastausta` : "Ei vielä dataa"}
-          value={`${recentTrend.recentAccuracy} %`}
-          detail={
-            recentTrend.change == null
-              ? "Vertailu muodostuu, kun vastauksia kertyy lisää."
-              : recentTrend.change > 0
-                ? `+${recentTrend.change} prosenttiyksikköä edellisiin 20 vastaukseen`
-                : recentTrend.change < 0
-                  ? `${recentTrend.change} prosenttiyksikköä edellisiin 20 vastaukseen`
-                  : "Sama tarkkuus kuin edellisissä 20 vastauksessa"
-          }
-          tone={recentTrend.change != null && recentTrend.change < 0 ? "orange" : "blue"}
-        />
-      </section>
-
-      {!isValintakoeG && (weakestCategory || strongestCategory) && (
-        <section className="grid min-w-0 gap-4 xl:grid-cols-2">
-          <InsightCard
-            eyebrow="Heikoin kategoria"
-            title={weakestCategory?.name ?? "Ei kategoriadataa"}
-            value={weakestCategory ? `${weakestCategory.accuracy} %` : "–"}
-            detail={
-              weakestCategory
-                ? `${weakestCategory.correct} oikein · ${weakestCategory.wrong} väärin · ${weakestCategory.unsure} en osaa sanoa`
-                : ""
-            }
-            tone="orange"
-          />
-          <InsightCard
-            eyebrow="Vahvin kategoria"
-            title={strongestCategory?.name ?? "Ei kategoriadataa"}
-            value={strongestCategory ? `${strongestCategory.accuracy} %` : "–"}
-            detail={
-              strongestCategory
-                ? `${strongestCategory.correct} oikein · ${strongestCategory.wrong} väärin · ${strongestCategory.unsure} en osaa sanoa`
-                : ""
-            }
-            tone="green"
-          />
+      {!data.rows.length ? (
+        !error && <section className={`${card} py-10 sm:py-12`}>
+          <p className="text-xs font-bold uppercase tracking-widest text-blue-700">Tästä se alkaa</p>
+          <h2 className="mt-3 text-2xl font-bold">{rows.length ? "Ei suorituksia tällä ajanjaksolla" : "Ensimmäinen harjoitus kertoo lähtötasosi"}</h2>
+          <p className="mt-3 max-w-xl text-sm leading-7 text-slate-600">{rows.length ? "Valitse pidempi ajanjakso nähdäksesi aiemmat tuloksesi." : "Tee harjoitus ja päätä suoritus. Näet täällä tuloksesi, harjoiteltavat osa-alueet ja konkreettiset vinkit jatkoon."}</p>
+          {rows.length ? <button type="button" onClick={() => setPeriod("all")} className={`${action} mt-5 bg-blue-600 text-white`}>Näytä kaikki suoritukset</button> : <a href={practiceHref} className={`${action} mt-5 bg-blue-600 text-white hover:bg-blue-700`}>Aloita harjoittelu <span aria-hidden="true" className="ml-2">→</span></a>}
         </section>
-      )}
+      ) : <>
+        <section aria-label="Edistyminen lukuina" className="grid min-w-0 grid-cols-2 gap-3 xl:grid-cols-4">
+          <Metric label="Vastaustarkkuus" value={percent(data.summary.accuracy)} detail={`${data.summary.correct} oikein / ${data.summary.resolved} vastattua`} />
+          <Metric label="Eri kysymyksiä" value={String(data.latest.length)} detail={`${data.latestSummary.correct} viimeksi oikein · ${data.review.length} kerrattavaa`} />
+          <Metric label="Harjoittelupäiviä" value={String(data.activeDays)} detail="Päivät Suomen ajassa" />
+          <Metric label="Suorituksia" value={String(sessions.length)} detail={`${repeatSessions} ${repeatSessions === 1 ? "uusintasuoritus" : "uusintasuoritusta"} mukana`} />
+        </section>
 
-      <StatsTable title="Osa-alueet" subtitle="Tulokset osa-alueittain. Vahvuusarvio muuttuu luotettavammaksi, kun vastauksia kertyy vähintään kolme." rows={areaStats} />
+        <div className="grid min-w-0 gap-4 xl:grid-cols-2">
+          <section aria-label="Seuraava askel" className="min-w-0 rounded-3xl bg-slate-950 p-5 text-white sm:p-6">
+            <p className="text-xs font-bold uppercase tracking-widest text-cyan-300">Seuraava askel</p>
+            <h2 className="mt-3 text-2xl font-bold leading-snug">{nextStep.kind === "review" ? `Kertaa: ${recommendedLabel}` : nextStep.kind === "new" ? `Seuraavaksi: ${recommendedLabel}` : nextStep.kind === "unknown" ? "Valitse harjoitus kertausta varten" : "Hyvä pohja. Jatka harjoittelua."}</h2>
+            {recommendedTopic && <p className="mt-2 text-sm font-semibold leading-6 text-white">{recommendedTopic}</p>}
+            <p className="mt-3 text-sm leading-7 text-slate-300">{recommended ? `Viimeisimmissä vastauksissasi tästä ${isReadingCourse ? "harjoituksesta" : "kokeesta"} on ${recommended.incorrect} väärin ja ${recommended.skipped} vastaamatta.` : nextStep.kind === "unknown" ? "Kerrattavaa löytyi vanhoista vastauksistasi. Valitse harjoitus sisällysluettelosta ja tarkista lopuksi vastausten perustelut." : nextStep.kind === "new" ? "Aiempien harjoitusten viimeisimmät vastauksesi ovat oikein. Jatka tähän tekemättömään harjoitukseen ja laajenna osaamistasi." : "Viimeisimmissä vastauksissasi ei ole kerrattavaa. Olet jo harjoitellut kaikkia kurssin harjoituksia. Voit vahvistaa osaamistasi tekemällä niitä uudelleen."}</p>
+            {recommended && <p className="mt-3 text-sm leading-7 text-slate-300">{isReadingCourse ? "Kertaa harjoituksen aineisto ja tee harjoitus uudelleen. Käy lopuksi läpi väärien ja vastaamatta jätettyjen tehtävien perustelut." : "Kertaa kokeen ennakkomateriaali ja tee sama harjoituskoe uudelleen. Tarkista sen jälkeen vastausten perustelut tulosnäkymästä."}</p>}
+            {readingTip && <p className="mt-3 rounded-xl bg-white/10 p-3 text-sm leading-6"><strong>Kokeile näin:</strong> {readingTip}</p>}
+            <p className="mt-4 text-xs leading-5 text-slate-400">Suositus perustuu koko kurssin viimeisimpiin vastauksiisi.</p>
+            <a href={nextStep.practice?.href ?? practiceHref} className={`${action} mt-5 bg-white text-slate-950 hover:bg-blue-50`}>{nextStep.practice ? (isReadingCourse ? "Avaa harjoitus" : "Avaa harjoituskoe") : "Valitse harjoitus"}<span className="ml-2" aria-hidden="true">→</span></a>
+          </section>
 
-      {!isValintakoeG && (
-        <StatsTable title="Kategoriat" subtitle="Esimerkiksi Oikis: Luetun ymmärtäminen. Jos kysymyksellä ei ole kategoriaa, se näkyy ryhmässä Yleinen." rows={categoryStats} />
-      )}
-
-      <section className="min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm font-black uppercase tracking-wide text-red-700">Kertaa nämä</p>
-            <h2 className="mt-1 text-3xl font-black text-slate-950">Kysymykset, joissa tulee eniten virheitä</h2>
-            <p className="mt-2 text-sm font-semibold text-slate-500">Järjestys painottaa viimeisintä väärää vastausta, heikkoa tarkkuutta ja toistuvia virheitä.</p>
-          </div>
-        </div>
-
-        {questionsToReview.length === 0 ? (
-          <p className="mt-6 rounded-2xl bg-emerald-50 p-4 font-bold text-emerald-800">Tällä hetkellä ei ole väärin vastattuja kysymyksiä.</p>
-        ) : (
-          <div className="mt-6 grid gap-3">
-            {questionsToReview.map((item) => (
-              <div key={item.questionId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="min-w-0">
-                    <p className="font-extrabold text-slate-950">{item.question}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-500">{item.area} · {item.category}</p>
-                    <p className="mt-1 text-xs font-semibold text-slate-400">Viimeksi {new Date(item.lastAnsweredAt).toLocaleString("fi-FI")}</p>
-                  </div>
-                  <div className="flex shrink-0 flex-wrap gap-2">
-                    <Pill text={`${item.correct} oikein`} />
-                    <Pill
-                      text={`${item.wrong} väärin`}
-                      tone="red"
-                    />
-                    {item.unsure > 0 && (
-                      <Pill
-                        text={`${item.unsure} en osaa sanoa`}
-                        tone="blue"
-                      />
-                    )}
-                    <Pill text={`${item.accuracy} %`} tone={item.accuracy >= 70 ? "green" : "orange"} />
-                    {item.avgTimeMs != null && (
-                      <Pill
-                        text={`Ø aktiivinen ${formatDuration(item.avgTimeMs)}`}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-        <p className="text-sm font-black uppercase tracking-wide text-blue-700">Kysymyskohtainen analyysi</p>
-        <h2 className="mt-1 text-3xl font-black text-slate-950">Kaikki vastatut kysymykset</h2>
-        <div className="mt-6 max-w-full overflow-x-auto overscroll-x-contain">
-          <table className="min-w-[900px] w-full border-separate border-spacing-y-2 text-left">
-            <thead>
-              <tr className="text-xs font-black uppercase tracking-wide text-slate-500">
-                <th className="px-3 py-2">Kysymys</th>
-                <th className="px-3 py-2">Osa-alue</th>
-                <th className="px-3 py-2">Kategoria</th>
-                <th className="px-3 py-2">Vastauksia</th>
-                <th className="px-3 py-2">Oikein</th>
-                <th className="px-3 py-2">Väärin</th>
-                <th className="px-3 py-2">En osaa sanoa</th>
-                <th className="px-3 py-2">Tarkkuus</th>
-                <th className="px-3 py-2">Ø aktiivinen aika</th>
-                <th className="px-3 py-2">Tila</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...questionStats]
-                .sort((a, b) => a.accuracy - b.accuracy || b.wrong - a.wrong)
-                .map((item) => (
-                  <tr key={item.questionId} className="bg-slate-50 text-sm font-semibold text-slate-700">
-                    <td className="max-w-[360px] rounded-l-2xl px-3 py-3 font-bold text-slate-950">{item.question}</td>
-                    <td className="px-3 py-3">{item.area}</td>
-                    <td className="px-3 py-3">{item.category}</td>
-                    <td className="px-3 py-3">{item.attempts}</td>
-                    <td className="px-3 py-3 text-emerald-700">{item.correct}</td>
-                    <td className="px-3 py-3 text-red-700">{item.wrong}</td>
-                    <td className="px-3 py-3 text-slate-500">{item.unsure}</td>
-                    <td className="px-3 py-3 font-black">{item.accuracy} %</td>
-                    <td className="px-3 py-3">{formatDuration(item.avgTimeMs)}</td>
-                    <td className="rounded-r-2xl px-3 py-3"><Pill text={getStrengthLabel(item.accuracy, item.attempts)} tone={item.accuracy >= 70 ? "green" : item.attempts < 3 ? "blue" : "orange"} /></td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard
-            label="Kokeita"
-            value={sessions.length.toString()}
-            detail="Koe-/testisessiot"
-          />
-          <MetricCard
-            label="Keskim. koko koeaika"
-            value={formatDuration(averageExamTimeMs)}
-            detail={
-              sessions.length
-                ? "Koko kokeen suorittamiseen käytetty aika"
-                : "Näkyy suoritetuista harjoituskokeista"
-            }
-          />
-          <MetricCard
-            label="Keskim. koeaika / kysymys"
-            value={formatDuration(averageExamPacePerQuestionMs)}
-            detail="Kokonaiskoeaika jaettuna kysymysten määrällä"
-          />
-          <MetricCard
-            label="Koevastauksia"
-            value={sessions
-              .reduce(
-                (sum, item) =>
-                  sum + item.attempts,
-                0
-              )
-              .toString()}
-            detail="Koesessioihin liitetyt vastaukset"
-          />
-        </div>
-
-        {sessions.length > 0 && (
-          <div className="mt-6 grid gap-3">
-            {sessions.slice(0, 10).map((session) => (
-              <div key={session.sessionId} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="font-extrabold text-slate-950">{session.name}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-500">{new Date(session.finishedAt).toLocaleString("fi-FI")}</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Pill
-                      text={`${session.correct} oikein`}
-                      tone="green"
-                    />
-                    <Pill
-                      text={`${session.wrong} väärin`}
-                      tone="red"
-                    />
-                    {session.unsure > 0 && (
-                      <Pill
-                        text={`${session.unsure} en osaa sanoa`}
-                      />
-                    )}
-                    <Pill text={`${session.accuracy} %`} />
-                    <Pill
-                      text={`Koe ${formatDuration(session.durationMs)}`}
-                    />
-                    {session.pacePerQuestionMs != null && (
-                      <Pill
-                        text={`Tahti ${formatDuration(session.pacePerQuestionMs)} / kysymys`}
-                      />
-                    )}
-                    {session.activeAnswerTimeMs != null && (
-                      <Pill
-                        text={`Ø aktiivinen ${formatDuration(session.activeAnswerTimeMs)}`}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-black uppercase tracking-wide text-blue-700">Vastaushistoria</p>
-        <h2 className="mt-1 text-3xl font-black text-slate-950">Yksittäiset vastaukset</h2>
-        <p className="mt-2 text-sm font-semibold text-slate-500">Näet jokaisen yrityksen, tuloksen, osa-alueen, kategorian ja vastausajan, jos se on tallennettu.</p>
-
-        <div className="mt-6 space-y-3">
-          {visibleHistory.map((attempt) => (
-            <div key={attempt.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div className="min-w-0">
-                  <p className="font-bold text-slate-950">{attempt.question}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-500">{attempt.area} · {attempt.category}</p>
-                  <p className="mt-1 text-xs font-semibold text-slate-400">{new Date(attempt.answeredAt).toLocaleString("fi-FI")}
-                    {hasActualQuestionTiming(attempt)
-                      ? ` · aktiivinen ${formatDuration(attempt.answerTimeMs)}`
-                      : ""}</p>
-                </div>
-                <span
-                  className={`w-fit shrink-0 rounded-full px-3 py-1 text-sm font-bold ${
-                    attempt.isCorrect
-                      ? "bg-emerald-100 text-emerald-700"
-                      : isUnsureAttempt(attempt)
-                        ? "bg-slate-200 text-slate-700"
-                        : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {attempt.isCorrect
-                    ? "Oikein"
-                    : isUnsureAttempt(attempt)
-                      ? "En osaa sanoa"
-                      : "Väärin"}
-                </span>
-              </div>
+          <section className={card}>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Tulosten tulkinta</p>
+            <h2 className="mt-3 text-xl font-bold">Jokainen yritys auttaa eteenpäin</h2>
+            <div className="mt-4 flex flex-wrap gap-2"><StatusCount status="correct" count={data.summary.correct} /><StatusCount status="incorrect" count={data.summary.incorrect} /><StatusCount status="skipped" count={data.summary.skipped} /></div>
+            <p className="mt-4 text-sm leading-6 text-slate-600">Tarkkuus = oikein / (oikein + väärin). Vastaamatta jätetyt näytetään erikseen. Tarkkuus ei ole koepistemäärä.</p>
+            <div className="mt-4 border-t border-slate-100 pt-4">
+              <p className="text-sm font-bold text-slate-900">{data.trend == null ? "Suunta tarkentuu harjoitellessa" : data.trend > 0 ? `Tarkkuus noussut ${data.trend} prosenttiyksikköä` : data.trend < 0 ? `Tarkkuus laskenut ${Math.abs(data.trend)} prosenttiyksikköä` : "Tarkkuus pysynyt samana"}</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">{data.trend == null ? "Vertailu muodostuu 40 vastatusta yrityksestä. Vastaamatta jätettyjä ei käytetä vertailuun." : "Viimeiset 20 vastattua yritystä verrattuna niitä edeltäviin 20 yritykseen valitulla ajanjaksolla."}</p>
             </div>
-          ))}
+          </section>
         </div>
 
-        {historyLimit < attempts.length && (
-          <button type="button" onClick={() => setHistoryLimit((current) => current + 20)} className="mt-5 rounded-full bg-blue-50 px-5 py-3 font-extrabold text-blue-700 transition hover:bg-blue-100">
-            Näytä lisää
-          </button>
-        )}
-      </section>
+        <section id="progress-skills" className={card}>
+          <SectionHeading eyebrow="Nykyinen osaaminen" title="Mihin kannattaa keskittyä?" detail="Kustakin kysymyksestä huomioidaan viimeisin vastaus valitulla ajanjaksolla. Osa-alueita arvioidaan, kun vastattuja kysymyksiä on vähintään viisi." />
+          {!enoughData && <p className="mt-4 rounded-xl bg-blue-50 p-4 text-sm leading-6 text-blue-900">Tulokset ovat vielä suuntaa antavia. Jatka harjoittelua, jotta osa-alueista kertyy kattavampi kuva.</p>}
+          {data.strongest && <p className="mt-4 text-sm text-emerald-800"><strong>Vahvuutesi:</strong> {data.strongest.name} · {data.strongest.accuracy} % oikein.</p>}
+          <div className="mt-5 space-y-3">{data.groups.map((group) => <GroupRow key={group.name} group={group} />)}</div>
+          {!isReadingCourse && data.categories.some((group) => !["Yleinen", "Harjoituskoe"].includes(group.name)) && <details className="mt-5 border-t border-slate-100 pt-4"><summary className="min-h-11 cursor-pointer py-2 text-sm font-bold text-blue-700">Näytä tulokset kategorioittain</summary><div className="mt-3 space-y-3">{data.categories.map((group) => <GroupRow key={group.name} group={group} />)}</div></details>}
+        </section>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-bold uppercase tracking-wide text-slate-500">Hallinta</p>
-        <h2 className="mt-2 text-2xl font-extrabold text-slate-950">Edistymisen nollaus</h2>
-        <p className="mt-3 leading-8 text-slate-700">Nollaus poistaa tämän kurssin monivalintaedistymisen kirjautuneelta käyttäjältä.</p>
-        <button type="button" onClick={() => void resetProgress()} disabled={isResetting || !userId} className="mt-6 rounded-full bg-red-50 px-6 py-3 font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60">
-          {isResetting ? "Nollataan..." : "Nollaa edistyminen"}
-        </button>
-      </section>
+        {isReadingCourse && <details className="min-w-0 rounded-3xl border border-slate-200 bg-white p-1 shadow-sm">
+          <summary className="min-h-11 cursor-pointer p-4 text-base font-bold text-slate-950 sm:p-5">Lukutaitoprofiili <span className="ml-2 text-sm font-normal text-slate-500">20 taitoa ja harjoitteluvinkit</span></summary>
+          <ValintakoeGReadingProfile rows={data.latest} />
+        </details>}
+
+        <section id="progress-review" className={card}>
+          <SectionHeading eyebrow="Kertaa seuraavaksi" title={isReadingCourse ? "Kerrattavat harjoitukset" : "Kerrattavat harjoituskokeet"} detail="Harjoitukset on järjestetty kerrattavien tehtävien määrän mukaan. Kustakin kysymyksestä huomioidaan viimeisin vastaus valitulla ajanjaksolla. Jo korjattu virhe poistuu listalta." />
+          {practiceReviews.length ? <div className="mt-5 space-y-3">{practiceReviews.slice(0, reviewLimit).map((group) => <article key={group.key} className="rounded-2xl border border-slate-200 p-4">
+            <h3 className="text-base font-bold leading-7 text-slate-900">{group.practice?.title ?? "Muut kerrattavat vastaukset"}</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">{group.incorrect} väärin · {group.skipped} vastaamatta</p>
+            <a href={group.practice?.href ?? practiceHref} className={`${action} mt-3 bg-blue-50 text-blue-700 hover:bg-blue-100`}>{group.practice ? (isReadingCourse ? "Avaa harjoitus" : "Avaa harjoituskoe") : "Valitse harjoitus"} →</a>
+            <details className="mt-3 border-t border-slate-100 pt-2">
+              <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold text-slate-600">Näytä kerrattavat tehtävät ({group.rows.length})</summary>
+              <div className="mt-2 space-y-3">{group.rows.map((row) => <div key={questionKey(row)} className="rounded-xl bg-slate-50 p-3">
+                <StatusBadge status={getProgressStatus(row)} /><p className="mt-2 text-sm leading-6 text-slate-900">{row.question}</p>
+              </div>)}</div>
+            </details>
+          </article>)}</div> : <p className="mt-4 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">Viimeisimmissä vastauksissa ei ole kerrattavaa. Hienoa työtä!</p>}
+          {practiceReviews.length > reviewLimit && <button type="button" onClick={() => setReviewLimit((limit) => limit + 4)} className={`${action} mt-4 bg-slate-100 text-slate-700`}>Näytä lisää kerrattavia harjoituksia</button>}
+        </section>
+
+        <section id="progress-sessions" aria-label="Suoritushistoria" className={card}>
+          <SectionHeading eyebrow="Suoritushistoria" title={isReadingCourse ? "Aineistoharjoituksesi" : "Harjoituskokeesi"} detail={isReadingCourse ? "Oikeasta vastauksesta +1, väärästä tai vastaamatta jätetystä 0 pistettä." : "Koepisteet lasketaan: oikein +1, väärin −1, vastaamatta 0. Osumat huomioivat myös vastaamatta jätetyt tehtävät."} />
+          {sessions.length ? <div className="mt-5 space-y-3">{sessions.slice(0, sessionLimit).map((session) => <article key={session.id} className="rounded-2xl border border-slate-200 p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><h3 className="text-sm font-bold leading-6">{session.name}</h3><p className="mt-1 text-xs text-slate-500">{dateLabel(session.finishedAt)}</p><p className="mt-1 text-xs font-semibold text-blue-700">{session.attemptNumber === 1 ? "Ensimmäinen suoritus" : `${session.attemptNumber}. suoritus · uusintayritys`}</p></div><p className="text-lg font-bold text-slate-950">{session.score} / {session.total} <span className="text-xs font-normal text-slate-500">p</span></p></div>
+            {session.scoreChange != null && <p className="mt-3 text-xs font-semibold text-slate-600">{session.scoreChange > 0 ? `+${session.scoreChange} p edelliseen suoritukseen` : session.scoreChange < 0 ? `${session.scoreChange} p edelliseen suoritukseen` : "Sama pistemäärä kuin edellisessä suorituksessa"}</p>}
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100" role="img" aria-label={`${session.correct} oikein ${session.total} tehtävästä`}><div className="h-full rounded-full bg-blue-600" style={{width:`${Math.round(session.correct / session.total * 100)}%`}} /></div>
+            <p className="mt-2 text-xs leading-6 text-slate-500">{session.correct} oikein · {session.incorrect} väärin · {session.skipped} vastaamatta</p>
+            <p className="mt-1 text-xs leading-6 text-slate-500">Kesto: {formatProgressDuration(session.durationMs)}{session.paceMs != null ? ` · Tahti: ${formatProgressDuration(session.paceMs)} / tehtävä` : ""}</p>
+          </article>)}</div> : <p className="mt-4 text-sm leading-6 text-slate-500">Tällä ajanjaksolla ei ole suoritustietoja. Yksittäiset vastaukset näkyvät vastaushistoriassa.</p>}
+          {sessionLimit < sessions.length && <button type="button" onClick={() => setSessionLimit((n) => n + 5)} className={`${action} mt-4 bg-slate-100 text-slate-700`}>Näytä lisää suorituksia</button>}
+        </section>
+
+        <details className={card}>
+          <summary className="min-h-11 cursor-pointer py-2 font-bold text-slate-950">Ajankäyttö <span className="ml-2 text-xs font-normal text-slate-500">{data.timedCount} ajoitettua yritystä</span></summary>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2"><Metric label="Aktiivinen vastausaika" value={formatProgressDuration(data.activeTimeMs)} detail="Ajoitettujen kysymysten aikojen summa" /><Metric label="Keskimäärin / kysymys" value={formatProgressDuration(data.averageTimeMs)} detail="Vain aidosti kysymyskohtaiset ajat" /></div>
+          <p className="mt-4 text-xs leading-6 text-slate-500">Aktiivinen vastausaika ei sisällä kaikkea aineiston lukemiseen käytettyä aikaa. Kokeen kokonaiskesto näkyy suoritushistoriassa. Puuttuvaa aikatietoa ei käsitellä nollana eikä vanhaa kokeen keskitahtia yksittäisen vastauksen aikana.</p>
+        </details>
+
+        <details className={card}>
+          <summary className="min-h-11 cursor-pointer py-2 font-bold text-slate-950">Vastaushistoria <span className="ml-2 text-xs font-normal text-slate-500">{data.rows.length} yritystä</span></summary>
+          <div className="mt-4 text-sm font-semibold text-slate-600">
+            <label htmlFor={historyFilterId}>Näytä vastaukset</label>
+            <select id={historyFilterId} value={historyFilter} onChange={(event) => { setHistoryFilter(event.target.value as typeof historyFilter); setHistoryLimit(10); }} className="mt-2 block min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm sm:max-w-xs">
+              <option value="all">Kaikki vastaukset</option><option value="correct">Oikein</option><option value="incorrect">Väärin</option><option value="skipped">Vastaamatta</option>
+            </select>
+          </div>
+          <div className="mt-4 space-y-3">{history.slice(0, historyLimit).map((row) => <article key={row.id} className="rounded-2xl bg-slate-50 p-4">
+            <StatusBadge status={getProgressStatus(row)} /><h3 className="mt-2 text-sm font-bold leading-6">{row.question}</h3><p className="mt-2 text-xs leading-5 text-slate-500">{practiceForProgressRow(row, practices)?.title ?? row.area ?? "Yleinen"} · {dateLabel(row.answered_at)}</p>
+          </article>)}</div>
+          {!history.length && <p className="mt-4 text-sm text-slate-500">Tällä rajauksella ei ole vastauksia.</p>}
+          {historyLimit < history.length && <button type="button" onClick={() => setHistoryLimit((n) => n + 10)} className={`${action} mt-4 bg-slate-100 text-slate-700`}>Näytä lisää vastauksia</button>}
+        </details>
+      </>}
+
+      {rows.length > 0 && <details className={card}>
+        <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold text-slate-500">Vastaushistorian hallinta</summary>
+        <p className="mt-3 text-sm leading-6 text-slate-600">Nollaus poistaa tämän kurssin vastaushistorian. Harjoitusten ja kokeiden suoritushistoria säilyy erikseen. Kokeiden tiedot voivat palautua edistymiseen, kun avaat suorituksen uudelleen.</p>
+        <button type="button" disabled={resetting || refreshing || !userId} onClick={() => void resetProgress()} className={`${action} mt-4 bg-red-50 text-red-700 disabled:opacity-50`}>{resetting ? "Nollataan…" : "Nollaa vastaushistoria"}</button>
+      </details>}
     </div>
   );
 }
 
-function MetricCard({ label, value, detail, tone = "blue" }: { label: string; value: string; detail: string; tone?: "blue" | "green" | "red" }) {
-  const valueClass = tone === "green" ? "text-emerald-700" : tone === "red" ? "text-red-700" : "text-blue-700";
-  return (
-    <div className="min-w-0 overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-xs font-black uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={`mt-2 break-words text-3xl font-black ${valueClass}`}>{value}</p>
-      <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">{detail}</p>
-    </div>
-  );
+function SectionHeading({ eyebrow, title, detail }: { eyebrow: string; title: string; detail: string }) {
+  return <div><p className="text-xs font-bold uppercase tracking-widest text-blue-700">{eyebrow}</p><h2 className="mt-2 text-xl font-bold text-slate-950 sm:text-2xl">{title}</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">{detail}</p></div>;
 }
-
-function InsightCard({ eyebrow, title, value, detail, tone }: { eyebrow: string; title: string; value: string; detail: string; tone: "orange" | "green" | "blue" }) {
-  const classes = tone === "orange"
-    ? "border-orange-200 bg-orange-50 text-orange-950"
-    : tone === "green"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-      : "border-blue-200 bg-blue-50 text-blue-950";
-  const eyebrowClass = tone === "orange" ? "text-orange-700" : tone === "green" ? "text-emerald-700" : "text-blue-700";
-  return (
-    <div className={`min-w-0 overflow-hidden rounded-3xl border p-5 shadow-sm sm:p-6 ${classes}`}>
-      <p className={`text-xs font-black uppercase tracking-wide ${eyebrowClass}`}>{eyebrow}</p>
-      <h3 className="mt-2 break-words text-xl font-black leading-snug sm:text-2xl">{title}</h3>
-      <p className="mt-3 text-3xl font-black sm:text-4xl">{value}</p>
-      <p className="mt-3 text-sm font-semibold leading-6 opacity-80">{detail}</p>
-    </div>
-  );
+function Metric({ label, value, detail }: { label: string; value: string; detail: string }) {
+  return <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5"><p className="text-xs font-semibold leading-5 text-slate-500">{label}</p><p className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">{value}</p><p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p></div>;
 }
-
-function StatsTable({ title, subtitle, rows }: { title: string; subtitle: string; rows: GroupStats[] }) {
-  return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <p className="text-sm font-black uppercase tracking-wide text-blue-700">Analyysi</p>
-      <h2 className="mt-1 text-3xl font-black text-slate-950">{title}</h2>
-      <p className="mt-2 text-sm font-semibold text-slate-500">{subtitle}</p>
-      <div className="mt-6 space-y-4">
-        {rows.map((row) => (
-          <div key={row.name} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="min-w-0">
-                <p className="break-words font-extrabold text-slate-950">{row.name}</p>
-                <p className="mt-1 text-sm font-semibold text-slate-500">
-                  {row.correct} oikein · {row.wrong} väärin · {row.unsure} en osaa sanoa
-                  {row.avgTimeMs != null
-                    ? ` · Ø ${formatDuration(row.avgTimeMs)}`
-                    : ""}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Pill
-                  text={getStrengthLabel(
-                    row.accuracy,
-                    row.correct + row.wrong
-                  )}
-                  tone={
-                    row.accuracy >= 70
-                      ? "green"
-                      : row.correct + row.wrong < 3
-                        ? "blue"
-                        : "orange"
-                  }
-                />
-                <span className="min-w-[64px] text-right text-lg font-black text-blue-700">{row.accuracy} %</span>
-              </div>
-            </div>
-            <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-200">
-              <div className="h-full rounded-full bg-blue-600" style={{ width: `${row.accuracy}%` }} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
+function Badge({children, tone}: {children: ReactNode; tone: "green" | "red" | "slate"}) {
+  const classes = {green:"bg-emerald-50 text-emerald-800",red:"bg-rose-50 text-rose-800",slate:"bg-slate-100 text-slate-600"};
+  return <span className={`inline-flex rounded-lg px-2.5 py-1 text-xs font-semibold ${classes[tone]}`}>{children}</span>;
 }
-
-function Pill({ text, tone = "blue" }: { text: string; tone?: "blue" | "green" | "red" | "orange" }) {
-  const className = tone === "green"
-    ? "bg-emerald-100 text-emerald-700"
-    : tone === "red"
-      ? "bg-red-100 text-red-700"
-      : tone === "orange"
-        ? "bg-orange-100 text-orange-700"
-        : "bg-blue-100 text-blue-700";
-  return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-black ${className}`}>{text}</span>;
+function StatusBadge({status}: {status: ProgressStatus}) {
+  return <Badge tone={status === "correct" ? "green" : status === "incorrect" ? "red" : "slate"}>{status === "correct" ? "Oikein" : status === "incorrect" ? "Väärin" : "Vastaamatta"}</Badge>;
+}
+function StatusCount({status,count}: {status: ProgressStatus; count: number}) {
+  return <Badge tone={status === "correct" ? "green" : status === "incorrect" ? "red" : "slate"}>{count} {status === "correct" ? "oikein" : status === "incorrect" ? "väärin" : "vastaamatta"}</Badge>;
+}
+function GroupRow({group}: {group: GroupStats}) {
+  const label = group.resolved < 5 ? "Vähän dataa" : (group.accuracy ?? 0) >= 70 ? "Vahva pohja" : "Harjoittele lisää";
+  return <article className="rounded-2xl bg-slate-50 p-4">
+    <div className="flex flex-wrap items-start justify-between gap-3"><h3 className="min-w-0 text-sm font-bold leading-6 text-slate-900">{group.name}</h3><span className="shrink-0 text-lg font-bold text-slate-950">{percent(group.accuracy)}</span></div>
+    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200" role="img" aria-label={`${percent(group.accuracy)} oikein, ${group.resolved} vastattua kysymystä`}><div className="h-full rounded-full bg-blue-600" style={{width:`${group.accuracy ?? 0}%`}} /></div>
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><p className="text-xs leading-5 text-slate-500">{group.correct} oikein · {group.incorrect} väärin · {group.skipped} vastaamatta</p><Badge tone={group.resolved >= 5 && (group.accuracy ?? 0) >= 70 ? "green" : "slate"}>{label}</Badge></div>
+  </article>;
 }

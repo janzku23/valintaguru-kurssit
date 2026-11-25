@@ -88,6 +88,17 @@ const entries: SiteUpdate[] = [
       "Appstore + Google Play julkaisu",
     ],
   },
+             {
+    date: "2026-11-25",
+    title: "Sivuston päivityshistoria",
+    changes: [
+      "Gurupeliin lisätty uusia kysymyksiä",
+       "Harjoitustehtävien ulkonäköä parannettu",
+        "Edistymisen seurantaa parannettu ja ulkonäköä parannettu",
+         "Blogi avattu, jonne tulossa artikkeleita",
+         
+    ],
+  },
 ];
 
 const siteUpdates = [...entries].sort((a, b) =>

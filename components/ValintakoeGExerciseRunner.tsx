@@ -65,6 +65,7 @@ type Mode = "lobby" | "exercise" | "result";
 
 type Props = {
   exercise: PublicValintakoeGExercise;
+  onModeChange?: (mode: Mode) => void;
 };
 
 function formatClock(ms: number) {
@@ -121,6 +122,10 @@ function answerTexts(
     .join(", ");
 }
 
+function isSkipOption(option: ValintakoeGOption) {
+  return option.id === UNSURE_ANSWER_ID || /jätän\s+vastaamatta/i.test(option.text);
+}
+
 function difficultyLabel(value: string) {
   if (value === "easy") return "Helppo";
   if (value === "medium") return "Keskitaso";
@@ -130,6 +135,7 @@ function difficultyLabel(value: string) {
 
 export default function ValintakoeGExerciseRunner({
   exercise,
+  onModeChange,
 }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -139,8 +145,6 @@ export default function ValintakoeGExerciseRunner({
   const [answers, setAnswers] = useState<
     Record<string, string[]>
   >({});
-  const [multipleDrafts, setMultipleDrafts] =
-    useState<Record<string, string[]>>({});
   const [mode, setMode] =
     useState<Mode>("lobby");
   const [remainingMs, setRemainingMs] =
@@ -151,8 +155,10 @@ export default function ValintakoeGExerciseRunner({
     useState(false);
   const [finishing, setFinishing] =
     useState(false);
-  const [savingQuestionId, setSavingQuestionId] =
-    useState<string | null>(null);
+  const [pendingSaves, setPendingSaves] = useState(0);
+  const [saveFailed, setSaveFailed] = useState(false);
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const failedQuestionsRef = useRef(new Set<string>());
   const [result, setResult] =
     useState<Result | null>(null);
   const [review, setReview] =
@@ -178,6 +184,13 @@ export default function ValintakoeGExerciseRunner({
     null
   );
   const autoFinishRef = useRef(false);
+
+  useEffect(() => {
+    onModeChange?.(mode);
+    if (mode === "exercise") {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+  }, [mode, onModeChange]);
 
   const apiUrl = `/api/valintakoe-g/${exercise.courseId}/${exercise.id}`;
 
@@ -307,29 +320,21 @@ export default function ValintakoeGExerciseRunner({
         new Date(attempt.serverNow).getTime()
     );
 
-    const restoredAnswers =
-      attempt.answers ?? {};
+    const restoredAnswers = { ...attempt.answers };
+    exercise.questions.forEach((question) => {
+      const skipIds = question.options.filter(isSkipOption).map((option) => option.id);
+      if (restoredAnswers[question.id]?.some((id) => skipIds.includes(id))) {
+        restoredAnswers[question.id] = [UNSURE_ANSWER_ID];
+      }
+    });
+    failedQuestionsRef.current.clear();
+    setSaveFailed(false);
 
     setActiveAttempt(attempt);
     setAnswers(restoredAnswers);
     answersRef.current = restoredAnswers;
     questionTimesRef.current =
       attempt.questionTimes ?? {};
-
-    const drafts: Record<string, string[]> = {};
-    exercise.questions.forEach((question) => {
-      if (question.allowsMultipleAnswers) {
-        const existing =
-          restoredAnswers[question.id];
-        if (
-          existing &&
-          !existing.includes(UNSURE_ANSWER_ID)
-        ) {
-          drafts[question.id] = existing;
-        }
-      }
-    });
-    setMultipleDrafts(drafts);
 
     setRemainingMs(left);
     initialRemainingRef.current = left;
@@ -462,7 +467,7 @@ export default function ValintakoeGExerciseRunner({
     questionId: string,
     answerIds: string[]
   ) {
-    if (!activeAttempt) return;
+    if (!activeAttempt || finishing) return;
 
     const firstAnswer =
       !answersRef.current[questionId];
@@ -482,8 +487,18 @@ export default function ValintakoeGExerciseRunner({
 
     answersRef.current = nextAnswers;
     setAnswers(nextAnswers);
-    setSavingQuestionId(questionId);
+    setPendingSaves((count) => count + 1);
+    // The API updates the whole answer record, so serialize writes across questions.
+    const previousSave = saveQueueRef.current;
+    let completeSave!: () => void;
+    saveQueueRef.current = new Promise<void>((resolve) => {
+      completeSave = resolve;
+    });
+    const answerTimeMs = firstAnswer
+      ? questionTimesRef.current[questionId]
+      : undefined;
 
+    await previousSave;
     try {
       const response = await fetch(
         `/api/valintakoe-g/attempt/${activeAttempt.id}`,
@@ -495,12 +510,7 @@ export default function ValintakoeGExerciseRunner({
           body: JSON.stringify({
             questionId,
             answerIds,
-            answerTimeMs:
-              firstAnswer
-                ? questionTimesRef.current[
-                    questionId
-                  ]
-                : undefined,
+            answerTimeMs,
           }),
         }
       );
@@ -525,6 +535,10 @@ export default function ValintakoeGExerciseRunner({
         );
       }
 
+      failedQuestionsRef.current.delete(questionId);
+      setSaveFailed(failedQuestionsRef.current.size > 0);
+      if (failedQuestionsRef.current.size === 0) setError("");
+
       if (firstAnswer) {
         window.setTimeout(
           activateMostVisibleQuestion,
@@ -532,31 +546,26 @@ export default function ValintakoeGExerciseRunner({
         );
       }
     } catch (err) {
+      failedQuestionsRef.current.add(questionId);
+      setSaveFailed(true);
       setError(
         err instanceof Error
           ? err.message
           : "Vastauksen tallennus epäonnistui."
       );
     } finally {
-      setSavingQuestionId(null);
+      setPendingSaves((count) => count - 1);
+      completeSave();
     }
   }
 
-  function toggleMultipleDraft(
-    questionId: string,
-    optionId: string
-  ) {
-    setMultipleDrafts((current) => {
-      const previous = current[questionId] ?? [];
-      const next = previous.includes(optionId)
-        ? previous.filter((id) => id !== optionId)
-        : [...previous, optionId];
-
-      return {
-        ...current,
-        [questionId]: next,
-      };
-    });
+  function toggleMultipleAnswer(questionId: string, optionId: string) {
+    const previous = answersRef.current[questionId] ?? [];
+    const selected = previous.filter((id) => id !== UNSURE_ANSWER_ID);
+    const next = selected.includes(optionId)
+      ? selected.filter((id) => id !== optionId)
+      : [...selected, optionId];
+    void saveAnswer(questionId, next.length > 0 ? next : [UNSURE_ANSWER_ID]);
   }
 
   const finishExercise = useCallback(
@@ -577,6 +586,10 @@ export default function ValintakoeGExerciseRunner({
       setError("");
 
       try {
+        await saveQueueRef.current;
+        if (failedQuestionsRef.current.size > 0) {
+          throw new Error("Kaikkia vastauksia ei ole tallennettu. Yritä tallennusta uudelleen ennen harjoituksen päättämistä.");
+        }
         const response = await fetch(
           `/api/valintakoe-g/attempt/${activeAttempt.id}`,
           { method: "POST" }
@@ -862,24 +875,38 @@ export default function ValintakoeGExerciseRunner({
 
   if (mode === "exercise" && activeAttempt) {
     return (
-      <div className="space-y-6">
-        <div className="sticky top-3 z-30 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+            <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-700">
                 {exercise.title}
               </p>
-              <p className="mt-1 text-sm font-bold text-slate-500">
+              {exercise.articleUrl && (
+                <a
+                  href={exercise.articleUrl}
+                  aria-label={`Avaa aineisto: ${exercise.articleTitle}`}
+                  title={exercise.articleTitle}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex text-sm font-bold text-blue-700 underline underline-offset-4 hover:text-blue-900"
+                >
+                  Avaa aineisto ↗
+                </a>
+              )}
+              <p role="status" className="mt-1 text-sm font-bold text-slate-500">
                 Vastattu {answeredCount}/
                 {exercise.questionCount}
-                {savingQuestionId
+                {pendingSaves > 0
                   ? " · Tallennetaan..."
-                  : " · Tallennettu"}
+                  : saveFailed
+                    ? " · Tallennus epäonnistui"
+                    : " · Tallennettu"}
               </p>
             </div>
 
             <div
-              className={`rounded-xl px-4 py-2 font-mono text-2xl font-black ${
+              className={`rounded-xl px-3 py-2 font-mono text-xl font-black sm:px-4 sm:text-2xl ${
                 remainingMs <= 300_000
                   ? "bg-red-50 text-red-700"
                   : "bg-slate-950 text-white"
@@ -893,17 +920,35 @@ export default function ValintakoeGExerciseRunner({
         {error && (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-4 font-bold text-red-700">
             {error}
+            {saveFailed && (
+              <button
+                type="button"
+                disabled={pendingSaves > 0 || finishing}
+                onClick={() => {
+                  for (const questionId of failedQuestionsRef.current) {
+                    void saveAnswer(questionId, answersRef.current[questionId]);
+                  }
+                }}
+                className="mt-2 block underline underline-offset-4 disabled:opacity-50"
+              >
+                Yritä tallennusta uudelleen
+              </button>
+            )}
           </div>
         )}
 
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
-          <strong>Harjoittelulogiikka:</strong>{" "}
-          oikea vastaus kasvattaa harjoitustulosta.
-          Väärästä vastauksesta ei tule miinuspistettä.
-          ”Jätän vastaamatta” tallennetaan omana tilanaan
-          eikä sitä lasketa lukutaitoprofiilin
-          osaamisprosentin nimittäjään.
-        </div>
+        <details className="rounded-2xl border border-blue-200 bg-blue-50 text-sm text-blue-950">
+          <summary className="min-h-11 cursor-pointer px-4 py-3 font-bold">
+            Harjoituksen pisteytys ja ohjeet
+          </summary>
+          <p className="px-4 pb-4 leading-6">
+            oikea vastaus kasvattaa harjoitustulosta.
+            Väärästä vastauksesta ei tule miinuspistettä.
+            ”Jätän vastaamatta” tallennetaan omana tilanaan
+            eikä sitä lasketa lukutaitoprofiilin
+            osaamisprosentin nimittäjään.
+          </p>
+        </details>
 
         <section className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
           <div className="divide-y divide-slate-200">
@@ -911,13 +956,6 @@ export default function ValintakoeGExerciseRunner({
               (question, index) => {
                 const saved =
                   answers[question.id] ?? [];
-                const draft =
-                  multipleDrafts[question.id] ??
-                  (saved.includes(
-                    UNSURE_ANSWER_ID
-                  )
-                    ? []
-                    : saved);
 
                 return (
                   <article
@@ -925,7 +963,7 @@ export default function ValintakoeGExerciseRunner({
                     data-g-question-id={
                       question.id
                     }
-                    className="py-7"
+                    className="py-7 first:pt-0 last:pb-0"
                   >
                     <h3 className="font-bold leading-7">
                       {index + 1}.{" "}
@@ -934,23 +972,16 @@ export default function ValintakoeGExerciseRunner({
 
                     {question.allowsMultipleAnswers && (
                       <p className="mt-2 text-sm font-bold text-blue-700">
-                        Valitse kaikki oikeat
-                        vaihtoehdot ja paina sen
-                        jälkeen ”Tallenna valinnat”.
+                        Valitse kaikki oikeat vaihtoehdot.
+                        Valinnat tallentuvat automaattisesti.
                       </p>
                     )}
 
                     <div className="mt-4 grid gap-2">
-                      {question.options.map(
+                      {question.options.filter((option) => !isSkipOption(option)).map(
                         (option) => {
                           const checked =
-                            question.allowsMultipleAnswers
-                              ? draft.includes(
-                                  option.id
-                                )
-                              : saved.includes(
-                                  option.id
-                                );
+                            saved.includes(option.id);
 
                           return (
                             <label
@@ -971,11 +1002,12 @@ export default function ValintakoeGExerciseRunner({
                                   question.id
                                 }
                                 checked={checked}
+                                disabled={finishing}
                                 onChange={() => {
                                   if (
                                     question.allowsMultipleAnswers
                                   ) {
-                                    toggleMultipleDraft(
+                                    toggleMultipleAnswer(
                                       question.id,
                                       option.id
                                     );
@@ -996,29 +1028,6 @@ export default function ValintakoeGExerciseRunner({
                         }
                       )}
 
-                      {question.allowsMultipleAnswers && (
-                        <button
-                          type="button"
-                          disabled={
-                            draft.length === 0 ||
-                            savingQuestionId ===
-                              question.id
-                          }
-                          onClick={() =>
-                            void saveAnswer(
-                              question.id,
-                              draft
-                            )
-                          }
-                          className="mt-2 w-fit rounded-full bg-blue-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          {savingQuestionId ===
-                          question.id
-                            ? "Tallennetaan..."
-                            : "Tallenna valinnat"}
-                        </button>
-                      )}
-
                       <label
                         className={`mt-2 flex cursor-pointer gap-3 rounded-xl border border-dashed p-3.5 ${
                           saved.includes(
@@ -1030,7 +1039,8 @@ export default function ValintakoeGExerciseRunner({
                       >
                         <input
                           type="radio"
-                          name={`${question.id}-skip`}
+                          name={question.id}
+                          disabled={finishing}
                           checked={saved.includes(
                             UNSURE_ANSWER_ID
                           )}

@@ -194,6 +194,9 @@ export default function PracticeExamRunner({
 
   useEffect(() => {
     onModeChange?.(mode);
+    if (mode === "exam") {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
   }, [mode, onModeChange]);
 
   const timerStartRef = useRef<number | null>(null);
@@ -1081,10 +1084,10 @@ export default function PracticeExamRunner({
 
   if (mode === "exam" && activeAttempt) {
     return (
-      <div className="space-y-6">
-        <div className="sticky top-3 z-30 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+            <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-[#3f51e7]">{exam.title}</p>
               <p className="mt-1 text-sm font-bold text-slate-500">
                 Vastattu {answeredCount}/{exam.questionCount}
@@ -1093,7 +1096,7 @@ export default function PracticeExamRunner({
             </div>
 
             <div
-              className={`rounded-xl px-4 py-2 font-mono text-2xl font-black ${
+              className={`rounded-xl px-3 py-2 font-mono text-xl font-black sm:px-4 sm:text-2xl ${
                 remainingMs <= 300_000 ? "bg-red-50 text-red-700" : "bg-slate-950 text-white"
               }`}
             >
@@ -1104,9 +1107,14 @@ export default function PracticeExamRunner({
 
         {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 font-bold text-red-700">{error}</div>}
 
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
-          <strong>Pisteytys:</strong> oikein +1, väärin -1, En osaa sanoa 0. Ajan päättyessä vastaamatta jäänyt kysymys käsitellään 0 pisteen vastauksena.
-        </div>
+        <details className="rounded-2xl border border-amber-200 bg-amber-50 text-sm text-amber-950">
+          <summary className="min-h-11 cursor-pointer px-4 py-3 font-bold">
+            Kokeen pisteytys ja ohjeet
+          </summary>
+          <p className="px-4 pb-4 leading-6">
+            Oikein +1, väärin -1, En osaa sanoa 0. Ajan päättyessä vastaamatta jäänyt kysymys käsitellään 0 pisteen vastauksena.
+          </p>
+        </details>
 
         {exam.sections.map((section, sectionIndex) => {
           const previousCount = exam.sections

@@ -1,31 +1,13 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { createClient } from "@/utils/supabase/client";
+import { useMemo } from "react";
 import {
   VALINTAKOE_G_MIN_SKILL_SAMPLE,
   VALINTAKOE_G_READING_CATEGORIES,
 } from "@/data/valintakoeGExercises/categories";
-import type { ValintakoeGCourseId } from "@/data/valintakoeGExercises/types";
+import { getProgressStatus, type ProgressRow } from "@/lib/progressAnalytics";
 
-type Props = {
-  courseId: ValintakoeGCourseId;
-};
-
-type ProgressRow = {
-  id: string;
-  category_id: number | null;
-  answer_status: "correct" | "incorrect" | "skipped" | null;
-  selected_answer_ids: string[] | null;
-  is_correct: boolean;
-  answered_at: string;
-  session_type: string | null;
-};
+type Props = { rows: ProgressRow[] };
 
 type SkillStat = {
   id: number;
@@ -41,84 +23,7 @@ type SkillStat = {
   enoughData: boolean;
 };
 
-function fallbackStatus(row: ProgressRow) {
-  if (row.answer_status) {
-    return row.answer_status;
-  }
-
-  if (row.is_correct) {
-    return "correct" as const;
-  }
-
-  if (
-    row.selected_answer_ids?.includes(
-      "__unsure__"
-    )
-  ) {
-    return "skipped" as const;
-  }
-
-  return "incorrect" as const;
-}
-
-export default function ValintakoeGReadingProfile({
-  courseId,
-}: Props) {
-  const supabase = useMemo(
-    () => createClient(),
-    []
-  );
-  const [rows, setRows] = useState<ProgressRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      setRows([]);
-      setError(
-        userError?.message ??
-          "Kirjautunutta käyttäjää ei löytynyt."
-      );
-      setLoading(false);
-      return;
-    }
-
-    const { data, error: fetchError } =
-      await supabase
-        .from("student_progress_attempts")
-        .select(
-          "id,category_id,answer_status,selected_answer_ids,is_correct,answered_at,session_type"
-        )
-        .eq("user_id", user.id)
-        .eq("course_id", courseId)
-        .not("category_id", "is", null)
-        .order("answered_at", {
-          ascending: true,
-        });
-
-    if (fetchError) {
-      setRows([]);
-      setError(fetchError.message);
-      setLoading(false);
-      return;
-    }
-
-    setRows((data ?? []) as ProgressRow[]);
-    setLoading(false);
-  }, [courseId, supabase]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
+export default function ValintakoeGReadingProfile({ rows }: Props) {
   const stats = useMemo<SkillStat[]>(() => {
     return VALINTAKOE_G_READING_CATEGORIES.map(
       (category) => {
@@ -132,7 +37,7 @@ export default function ValintakoeGReadingProfile({
         let skipped = 0;
 
         categoryRows.forEach((row) => {
-          const status = fallbackStatus(row);
+          const status = getProgressStatus(row);
           if (status === "correct") correct += 1;
           if (status === "incorrect") incorrect += 1;
           if (status === "skipped") skipped += 1;
@@ -167,7 +72,8 @@ export default function ValintakoeGReadingProfile({
         .filter(
           (item) =>
             item.enoughData &&
-            item.accuracy != null
+            item.accuracy != null &&
+            item.accuracy >= 70
         )
         .sort(
           (a, b) =>
@@ -185,7 +91,8 @@ export default function ValintakoeGReadingProfile({
         .filter(
           (item) =>
             item.enoughData &&
-            item.accuracy != null
+            item.accuracy != null &&
+            item.accuracy < 70
         )
         .sort(
           (a, b) =>
@@ -198,7 +105,7 @@ export default function ValintakoeGReadingProfile({
   );
 
   return (
-    <section className="rounded-[2rem] border border-blue-200 bg-white p-5 shadow-sm sm:p-7">
+    <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm font-black uppercase tracking-[0.16em] text-blue-700">
@@ -208,6 +115,7 @@ export default function ValintakoeGReadingProfile({
             Lukutaitoprofiili
           </h2>
           <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-slate-500">
+            Jokaisesta kysymyksestä huomioidaan vain viimeisin vastaus valitulla ajanjaksolla.
             Osaamisprosentti lasketaan kaavalla
             oikein / (oikein + väärin). Jätän
             vastaamatta -vastaukset näytetään
@@ -217,39 +125,18 @@ export default function ValintakoeGReadingProfile({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => void load()}
-          className="w-fit rounded-full bg-blue-50 px-4 py-2 text-sm font-black text-blue-700 transition hover:bg-blue-100"
-        >
-          Päivitä profiili
-        </button>
       </div>
-
-      {loading && (
-        <div className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-slate-600">
-          Ladataan lukutaitoprofiilia...
-        </div>
-      )}
-
-      {error && (
-        <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
-          Lukutaitoprofiilin haku epäonnistui: {error}
-        </div>
-      )}
-
-      {!loading && !error && (
         <>
           <div className="mt-6 grid gap-4 xl:grid-cols-2">
             <SummaryCard
               title="Vahvuutesi"
               rows={strengths}
-              emptyText="Vahvuuksia ei vielä nimetä, ennen kuin kategorioihin kertyy vähintään viisi ratkaistua tehtävää."
+              emptyText="Vahvuus nimetään, kun kategoriassa on vähintään viisi vastattua kysymystä ja vähintään 70 % oikein."
             />
             <SummaryCard
               title="Harjoittele erityisesti"
               rows={practice}
-              emptyText="Harjoiteltavia osa-alueita ei vielä nimetä, ennen kuin dataa on riittävästi."
+              emptyText="Harjoittelusuositus muodostuu, kun kategoriassa on vähintään viisi vastattua kysymystä ja alle 70 % oikein."
             />
           </div>
 
@@ -346,7 +233,6 @@ export default function ValintakoeGReadingProfile({
             })}
           </div>
         </>
-      )}
     </section>
   );
 }
@@ -375,7 +261,7 @@ function SummaryCard({
           {rows.map((row) => (
             <div
               key={row.id}
-              className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-2"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white px-3 py-2"
             >
               <span className="text-sm font-bold text-slate-700">
                 {row.id}. {row.name}

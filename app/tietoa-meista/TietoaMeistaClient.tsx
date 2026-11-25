@@ -33,19 +33,19 @@ const team: TeamMember[] = [
   {
     id: "henkilo-3",
     name: "Iina Lindholm",
-    description: "ValintaGurun opettaja. Oikeustieteiden maisteri ja tradenomi.",
+    description: "Iina on oikeustieteiden maisteri sekä pian valmistuva kauppatieteiden maisteri. Iina on yksi ValintaGurun omistajista ja vastaa etenkin oikeustieteen eriytyvän osion kurssimateriaaleista ja harjoitustenteistä.",
     image: "/tiimi/Iina.jpg",
   },
   {
     id: "henkilo-1",
     name: "Jani Tuomaala",
-    description: "Tekninen tuki, vastaa alustasta ja sen kehityksestä.",
+    description: "Jani on tekninen tuki, joka vastaa verkkosivusta, sovelluksesta ja niiden kehityksestä. Jani on myös ValintaGurun yksi omistajista",
    image: "/tiimi/jani1.png",
   },
   {
     id: "henkilo-2",
     name: "Julianna Lintukangas",
-    description: "Vastaa myynnistä, asiakaspalvelusta ja markkinoinnista.",
+    description: "Vastaa myynnistä, asiakaspalvelusta ja markkinoinnista. Julianna on myös ValintaGurun yksi omistajista.",
      image: "/tiimi/juli.jpg",
   },
   

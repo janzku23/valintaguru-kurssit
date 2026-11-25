@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { listPublishedPosts } from "@/lib/blog/server";
 import { catalog } from "@/lib/shop/server";
 
 // Read the current public catalog at request time, including unpublishing.
@@ -15,6 +16,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: product.updated_at,
     changeFrequency: "weekly",
     priority: 0.85,
+  }));
+
+  const blogPosts = await listPublishedPosts();
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map(post => ({
+    url: `${siteUrl}/blogi/${post.slug}`, lastModified: post.updated_at, changeFrequency: "monthly", priority: 0.7,
   }));
 
   return [
@@ -54,6 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     ...productPages,
+    ...blogPages,
     {
       url: `${siteUrl}/blogi`,
       lastModified: LAST_UPDATED,

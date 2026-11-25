@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Script from "next/script";
+import Link from "next/link";
 import logo from "../../assets/logo.png";
 import kiitos from "../../assets/kiitos.png";
 import mainosg from "../../assets/mainosg.png";
@@ -49,7 +50,7 @@ export default function HomeSocialClient() {
                 Seuraa ValintaGurun uusimpia vinkkejä
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-indigo-100 lg:mx-0">
-                Katso uusimmat sisällöt Instagramista ja TikTokista.
+                Katso uusimmat sisällöt Instagramista, TikTokista ja blogista.
               </p>
               <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap lg:justify-start">
                 <a
@@ -68,6 +69,11 @@ export default function HomeSocialClient() {
                 >
                   Avaa TikTok
                 </a>
+              </div>
+              <div className="mt-3 flex justify-center lg:justify-start">
+                <Link href="/blogi" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3.5 text-center font-bold text-white transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:w-auto">
+                  Avaa blogi <span aria-hidden="true">→</span>
+                </Link>
               </div>
             </div>
 
