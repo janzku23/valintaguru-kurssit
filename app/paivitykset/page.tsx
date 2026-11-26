@@ -1,3 +1,4 @@
+import BrandLogo from "@/components/BrandLogo";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -126,15 +127,17 @@ export default function UpdatesPage() {
     <main className="min-h-screen bg-[#fffdf8] text-slate-950">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6">
-          <Link href="/" className="font-serif text-2xl font-semibold">
-            ValintaGuru
+          <Link href="/" className="inline-flex shrink-0 items-center gap-2 font-serif text-lg sm:gap-2.5 sm:text-2xl font-semibold">
+            <BrandLogo />
+            <span>ValintaGuru</span>
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-200 px-3 py-2.5 text-xs font-bold text-slate-700 transition hover:border-[#3f51e7] hover:text-[#3f51e7] sm:px-4 sm:text-sm"
           >
             <span aria-hidden="true">←</span>
-            Takaisin etusivulle
+            <span className="sm:hidden">Etusivulle</span>
+            <span className="hidden sm:inline">Takaisin etusivulle</span>
           </Link>
         </div>
       </header>

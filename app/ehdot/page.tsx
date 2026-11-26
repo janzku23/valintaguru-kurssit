@@ -1,3 +1,4 @@
+import BrandLogo from "@/components/BrandLogo";
 import Link from "next/link";
 import { legalPages } from "@/data/legalPages";
 
@@ -25,17 +26,18 @@ export default function LegalPagesIndex() {
   return (
     <main className="min-h-screen bg-[#fffdf8] text-slate-950">
       <header className="border-b border-slate-200 bg-[#fffdf8]/95 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 md:px-8">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-5 md:px-8">
           <Link
             href="/"
-            className="font-serif text-2xl font-semibold tracking-tight"
+            className="inline-flex shrink-0 items-center gap-2 font-serif text-lg sm:gap-2.5 sm:text-2xl font-semibold tracking-tight"
           >
-            ValintaGuru
+            <BrandLogo />
+            <span>ValintaGuru</span>
           </Link>
 
           <Link
             href="/"
-            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
           >
             Etusivulle
           </Link>

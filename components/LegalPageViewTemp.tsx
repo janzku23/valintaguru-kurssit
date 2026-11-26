@@ -1,3 +1,4 @@
+import BrandLogo from "@/components/BrandLogo";
 import Link from "next/link";
 import type { LegalPage } from "@/data/legalPages";
 
@@ -11,17 +12,18 @@ export default function LegalPageView({
   return (
     <main className="min-h-screen bg-[#fffdf8] text-slate-950">
       <header className="border-b border-slate-200 bg-[#fffdf8]/95 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-5 md:px-8">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 py-5 sm:gap-4 md:px-8">
           <Link
             href="/"
-            className="font-serif text-2xl font-semibold tracking-tight"
+            className="inline-flex shrink-0 items-center gap-2 font-serif text-lg sm:gap-2.5 sm:text-2xl font-semibold tracking-tight"
           >
-            ValintaGuru
+            <BrandLogo />
+            <span>ValintaGuru</span>
           </Link>
 
           <Link
             href="/ehdot"
-            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
           >
             Kaikki ehdot
           </Link>
@@ -41,7 +43,7 @@ export default function LegalPageView({
             ValintaGuru Oy
           </p>
 
-          <h1 className="mt-4 font-serif text-4xl font-semibold tracking-tight md:text-6xl">
+          <h1 className="mt-4 break-words font-serif text-3xl font-semibold tracking-tight sm:text-4xl md:text-6xl">
             {page.title}
           </h1>
 
@@ -125,7 +127,7 @@ export default function LegalPageView({
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
             href="/ehdot"
-            className="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
           >
             Näytä kaikki ehdot
           </Link>

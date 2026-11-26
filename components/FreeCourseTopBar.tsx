@@ -1,5 +1,7 @@
 "use client";
 
+import BrandLogo from "@/components/BrandLogo";
+
 import { usePathname } from "next/navigation";
 
 const links = [
@@ -12,9 +14,10 @@ export default function FreeCourseTopBar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <a href="/" className="shrink-0 font-serif text-xl font-semibold tracking-tight text-slate-950">
-          ValintaGuru
+      <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 sm:gap-3 py-3 sm:px-6 lg:px-8">
+        <a href="/" className="inline-flex shrink-0 items-center gap-2 font-serif text-lg sm:gap-2.5 sm:text-xl font-semibold tracking-tight text-slate-950">
+          <BrandLogo />
+          <span>ValintaGuru</span>
         </a>
 
         <div className="hidden h-6 w-px bg-slate-200 sm:block" />
@@ -43,7 +46,7 @@ export default function FreeCourseTopBar() {
 
         <a
           href="/profiili"
-          className="ml-auto shrink-0 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-indigo-300 hover:text-[#3f51e7] lg:ml-2"
+          className="ml-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-indigo-300 hover:text-[#3f51e7] lg:ml-2"
         >
           Oma profiili
         </a>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import FreeCourseExamMaterials from "@/components/FreeCourseExamMaterials";
 import {
@@ -160,11 +160,7 @@ function formatTime(totalSeconds: number) {
     .join(":");
 }
 
-export default function FreeCoursePracticeClient({
-  readingContent = {},
-}: {
-  readingContent?: Record<string, ReactNode>;
-}) {
+export default function FreeCoursePracticeClient() {
   const supabase = useMemo(() => createClient(), []);
   const submissionInProgress = useRef(false);
 
@@ -447,17 +443,14 @@ export default function FreeCoursePracticeClient({
   if (!started) {
     return (
       <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 bg-slate-50 px-6 py-5 sm:px-8">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-700">
-            Harjoituskoe
-          </p>
-          <h2 className="mt-2 text-3xl font-black text-slate-950">
-            Aineistot ja aloitus
+        <div className="border-b border-slate-100 px-6 py-7 sm:px-10">
+          <h2 className="text-xl font-bold text-slate-950">
+            Ennen aloittamista
           </h2>
         </div>
 
-        <div className="px-3 py-6 sm:p-8">
-          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="px-6 py-8 sm:p-10">
+          <div className="grid grid-cols-3 gap-3 sm:gap-5">
             <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
               <p className="break-words text-[11px] font-bold text-slate-500 sm:text-sm">Kesto</p>
               <p className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">2 tuntia</p>
@@ -472,26 +465,25 @@ export default function FreeCoursePracticeClient({
             </div>
           </div>
 
-          <FreeCourseExamMaterials exam="g" readingContent={readingContent} />
+          <FreeCourseExamMaterials exam="g" />
 
-          <div className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50 p-5">
-            <h3 className="font-black text-slate-950">02 / Aloitusohjeet</h3>
-            <p className="mt-2 leading-7 text-slate-700">
-              Kun painat Aloita koe, kahden tunnin aika alkaa kulua. Koe sisältää
-              vuoden 2026 Valintakoe G:n yhteisen osion tehtävät A1–A14 yhtenä
-              kokeena. Ajan päättyessä koe palautetaan automaattisesti.
+          <div className="mt-10 rounded-2xl border border-indigo-100 bg-indigo-50 p-6">
+            <h3 className="font-bold text-slate-950">Näin koe toimii</h3>
+            <p className="mt-4 text-sm leading-7 text-slate-700">
+              Ajanotto käynnistyy Aloita koe -painikkeesta. Koe palautetaan automaattisesti 2 tunnin kuluttua.
             </p>
+            <p className="mt-4 text-sm font-semibold text-indigo-900">Pisteytys: oikea +1 · väärä −1 · vastaamatta 0.</p>
           </div>
 
           <button
             type="button"
             onClick={startExam}
-            className="mt-7 inline-flex w-full items-center justify-center rounded-full bg-[#3f51e7] px-7 py-4 text-base font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-[#3142d6] sm:w-auto"
+            className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-[#3f51e7] px-7 py-4 text-base font-black text-white shadow-lg shadow-indigo-600/20 transition hover:bg-[#3142d6] sm:w-auto"
           >
             Aloita koe
           </button>
 
-          <div className="mt-9 border-t border-slate-200 pt-7">
+          <div className="mt-10 border-t border-slate-200 pt-8">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-700">

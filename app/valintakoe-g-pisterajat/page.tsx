@@ -1,3 +1,4 @@
+import BrandLogo from "@/components/BrandLogo";
 import type { Metadata } from "next";
 import {
   scoreLimitCategories,
@@ -324,12 +325,13 @@ export default function ValintakoeGPisterajatPage() {
       />
 
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 sm:gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <a
             href="/"
-            className="font-serif text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl"
+            className="inline-flex shrink-0 items-center gap-2 font-serif text-lg sm:gap-2.5 font-semibold tracking-tight text-slate-950 sm:text-2xl"
           >
-            ValintaGuru
+            <BrandLogo />
+            <span>ValintaGuru</span>
           </a>
 
           <div className="flex items-center gap-2">
@@ -342,7 +344,7 @@ export default function ValintakoeGPisterajatPage() {
 
             <a
               href="/#kurssit"
-              className="inline-flex rounded-full bg-[#3f51e7] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#3142d6]"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#3f51e7] px-3 py-2 text-xs font-bold sm:px-4 sm:text-sm text-white transition hover:bg-[#3142d6]"
             >
               Valmennuskurssit
             </a>

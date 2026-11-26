@@ -445,22 +445,13 @@ export default function FreeCourseLawPracticeClient() {
     return (
       <section
         id="oikeustiede-koe-aloitus"
-        className="scroll-mt-32 rounded-3xl border border-slate-200 bg-white px-3 py-6 shadow-sm sm:p-8"
+        className="scroll-mt-32 rounded-3xl border border-slate-200 bg-white px-6 py-8 shadow-sm sm:p-10"
       >
-        <div className="flex flex-wrap gap-2">
-          <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-violet-700">
-            Oikeustiede
-          </span>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
-            Valintakoe G 2026
-          </span>
-        </div>
-
-        <h2 className="mt-4 font-serif text-3xl font-semibold text-slate-950 sm:text-4xl">
-          Aineistot ja aloitus
+        <h2 className="text-xl font-bold text-slate-950">
+          Ennen aloittamista
         </h2>
 
-        <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-5">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-5">
             <p className="break-words text-[11px] font-bold text-slate-500 sm:text-sm">Kesto</p>
             <p className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">60 min</p>
@@ -479,14 +470,12 @@ export default function FreeCourseLawPracticeClient() {
 
         <FreeCourseExamMaterials exam="law" />
 
-        <div className="mt-6 rounded-2xl border border-violet-100 bg-violet-50 p-5">
-          <h3 className="font-black text-slate-950">02 / Aloitusohjeet</h3>
+        <div className="mt-10 rounded-2xl border border-violet-100 bg-violet-50 p-6">
+          <h3 className="font-bold text-slate-950">Näin koe toimii</h3>
 
-          <p className="mt-2 leading-7 text-slate-700">
-            Kun painat Aloita koe, 60 minuutin aika alkaa kulua. C1–C15
-            perustuvat Jaana Norion ennakkomateriaaliin ja C16–C30
-            Rajaesteet-aineistoon. Ennakkomateriaalit eivät olleet
-            alkuperäisessä koetilanteessa käytettävissä.
+          <p className="mt-4 text-sm leading-7 text-slate-700">
+            Sulje ennakkomateriaalit ennen aloittamista. Ajanotto käynnistyy Aloita koe -painikkeesta.
+            Koe palautetaan automaattisesti 60 minuutin kuluttua.
           </p>
 
           <p className="mt-3 text-sm font-bold text-violet-900">
@@ -497,12 +486,12 @@ export default function FreeCourseLawPracticeClient() {
         <button
           type="button"
           onClick={startExam}
-          className="mt-7 inline-flex w-full items-center justify-center rounded-full bg-violet-700 px-7 py-4 text-base font-black text-white shadow-lg shadow-violet-700/20 transition hover:bg-violet-800 sm:w-auto"
+          className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-violet-700 px-7 py-4 text-base font-black text-white shadow-lg shadow-violet-700/20 transition hover:bg-violet-800 sm:w-auto"
         >
           Aloita koe
         </button>
 
-        <div className="mt-9 border-t border-slate-200 pt-7">
+        <div className="mt-10 border-t border-slate-200 pt-8">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.14em] text-violet-700">
