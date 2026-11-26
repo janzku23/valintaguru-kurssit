@@ -18,7 +18,8 @@ export default function FreeCourseWebinarCard() {
           title="Yhdessä kohti valintakoetta – webinaaritallenne 10.11.2026"
           className="absolute inset-0 h-full w-full border-0"
           loading="lazy"
-          allow="fullscreen"
+          sandbox="allow-scripts allow-same-origin allow-presentation"
+          allow="fullscreen; autoplay"
           allowFullScreen
         />
       </div>
