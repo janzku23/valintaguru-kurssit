@@ -188,7 +188,7 @@ export default function ProgressView({ courseId, practices = [] }: {
         </section>
 
         {isReadingCourse && <details className="min-w-0 rounded-3xl border border-slate-200 bg-white p-1 shadow-sm">
-          <summary className="min-h-11 cursor-pointer p-4 text-base font-bold text-slate-950 sm:p-5">Lukutaitoprofiili <span className="ml-2 text-sm font-normal text-slate-500">20 taitoa ja harjoitteluvinkit</span></summary>
+          <summary className="min-h-11 cursor-pointer p-4 text-base font-bold text-slate-950 sm:p-5">Lukutaitoprofiili <span className="ml-2 text-sm font-normal text-slate-500">{VALINTAKOE_G_READING_CATEGORIES.length} taitoa ja harjoitteluvinkit</span></summary>
           <ValintakoeGReadingProfile rows={data.latest} />
         </details>}
 

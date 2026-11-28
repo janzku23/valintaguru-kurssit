@@ -309,14 +309,14 @@ const podcastContent: Partial<Record<CourseId, CoursePodcastContent>> = {
     enabled: false,
     title: "Valintakoe G Podcast",
     description:
-      "Kertaa Valintakoe G:n keskeisiä taitoja podcastin, Canva-esityksen ja tiiviin teoriaosuuden avulla.",
+      "Kertaa valintakoe G:n keskeisiä taitoja podcastin, Canva-esityksen ja tiiviin teoriaosuuden avulla.",
     episodes: [
       {
         id: "valintakoe-g-podcast-1",
         title: "Podcast 1",
         subtitle: "Päättely ja aineiston tulkinta",
         description:
-          "Johdanto Valintakoe G:n päättelyyn, aineistojen lukemiseen ja olennaisen tiedon tunnistamiseen.",
+          "Johdanto valintakoe G:n päättelyyn, aineistojen lukemiseen ja olennaisen tiedon tunnistamiseen.",
         canvaUrl: "",
         audioTracks: [],
         theoryTitle: "Jakson ydinkohdat",

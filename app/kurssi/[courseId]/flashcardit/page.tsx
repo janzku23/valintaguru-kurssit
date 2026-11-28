@@ -1,7 +1,8 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import CourseMaterialSidebar from "../../../../components/CourseMaterialSidebar";
 import FlashcardView from "../../../../components/FlashcardView";
-import { getCourseById, isCourseId } from "../../../../data/courses";
+import { getCourseById, getCourseTitleInSentence, isCourseId } from "../../../../data/courses";
 import { getCourseContent } from "../../../../data/courseContent";
 import { hasCourseAccess } from "../../../../lib/courseAccess";
 
@@ -33,7 +34,7 @@ export default async function CourseFlashcardsPage({ params }: Props) {
           <p className="font-bold text-blue-700">Ei käyttöoikeutta</p>
 
           <h1 className="mt-3 text-3xl font-extrabold">
-            Sinulla ei ole pääsyä kurssin {course.title} flashcardeihin
+            Sinulla ei ole pääsyä kurssin {getCourseTitleInSentence(course)} flashcardeihin
           </h1>
 
           <p className="mt-4 leading-8 text-slate-700">
@@ -42,12 +43,12 @@ export default async function CourseFlashcardsPage({ params }: Props) {
           </p>
 
           <div className="mt-6 flex flex-wrap gap-4">
-            <a
+            <Link
               href="/"
               className="rounded-full bg-blue-600 px-6 py-3 font-bold text-white"
             >
               Takaisin omiin kursseihin
-            </a>
+            </Link>
 
             <a
               href="https://valintaguru.fi"
@@ -76,7 +77,7 @@ export default async function CourseFlashcardsPage({ params }: Props) {
           </h1>
 
           <p className="mt-4 max-w-3xl text-lg leading-8 text-blue-50">
-            Tämä näkymä näyttää vain kurssin {course.title} flashcardit.
+            Tämä näkymä näyttää vain kurssin {getCourseTitleInSentence(course)} flashcardit.
           </p>
         </header>
 

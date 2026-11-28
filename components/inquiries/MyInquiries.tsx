@@ -59,7 +59,7 @@ export default function MyInquiries() {
   }, []);
 
   useEffect(() => {
-    void load();
+    const initial = window.setTimeout(() => void load(), 0);
 
     const refresh = () => {
       void load();
@@ -71,6 +71,7 @@ export default function MyInquiries() {
     );
 
     return () => {
+      window.clearTimeout(initial);
       window.removeEventListener(
         "valintaguru:inquiry-created",
         refresh
@@ -150,7 +151,7 @@ export default function MyInquiries() {
     );
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 && !error) {
     return (
       <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
         <h3 className="text-xl font-black">
@@ -168,8 +169,11 @@ export default function MyInquiries() {
   return (
     <div className="grid gap-5">
       {error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 font-bold text-red-700">
-          {error}
+        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 font-bold text-red-700">
+          <p>{error}</p>
+          <button type="button" onClick={() => void load()} className="mt-3 min-h-11 underline underline-offset-4">
+            Yritä uudelleen
+          </button>
         </div>
       )}
 

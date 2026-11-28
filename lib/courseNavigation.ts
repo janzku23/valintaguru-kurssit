@@ -59,8 +59,7 @@ const STANDARD_FEATURES: StandardFeatureDefinition[] = [
   {
     feature: "gurupeli",
     title: "GuruPeli",
-    href: (courseId) =>
-      `/gurupath/${courseId}`,
+    href: () => "/gurupath",
     description:
       "Etene kurssin pelillisellä opiskelupolulla.",
   },
@@ -106,6 +105,7 @@ function featureForModule(
   }
 
   if (
+    module.href === "/gurupath" ||
     module.href.startsWith(
       "/gurupath/"
     )
@@ -144,22 +144,22 @@ export function getAvailableCourseModules(
     CourseModule[] = [];
 
   for (
-    const module of course.modules
+    const courseModule of course.modules
   ) {
     const feature =
-      featureForModule(module);
+      featureForModule(courseModule);
 
     if (feature) {
       existingByFeature.set(
         feature,
-        module
+        courseModule
       );
     } else {
       /**
        * Mahdolliset täysin omat moduulit,
        * joita ei tunnisteta vakio-ominaisuudeksi.
        */
-      customModules.push(module);
+      customModules.push(courseModule);
     }
   }
 

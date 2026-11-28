@@ -4,10 +4,9 @@ import { NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { isAdminEmail } from "@/lib/adminIdentity";
 
-export const ADMIN_EMAIL =
-  process.env.VALINTAGURU_ADMIN_EMAIL?.trim().toLowerCase() ||
-  "admin@valintaguru.fi";
+export { ADMIN_EMAIL } from "@/lib/adminIdentity";
 
 export async function getCurrentAdmin() {
   const supabase = await createClient();
@@ -18,8 +17,7 @@ export async function getCurrentAdmin() {
 
   if (error || !user) return null;
 
-  const email = user.email?.trim().toLowerCase() ?? "";
-  if (email !== ADMIN_EMAIL) return null;
+  if (!isAdminEmail(user.email)) return null;
 
   return user;
 }

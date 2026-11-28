@@ -1,4 +1,5 @@
 import { getAdminUsersOverview } from "@/lib/adminData";
+import { isAdminEmail } from "@/lib/adminIdentity";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export default async function AdminRightsPage() {
         <p className="mt-2 text-slate-600">Valitse käyttäjä. Varsinainen oikeuksien muokkaus avautuu opiskelijan hallintasivulle.</p>
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {users.filter((user) => user.email !== "admin@valintaguru.fi").map((user) => (
+        {users.filter((user) => !isAdminEmail(user.email)).map((user) => (
           <a key={user.id} href={`/admin/edistyminen/${user.id}#oikeudet`} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5">
             <p className="truncate font-black">{user.name || user.email}</p>
             <p className="mt-1 truncate text-sm text-slate-500">{user.email}</p>

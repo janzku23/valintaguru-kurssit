@@ -1,20 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { getSafeRedirectPath } from "@/lib/safeRedirect";
 
 export const runtime = "nodejs";
-
-function getSafeNextPath(value: string | null) {
-  if (!value) {
-    return "/aseta-salasana";
-  }
-
-  if (!value.startsWith("/") || value.startsWith("//")) {
-    return "/aseta-salasana";
-  }
-
-  return value;
-}
 
 function createExpiredLinkRedirect(request: NextRequest) {
   const errorUrl = new URL("/kirjaudu", request.url);
@@ -32,7 +21,10 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
 
   const code = requestUrl.searchParams.get("code");
-  const nextPath = getSafeNextPath(requestUrl.searchParams.get("next"));
+  const nextPath = getSafeRedirectPath(
+    requestUrl.searchParams.get("next"),
+    "/aseta-salasana",
+  );
 
   if (!code) {
     return createExpiredLinkRedirect(request);
@@ -67,10 +59,13 @@ export async function GET(request: NextRequest) {
           return cookieStore.getAll();
         },
 
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, headers) {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options);
             response.cookies.set(name, value, options);
+          });
+          Object.entries(headers ?? {}).forEach(([name, value]) => {
+            response.headers.set(name, value);
           });
         },
       },

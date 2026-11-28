@@ -1,6 +1,8 @@
 import "server-only";
 
 import { getGuruGameAccessState } from "@/lib/gurupath/hasGuruGameAccess";
+import { hasCourseAccess } from "@/lib/courseAccess";
+import { getGuruProgressCourseIds, getGuruProgressCoursesForCourse } from "./progressCourses";
 import { getGuruPathWithImports as getGuruPath, getGuruQuestionWithImports as getGuruGameQuestion } from "@/lib/gurupath/questionBank";
 import type { GuruGameQuestion, GuruPathNode } from "@/data/gurupath/types";
 import type { CourseId } from "@/data/courses";
@@ -11,6 +13,7 @@ type AuthorizedNode = {
   index: number;
   levels: GuruPathNode[];
   courseIds: CourseId[];
+  storageCourseId: CourseId;
   source: "path-node" | "vault";
 };
 
@@ -38,15 +41,24 @@ export async function authorizeGuruNode(
   else if (access.viewId === "valintakoe-g") expectedCourseId = access.valintakoeG.accessCourseId;
   else expectedCourseId = access.oikis.accessCourseId ?? access.valintakoeG.accessCourseId;
 
-  if (!expectedCourseId || courseId !== expectedCourseId) return null;
-  const courseIds = [access.oikis.accessCourseId, access.valintakoeG.accessCourseId]
-    .filter((value): value is CourseId => value !== null);
+  if (!expectedCourseId) return null;
+  // A still-active variant remains usable by an already open game after an upgrade.
+  if (courseId !== expectedCourseId) {
+    const variants = node.category === "shared"
+      ? getGuruProgressCourseIds(access)
+      : getGuruProgressCoursesForCourse(expectedCourseId, access);
+    const activeVariant = variants
+      .find((value) => value === courseId);
+    if (!activeVariant || !(await hasCourseAccess(activeVariant))) return null;
+  }
+  const courseIds = getGuruProgressCourseIds(access);
   return {
     question,
     node,
     index,
     levels: path.levels,
     courseIds,
+    storageCourseId: expectedCourseId,
     source: node.type === "vault" ? "vault" : "path-node",
   };
 }

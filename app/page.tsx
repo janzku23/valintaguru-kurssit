@@ -18,7 +18,7 @@ const siteUrl = "https://www.valintaguru.fi";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
+    absolute: "ValintaGuru – valintakoe G ja oikeustieteen valmennuskurssit",
   },
   description:
     "ValintaGurun valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon. Harjoittele päättelyä, aineistojen analysointia, tekstinymmärtämistä ja ajankäyttöä tehokkaasti verkossa.",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     locale: "fi_FI",
     siteName: "ValintaGuru",
     url: siteUrl,
-    title: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
+    title: "ValintaGuru – valintakoe G ja oikeustieteen valmennuskurssit",
     description:
       "Valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon. Teoria, harjoitukset ja opiskelun seuranta yhdessä palvelussa.",
     images: [
@@ -38,13 +38,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
+        alt: "ValintaGuru – valintakoe G ja oikeustieteen valmennuskurssit",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
+    title: "ValintaGuru – valintakoe G ja oikeustieteen valmennuskurssit",
     description:
       "Valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
     images: ["/og-image.png"],
@@ -56,7 +56,7 @@ const homePageJsonLd = {
   "@type": "WebPage",
   "@id": `${siteUrl}/#webpage`,
   url: siteUrl,
-  name: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
+  name: "ValintaGuru – valintakoe G ja oikeustieteen valmennuskurssit",
   description:
     "ValintaGurun valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
   inLanguage: "fi-FI",

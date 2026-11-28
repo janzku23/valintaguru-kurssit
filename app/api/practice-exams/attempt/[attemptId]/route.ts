@@ -6,14 +6,13 @@ import {
   getCorrectAnswerIds,
   UNSURE_ANSWER_ID,
 } from "@/data/practiceExams";
-import type {
-  PracticeExamAnswerValue,
-  PracticeExamAnswers,
-} from "@/lib/practiceExamScoring";
+import type { PracticeExamAnswerValue } from "@/lib/practiceExamScoring";
 import {
   buildPracticeExamReview,
+  ensurePracticeExamProgressRows,
   finalizeIfExpired,
   finalizePracticeExamAttempt,
+  savePracticeExamAnswer,
   type PracticeExamAttemptRow,
 } from "@/lib/practiceExamServer";
 
@@ -215,6 +214,8 @@ export async function GET(
       );
     }
 
+    await ensurePracticeExamProgressRows(attempt);
+
     return NextResponse.json(
       {
         success: true,
@@ -268,6 +269,7 @@ export async function PATCH(
       checked.status !==
       "active"
     ) {
+      await ensurePracticeExamProgressRows(checked);
       return NextResponse.json(
         {
           error:
@@ -449,23 +451,8 @@ export async function PATCH(
       );
     }
 
-    const nextAnswers:
-      PracticeExamAnswers = {
-        ...(checked.answers ??
-          {}),
-      };
-
-    if (
-      answerIds.length ===
-      0
-    ) {
-      delete nextAnswers[
-        questionId
-      ];
-    } else {
-      let stored:
-        PracticeExamAnswerValue;
-
+    let stored: PracticeExamAnswerValue | undefined;
+    if (answerIds.length > 0) {
       if (hasUnsure) {
         stored =
           UNSURE_ANSWER_ID;
@@ -483,54 +470,25 @@ export async function PATCH(
             0
           ];
       }
-
-      nextAnswers[
-        questionId
-      ] = stored;
     }
 
-    const nowIso =
-      new Date().toISOString();
-
-    const { error } =
-      await ctx.admin
-        .from(
-          "practice_exam_attempts"
-        )
-        .update({
-          answers:
-            nextAnswers,
-          updated_at:
-            nowIso,
-        })
-        .eq(
-          "id",
-          checked.id
-        )
-        .eq(
-          "user_id",
-          checked.user_id
-        )
-        .eq(
-          "status",
-          "active"
-        );
-
-    if (error) {
-      return NextResponse.json(
-        {
-          error:
-            `Vastauksen tallennus epäonnistui: ${error.message}`,
-        },
-        { status: 500 }
-      );
+    const saved = await savePracticeExamAnswer(checked, questionId, stored);
+    if (!saved.updated) {
+      const finished = await finalizeIfExpired(saved.attempt);
+      await ensurePracticeExamProgressRows(finished);
+      return NextResponse.json({
+        error: "Koeaika on päättynyt. Vastausta ei enää voi muuttaa.",
+        finished: true,
+        result: resultOf(finished),
+        review: buildPracticeExamReview(finished),
+      }, { status: 409 });
     }
 
     return NextResponse.json(
       {
         success: true,
         savedAt:
-          nowIso,
+          saved.attempt.updated_at,
         answerIds,
       }
     );
@@ -549,7 +507,7 @@ export async function PATCH(
 }
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: Params
 ) {
   try {
@@ -562,10 +520,20 @@ export async function POST(
       return ctx.error;
     }
 
+    const body: unknown = await request.json().catch(() => null);
+    const questionTimes: Record<string, number> = {};
+    if (body && typeof body === "object" && "questionTimes" in body &&
+        body.questionTimes && typeof body.questionTimes === "object" && !Array.isArray(body.questionTimes)) {
+      for (const [id, time] of Object.entries(body.questionTimes)) {
+        if (typeof time === "number" && Number.isFinite(time) && time >= 0) questionTimes[id] = time;
+      }
+    }
+
     let attempt =
       await finalizeIfExpired(
         ctx.attempt,
-        new Date()
+        new Date(),
+        questionTimes
       );
 
     if (
@@ -576,9 +544,12 @@ export async function POST(
         await finalizePracticeExamAttempt(
           attempt,
           "finished",
-          new Date()
+          new Date(),
+          questionTimes
         );
     }
+
+    await ensurePracticeExamProgressRows(attempt, questionTimes);
 
     return NextResponse.json(
       {

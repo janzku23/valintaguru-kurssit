@@ -1,8 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import ValintakoeGQuestionBankAdmin from "@/components/ValintakoeGQuestionBankAdmin";
-
-const ADMIN_EMAIL = "admin@valintaguru.fi";
+import { ADMIN_EMAIL } from "@/lib/adminIdentity";
 
 export default async function ValintakoeGQuestionBankPage() {
   const supabase = await createClient();

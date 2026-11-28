@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { createClient } from "@/utils/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -25,7 +26,8 @@ function getSiteUrl(request: NextRequest) {
 async function saveNewsletterConsent(
   email: string,
   authUserId: string | null,
-  consentGiven: boolean
+  consentGiven: boolean,
+  canUpdateExistingConsent: boolean,
 ) {
   if (!consentGiven) return;
 
@@ -42,13 +44,28 @@ async function saveNewsletterConsent(
         subscribed_at: now,
         updated_at: now,
       },
-      { onConflict: "email" }
+      { onConflict: "email", ignoreDuplicates: !canUpdateExistingConsent }
     );
 
   if (error) {
     throw new Error(
       `Uutiskirjeluvan tallentaminen epäonnistui: ${error.message}`
     );
+  }
+}
+
+async function isVerifiedConsentOwner(email: string, userId: string) {
+  try {
+    const client = await createClient();
+    const { data: { user }, error } = await client.auth.getUser();
+    return Boolean(
+      !error &&
+      user?.id === userId &&
+      user.email_confirmed_at &&
+      normalizeEmail(user.email ?? "") === email,
+    );
+  } catch {
+    return false;
   }
 }
 
@@ -102,16 +119,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const user = await findUserByEmail(email);
+    const canUpdateExistingConsent = user && marketingConsent
+      ? await isVerifiedConsentOwner(email, user.id)
+      : false;
+    const acceptedConsent = marketingConsent && (!user || canUpdateExistingConsent);
     const alreadyConsented = Boolean(existingSignup?.marketing_consent);
-    const nextConsent = alreadyConsented || marketingConsent;
+    const nextConsent = alreadyConsented || acceptedConsent;
     const now = new Date().toISOString();
     const consentAt = alreadyConsented
       ? existingSignup?.marketing_consent_at ?? now
-      : marketingConsent
+      : acceptedConsent
         ? now
         : null;
-
-    const user = await findUserByEmail(email);
 
     const { error: signupError } = await adminClient
       .from("free_course_signups")
@@ -123,7 +143,8 @@ export async function POST(request: NextRequest) {
           auth_user_id: user?.id ?? null,
           updated_at: now,
         },
-        { onConflict: "email" }
+        // A public repeat signup must preserve an existing consent decision.
+        { onConflict: "email", ignoreDuplicates: !canUpdateExistingConsent }
       );
 
     if (signupError) {
@@ -131,7 +152,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (user) {
-      await saveNewsletterConsent(email, user.id, marketingConsent);
+      if (canUpdateExistingConsent) {
+        await saveNewsletterConsent(email, user.id, marketingConsent, true);
+      }
 
       return NextResponse.json({
         success: true,
@@ -174,7 +197,7 @@ export async function POST(request: NextRequest) {
       console.error("Ilmaiskurssin auth_user_id-tallennus epäonnistui:", linkError);
     }
 
-    await saveNewsletterConsent(email, data.user.id, marketingConsent);
+    await saveNewsletterConsent(email, data.user.id, marketingConsent, false);
 
     return NextResponse.json({
       success: true,

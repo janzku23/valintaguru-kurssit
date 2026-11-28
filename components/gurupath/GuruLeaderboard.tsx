@@ -169,7 +169,8 @@ export default function GuruLeaderboard() {
   }
 
   useEffect(() => {
-    void refresh();
+    const timer = setTimeout(() => void refresh(), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const myRank =

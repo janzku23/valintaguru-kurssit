@@ -158,7 +158,7 @@ export default async function BlogPage() {
               </p>
 
               <h2 className="mt-2 text-2xl font-extrabold">
-                Valmistautuminen Valintakoe G:hen
+                Valmistautuminen valintakoe G:hen
               </h2>
 
               <p className="mt-4 leading-7 text-slate-700">
@@ -172,7 +172,7 @@ export default async function BlogPage() {
                 href="/valintakoe-g"
                 className="mt-6 inline-flex font-bold text-blue-700 transition hover:text-blue-800"
               >
-                Lue lisää Valintakoe G:stä →
+                Lue lisää valintakoe G:stä →
               </Link>
             </div>
 

@@ -1,6 +1,5 @@
 import type {
   TheoryCourse,
-  TheorySection,
 } from "../data/courseContent/types";
 
 type Props = {

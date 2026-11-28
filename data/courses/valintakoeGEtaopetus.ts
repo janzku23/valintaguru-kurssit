@@ -57,7 +57,7 @@ export const valintakoeGEtaopetusCourse = {
       description:
         "Valintakoe G + Etäopetuksen oma pelillinen kurssipolku.",
       href:
-        "/gurupath/valintakoe-g-etaope",
+        "/gurupath",
     },
   ],
 } satisfies Course;

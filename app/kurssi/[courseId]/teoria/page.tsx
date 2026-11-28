@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import CourseMaterialSidebar from "../../../../components/CourseMaterialSidebar";
@@ -6,6 +7,7 @@ import type { TheorySection } from "../../../../data/courseContent/types";
 
 import {
   getCourseById,
+  getCourseTitleInSentence,
   isCourseId,
 } from "../../../../data/courses";
 
@@ -50,7 +52,7 @@ export default async function CourseTheoryPage({
           </p>
 
           <h1 className="mt-3 text-3xl font-extrabold">
-            Sinulla ei ole pääsyä kurssin {course.title} teoriaan
+            Sinulla ei ole pääsyä kurssin {getCourseTitleInSentence(course)} teoriaan
           </h1>
 
           <p className="mt-4 leading-8 text-slate-700">
@@ -59,12 +61,12 @@ export default async function CourseTheoryPage({
           </p>
 
           <div className="mt-6 flex flex-wrap gap-4">
-            <a
+            <Link
               href="/"
               className="rounded-full bg-blue-600 px-6 py-3 font-bold text-white"
             >
               Takaisin omiin kursseihin
-            </a>
+            </Link>
 
             <a
               href="https://valintaguru.fi"

@@ -30,7 +30,7 @@ async function getContext(
   if (!isValintakoeGCourseId(courseId)) {
     return {
       error: NextResponse.json(
-        { error: "Tuntematon Valintakoe G -kurssi." },
+        { error: "Tuntematon valintakoe G -kurssi." },
         { status: 404 }
       ),
     };

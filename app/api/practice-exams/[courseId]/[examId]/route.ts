@@ -9,6 +9,7 @@ import {
 } from "@/data/practiceExams";
 import { hasCourseAccess } from "@/lib/courseAccess";
 import {
+  ensurePracticeExamProgressRows,
   finalizeIfExpired,
   type PracticeExamAttemptRow,
 } from "@/lib/practiceExamServer";
@@ -90,7 +91,8 @@ export async function GET(_request: Request, { params }: Params) {
     }
 
     for (const row of (rows ?? []) as PracticeExamAttemptRow[]) {
-      await finalizeIfExpired(row, now);
+      const checked = await finalizeIfExpired(row, now);
+      if (checked.status !== "active") await ensurePracticeExamProgressRows(checked);
     }
 
     const { data: fresh, error: freshError } = await admin

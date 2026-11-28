@@ -5,7 +5,10 @@ import {
   getValintakoeGExercise,
   type ValintakoeGCourseId,
 } from "@/data/valintakoeGExercises";
-import { getValintakoeGReadingCategory } from "@/data/valintakoeGExercises/categories";
+import {
+  getValintakoeGReadingCategory,
+  isValintakoeGReadingCategoryId,
+} from "@/data/valintakoeGExercises/categories";
 import type {
   ValintakoeGDifficulty,
   ValintakoeGQuestion,
@@ -120,8 +123,9 @@ function effectiveMetadata(
   question: ValintakoeGQuestion,
   override?: MetadataRow
 ) {
-  const categoryId =
-    override?.category_id ?? question.categoryId;
+  const categoryId = isValintakoeGReadingCategoryId(override?.category_id)
+    ? override.category_id
+    : question.categoryId;
 
   return {
     exerciseId,

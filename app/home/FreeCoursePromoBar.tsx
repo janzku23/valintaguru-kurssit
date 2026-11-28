@@ -77,7 +77,7 @@ export default function FreeCoursePromoBar() {
         </span>{" "}
         koodilla{" "}
         <span className="font-black tracking-wide text-white">
-          "BLACKWEEK"
+          &quot;BLACKWEEK&quot;
         </span>
         <span className="ml-2 whitespace-nowrap text-xs font-medium text-amber-200/80 sm:text-sm">
           23.–29.11.

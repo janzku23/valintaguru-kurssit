@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
@@ -33,12 +34,12 @@ export default async function GuruPathAccessLayout({
             </h1>
             <p className="mt-4 leading-7 text-slate-600">
               Ilmaiskurssi ei avaa GuruPeliä, rankingia tai maksullisten kurssien pelipolkuja.
-              Saat ne käyttöön aktiivisella Oikis- tai Valintakoe G -kurssioikeudella.
+              Saat ne käyttöön aktiivisella Oikis- tai valintakoe G -kurssioikeudella.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <a href="/" className="rounded-full bg-violet-700 px-5 py-3 text-sm font-black text-white">
+              <Link href="/" className="rounded-full bg-violet-700 px-5 py-3 text-sm font-black text-white">
                 Etusivulle
-              </a>
+              </Link>
             </div>
           </section>
         </main>

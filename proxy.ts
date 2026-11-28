@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSafeRedirectPath } from "./lib/safeRedirect";
 
 const protectedRoutes = [
   "/teoria",
@@ -13,6 +14,14 @@ const protectedRoutes = [
   "/profiili",
   "/dashboard",
 ];
+
+function copySessionState(source: NextResponse, target: NextResponse) {
+  source.cookies.getAll().forEach((cookie) => target.cookies.set(cookie));
+  for (const name of ["Cache-Control", "Pragma", "Expires", "Vary"]) {
+    const value = source.headers.get(name);
+    if (value) target.headers.set(name, value);
+  }
+}
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -37,17 +46,22 @@ export async function proxy(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet, headers) {
         cookiesToSet.forEach(({ name, value }) => {
           request.cookies.set(name, value);
         });
 
+        const previousResponse = response;
         response = NextResponse.next({
           request,
         });
+        copySessionState(previousResponse, response);
 
         cookiesToSet.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options);
+        });
+        Object.entries(headers ?? {}).forEach(([name, value]) => {
+          response.headers.set(name, value);
         });
       },
     },
@@ -61,28 +75,31 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith(route)
   );
 
+  function redirectWithSession(url: URL) {
+    const redirectResponse = NextResponse.redirect(url);
+    copySessionState(response, redirectResponse);
+    return redirectResponse;
+  }
+
   if (isProtectedRoute && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/kirjaudu";
-    loginUrl.searchParams.set("next", pathname);
+    loginUrl.search = "";
+    loginUrl.searchParams.set("next", pathname + request.nextUrl.search);
 
-    return NextResponse.redirect(loginUrl);
+    return redirectWithSession(loginUrl);
   }
 
   if (pathname === "/kirjaudu" && user) {
-    const next = request.nextUrl.searchParams.get("next");
-
-    const redirectUrl = request.nextUrl.clone();
-
-    if (next && next.startsWith("/")) {
-      redirectUrl.pathname = next;
-    } else {
+    const next = getSafeRedirectPath(request.nextUrl.searchParams.get("next"));
+    const redirectUrl = new URL(next, request.url);
+    if (redirectUrl.pathname === "/kirjaudu") {
       redirectUrl.pathname = "/";
+      redirectUrl.search = "";
+      redirectUrl.hash = "";
     }
 
-    redirectUrl.search = "";
-
-    return NextResponse.redirect(redirectUrl);
+    return redirectWithSession(redirectUrl);
   }
 
   return response;

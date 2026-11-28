@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { provisionStudent } from "@/utils/supabase/provisionStudent";
+import { ADMIN_EMAIL } from "@/lib/adminIdentity";
 
 export const runtime = "nodejs";
-
-const ADMIN_EMAIL = "admin@valintaguru.fi";
 
 type RequestBody = {
   email?: unknown;
@@ -78,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     /*
      * Tarkistetaan, että API-kutsun tekijä on kirjautunut
-     * admin@valintaguru.fi-käyttäjällä.
+     * palvelimella määritellyllä admin-käyttäjällä.
      */
     const authenticatedClient = createClient(
       supabaseUrl,

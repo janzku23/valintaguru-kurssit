@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PracticeExamOption, PublicPracticeExam } from "@/data/practiceExams/types";
 import { UNSURE_ANSWER_ID } from "@/data/practiceExams/types";
-import { createClient } from "@/utils/supabase/client";
 
 type HistoryItem = {
   id: string;
@@ -55,12 +54,6 @@ type ReviewItem = {
   explanation: string | null;
   options: PracticeExamOption[];
 };
-
-type ProgressSyncState =
-  | { status: "idle" }
-  | { status: "saving" }
-  | { status: "saved"; count: number }
-  | { status: "error"; message: string };
 
 function formatDuration(seconds: number | null) {
   if (seconds === null) return "-";
@@ -158,6 +151,10 @@ function isSourceSkipOption(option: PracticeExamOption) {
   );
 }
 
+function timingStorageKey(attemptId: string) {
+  return `valintaguru:practice-exam-timing:${attemptId}`;
+}
+
 type PracticeExamRunnerMode =
   | "lobby"
   | "exam"
@@ -187,10 +184,11 @@ export default function PracticeExamRunner({
   const [result, setResult] = useState<Result | null>(null);
   const [review, setReview] = useState<ReviewItem[]>([]);
   const [historyLoadingId, setHistoryLoadingId] = useState<string | null>(null);
-  const [progressSync, setProgressSync] =
-    useState<ProgressSyncState>({ status: "idle" });
-
-  const supabase = useMemo(() => createClient(), []);
+  const [progressSavedCount, setProgressSavedCount] = useState<number | null>(null);
+  const [saveFailed, setSaveFailed] = useState(false);
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const failedQuestionsRef = useRef(new Set<string>());
+  const finishingRef = useRef(false);
 
   useEffect(() => {
     onModeChange?.(mode);
@@ -202,12 +200,6 @@ export default function PracticeExamRunner({
   const timerStartRef = useRef<number | null>(null);
   const initialRemainingRef = useRef(0);
   const autoFinishRef = useRef(false);
-
-  /**
-   * Estää saman koesuorituksen tallentamisen kahdesti
-   * student_progress_attempts-tauluun saman sivuistunnon aikana.
-   */
-  const progressSyncedAttemptsRef = useRef<Set<string>>(new Set());
 
   /**
    * Kysymyskohtainen aktiivinen aika.
@@ -232,11 +224,7 @@ export default function PracticeExamRunner({
     [answers]
   );
 
-  function timingStorageKey(attemptId: string) {
-    return `valintaguru:practice-exam-timing:${attemptId}`;
-  }
-
-  function persistQuestionTimes(attemptId?: string | null) {
+  const persistQuestionTimes = useCallback((attemptId?: string | null) => {
     const id = attemptId ?? activeAttempt?.id;
     if (!id) return;
 
@@ -248,7 +236,7 @@ export default function PracticeExamRunner({
     } catch {
       // localStorage ei ole kriittinen kokeen toiminnalle.
     }
-  }
+  }, [activeAttempt?.id]);
 
   function loadQuestionTimes(attemptId: string) {
     try {
@@ -280,7 +268,7 @@ export default function PracticeExamRunner({
     }
   }
 
-  function flushActiveQuestionTime() {
+  const flushActiveQuestionTime = useCallback(() => {
     const questionId = activeQuestionIdRef.current;
     const startedAt = activeQuestionStartedAtRef.current;
 
@@ -306,9 +294,9 @@ export default function PracticeExamRunner({
 
     activeQuestionIdRef.current = null;
     activeQuestionStartedAtRef.current = null;
-  }
+  }, [persistQuestionTimes]);
 
-  function activateMostVisibleQuestion() {
+  const activateMostVisibleQuestion = useCallback(() => {
     if (
       mode !== "exam" ||
       document.visibilityState !== "visible"
@@ -351,7 +339,7 @@ export default function PracticeExamRunner({
       activeQuestionStartedAtRef.current =
         performance.now();
     }
-  }
+  }, [mode, flushActiveQuestionTime]);
 
   const loadLobby = useCallback(async () => {
     setLoading(true);
@@ -375,7 +363,9 @@ export default function PracticeExamRunner({
   }, [apiUrl]);
 
   useEffect(() => {
-    void loadLobby();
+    let active = true;
+    void Promise.resolve().then(() => { if (active) return loadLobby(); });
+    return () => { active = false; };
   }, [loadLobby]);
 
   function enterExam(attempt: ActiveAttempt) {
@@ -385,6 +375,9 @@ export default function PracticeExamRunner({
     );
 
     setActiveAttempt(attempt);
+    failedQuestionsRef.current.clear();
+    setSaveFailed(false);
+    finishingRef.current = false;
 
     const restoredAnswers =
       normalizeAnswerMap(attempt.answers ?? {});
@@ -398,18 +391,17 @@ export default function PracticeExamRunner({
     initialRemainingRef.current = left;
     timerStartRef.current = performance.now();
     autoFinishRef.current = false;
-    setProgressSync({ status: "idle" });
+    setProgressSavedCount(null);
     setMode("exam");
   }
 
   useEffect(() => {
+    const visibility = questionVisibilityRef.current;
     if (mode !== "exam" || !activeAttempt) {
       flushActiveQuestionTime();
-      questionVisibilityRef.current.clear();
+      visibility.clear();
       return;
     }
-
-    answersRef.current = answers;
 
     const elements = Array.from(
       document.querySelectorAll<HTMLElement>(
@@ -426,7 +418,7 @@ export default function PracticeExamRunner({
 
           if (!questionId) return;
 
-          questionVisibilityRef.current.set(
+          visibility.set(
             questionId,
             entry.isIntersecting
               ? entry.intersectionRatio
@@ -464,16 +456,13 @@ export default function PracticeExamRunner({
     return () => {
       flushActiveQuestionTime();
       observer.disconnect();
-      questionVisibilityRef.current.clear();
+      visibility.clear();
       document.removeEventListener(
         "visibilitychange",
         handleVisibility
       );
     };
-    // answers käsitellään answersRefin kautta, jotta observeria ei luoda
-    // uudelleen jokaisella vastauksella.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, activeAttempt?.id]);
+  }, [mode, activeAttempt, activateMostVisibleQuestion, flushActiveQuestionTime]);
 
   useEffect(() => {
     answersRef.current = answers;
@@ -499,209 +488,11 @@ export default function PracticeExamRunner({
     }
   }
 
-  const syncFinishedAttemptToProgress = useCallback(
-    async (
-      attemptId: string,
-      reviewItems: ReviewItem[],
-      resultData: Result | null
-    ) => {
-      if (
-        progressSyncedAttemptsRef.current.has(
-          attemptId
-        )
-      ) {
-        return true;
-      }
-
-      if (reviewItems.length === 0) {
-        setProgressSync({
-          status: "error",
-          message:
-            "Koesuoritus valmistui, mutta vastaustietoja ei saatu Edistyminen-näkymää varten.",
-        });
-        return false;
-      }
-
-      setProgressSync({ status: "saving" });
-
-      try {
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (userError || !user) {
-          throw new Error(
-            userError?.message ??
-              "Kirjautunutta käyttäjää ei löytynyt."
-          );
-        }
-
-        const answeredAt =
-          new Date().toISOString();
-
-        // Varmistetaan, että juuri ennen kokeen päättämistä
-        // aktiivisena ollut kysymys saa viimeiset millisekuntinsa.
-        flushActiveQuestionTime();
-
-        const sessionDurationMs =
-          resultData?.durationSeconds != null
-            ? Math.max(
-                0,
-                resultData.durationSeconds * 1000
-              )
-            : null;
-
-        const rows = reviewItems.map(
-          (item) => {
-            const selectedAnswerIds =
-              item.selectedAnswerIds?.length
-                ? item.selectedAnswerIds
-                : normalizeAnswerIds(
-                    item.selectedAnswerId
-                  );
-
-            const correctAnswerIds =
-              item.correctAnswerIds?.length
-                ? item.correctAnswerIds
-                : normalizeAnswerIds(
-                    item.correctAnswerId
-                  );
-
-            const isUnsure =
-              selectedAnswerIds.length === 0 ||
-              selectedAnswerIds.includes(
-                UNSURE_ANSWER_ID
-              );
-
-            const isCorrect =
-              !isUnsure &&
-              sameAnswerSet(
-                selectedAnswerIds,
-                correctAnswerIds
-              );
-
-            return {
-              user_id: user.id,
-
-              // Tärkeä: OikisTeho tallentuu
-              // kurssille "oikis-teho", ei "oikis".
-              course_id: exam.courseId,
-
-              // Sama kysymys-ID säilytetään eri
-              // koeyrityksillä, jotta Edistyminen
-              // tunnistaa uusintayritykset oikein.
-              question_id: item.questionId,
-
-              question: item.prompt,
-
-              // Näkyy Edistyminen-näkymän
-              // osa-aluekohtaisissa tilastoissa.
-              area: `${exam.title} · ${item.sectionTitle}`,
-
-              category: "Harjoituskoe",
-
-              selected_answer_ids:
-                selectedAnswerIds,
-
-              correct_answer_ids:
-                correctAnswerIds,
-
-              is_correct: isCorrect,
-              answered_at: answeredAt,
-
-              // Todellinen kysymyskohtainen aktiivinen aika:
-              // aika kertyy vain, kun kysymys on aktiivisesti näkyvissä
-              // ennen ensimmäistä vastausta.
-              answer_time_ms:
-                questionTimesRef.current[
-                  item.questionId
-                ] != null
-                  ? Math.round(
-                      questionTimesRef.current[
-                        item.questionId
-                      ]
-                    )
-                  : null,
-              answer_time_source:
-                questionTimesRef.current[
-                  item.questionId
-                ] != null
-                  ? "active_question"
-                  : null,
-
-              // Koko koesuorituksen todellinen kesto tallennetaan
-              // erikseen. Näin koetahti ja aktiivinen kysymysaika
-              // eivät mene enää sekaisin.
-              session_duration_ms:
-                sessionDurationMs,
-              session_id: attemptId,
-              session_type: "harjoituskoe",
-              session_name: exam.title,
-            };
-          }
-        );
-
-        const { error: insertError } =
-          await supabase
-            .from(
-              "student_progress_attempts"
-            )
-            .insert(rows);
-
-        if (insertError) {
-          throw insertError;
-        }
-
-        progressSyncedAttemptsRef.current.add(
-          attemptId
-        );
-
-        try {
-          window.localStorage.removeItem(
-            timingStorageKey(attemptId)
-          );
-        } catch {
-          // Ei kriittinen.
-        }
-
-        setProgressSync({
-          status: "saved",
-          count: rows.length,
-        });
-
-        return true;
-      } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : "Edistymisen tallennus epäonnistui.";
-
-        console.error(
-          "Practice exam progress sync failed:",
-          err
-        );
-
-        setProgressSync({
-          status: "error",
-          message,
-        });
-
-        return false;
-      }
-    },
-    [
-      exam.courseId,
-      exam.title,
-      supabase,
-    ]
-  );
-
   async function saveAnswer(
     questionId: string,
     answerIds: string[]
   ) {
-    if (!activeAttempt) return;
+    if (!activeAttempt || finishingRef.current) return;
 
     const normalized = Array.from(
       new Set(
@@ -747,7 +538,11 @@ export default function PracticeExamRunner({
     }
 
     setSavingCount((value) => value + 1);
+    const previousSave = saveQueueRef.current;
+    let completeSave!: () => void;
+    saveQueueRef.current = new Promise<void>((resolve) => { completeSave = resolve; });
 
+    await previousSave;
     try {
       const response = await fetch(
         `/api/practice-exams/attempt/${activeAttempt.id}`,
@@ -777,11 +572,7 @@ export default function PracticeExamRunner({
           setReview(finishedReview);
           setMode("result");
 
-          await syncFinishedAttemptToProgress(
-            activeAttempt.id,
-            finishedReview,
-            data.result ?? null
-          );
+          setProgressSavedCount(finishedReview.length);
 
           void loadLobby();
           return;
@@ -792,7 +583,12 @@ export default function PracticeExamRunner({
             "Vastauksen tallennus epäonnistui."
         );
       }
+      failedQuestionsRef.current.delete(questionId);
+      setSaveFailed(failedQuestionsRef.current.size > 0);
+      if (failedQuestionsRef.current.size === 0) setError("");
     } catch (err) {
+      failedQuestionsRef.current.add(questionId);
+      setSaveFailed(true);
       setError(
         err instanceof Error
           ? err.message
@@ -802,6 +598,7 @@ export default function PracticeExamRunner({
       setSavingCount((value) =>
         Math.max(0, value - 1)
       );
+      completeSave();
     }
   }
 
@@ -811,7 +608,7 @@ export default function PracticeExamRunner({
   ) {
     setHistoryLoadingId(attemptId);
     setError("");
-    setProgressSync({ status: "idle" });
+    setProgressSavedCount(null);
 
     try {
       const response = await fetch(
@@ -844,6 +641,7 @@ export default function PracticeExamRunner({
 
       setResult(data.result);
       setReview(data.review ?? []);
+      setProgressSavedCount(data.review?.length ?? 0);
       setMode("result");
 
       window.scrollTo({
@@ -863,7 +661,7 @@ export default function PracticeExamRunner({
 
   const finishExam = useCallback(
     async (automatic = false) => {
-      if (!activeAttempt || finishing) return;
+      if (!activeAttempt || finishingRef.current) return;
 
       if (
         !automatic &&
@@ -872,12 +670,20 @@ export default function PracticeExamRunner({
         return;
       }
 
+      finishingRef.current = true;
       setFinishing(true);
       setError("");
+      flushActiveQuestionTime();
 
       try {
+        await saveQueueRef.current;
+        if (failedQuestionsRef.current.size > 0) {
+          throw new Error("Kaikkia vastauksia ei ole tallennettu. Yritä tallennusta uudelleen ennen kokeen päättämistä.");
+        }
         const response = await fetch(`/api/practice-exams/attempt/${activeAttempt.id}`, {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ questionTimes: questionTimesRef.current }),
         });
         const data = await response.json();
 
@@ -892,24 +698,25 @@ export default function PracticeExamRunner({
         setReview(finishedReview);
         setMode("result");
 
-        await syncFinishedAttemptToProgress(
-          activeAttempt.id,
-          finishedReview,
-          data.result ?? null
-        );
+        setProgressSavedCount(finishedReview.length);
+        try {
+          window.localStorage.removeItem(timingStorageKey(activeAttempt.id));
+        } catch {
+          // A storage restriction must not hide the saved result.
+        }
 
         await loadLobby();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Kokeen päättäminen epäonnistui.");
       } finally {
+        finishingRef.current = false;
         setFinishing(false);
       }
     },
     [
       activeAttempt,
-      finishing,
       loadLobby,
-      syncFinishedAttemptToProgress,
+      flushActiveQuestionTime,
     ]
   );
 
@@ -959,7 +766,7 @@ export default function PracticeExamRunner({
                 setResult(null);
                 setReview([]);
                 setActiveAttempt(null);
-                setProgressSync({ status: "idle" });
+                setProgressSavedCount(null);
               }}
               className="rounded-full bg-blue-600 px-6 py-3 font-black text-white transition hover:bg-blue-700"
             >
@@ -975,35 +782,14 @@ export default function PracticeExamRunner({
           </div>
         </section>
 
-        {progressSync.status === "saving" && (
-          <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-800">
-            Tallennetaan koesuoritusta Edistyminen-näkymään...
-          </div>
-        )}
-
-        {progressSync.status === "saved" && (
+        {progressSavedCount != null && (
           <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-bold text-emerald-800">
-              ✓ Koesuoritus tallennettiin Edistymiseen ({progressSync.count} vastausta).
+              ✓ Koesuoritus tallennettiin Edistymiseen ({progressSavedCount} vastausta).
             </p>
-
-            <a
-              href={`/kurssi/${exam.courseId}/edistyminen`}
-              className="inline-flex items-center justify-center rounded-full bg-emerald-700 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-800"
-            >
+            <a href={`/kurssi/${exam.courseId}/edistyminen`} className="inline-flex items-center justify-center rounded-full bg-emerald-700 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-800">
               Avaa Edistyminen
             </a>
-          </div>
-        )}
-
-        {progressSync.status === "error" && (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-            <p className="font-bold text-amber-900">
-              Koe tallentui koehistoriaan, mutta Edistyminen-synkronointi epäonnistui.
-            </p>
-            <p className="mt-1 text-sm text-amber-800">
-              {progressSync.message}
-            </p>
           </div>
         )}
 
@@ -1091,7 +877,7 @@ export default function PracticeExamRunner({
               <p className="text-xs font-black uppercase tracking-[0.14em] text-[#3f51e7]">{exam.title}</p>
               <p className="mt-1 text-sm font-bold text-slate-500">
                 Vastattu {answeredCount}/{exam.questionCount}
-                {savingCount > 0 ? " · Tallennetaan..." : " · Tallennettu"}
+                {savingCount > 0 ? " · Tallennetaan..." : saveFailed ? " · Tallennus epäonnistui" : " · Tallennettu"}
               </p>
             </div>
 
@@ -1106,6 +892,17 @@ export default function PracticeExamRunner({
         </div>
 
         {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 font-bold text-red-700">{error}</div>}
+        {saveFailed && (
+          <button type="button" disabled={savingCount > 0 || finishing}
+            onClick={() => {
+              for (const questionId of failedQuestionsRef.current) {
+                void saveAnswer(questionId, answersRef.current[questionId] ?? []);
+              }
+            }}
+            className="rounded-xl border border-red-300 bg-white px-4 py-3 text-sm font-bold text-red-700 disabled:opacity-50">
+            Yritä vastausten tallennusta uudelleen
+          </button>
+        )}
 
         <details className="rounded-2xl border border-amber-200 bg-amber-50 text-sm text-amber-950">
           <summary className="min-h-11 cursor-pointer px-4 py-3 font-bold">
@@ -1178,6 +975,7 @@ export default function PracticeExamRunner({
                                 }
                                 name={question.id}
                                 checked={checked}
+                                disabled={finishing}
                                 onChange={() => {
                                   if (
                                     question.allowsMultipleAnswers
@@ -1233,6 +1031,7 @@ export default function PracticeExamRunner({
                             checked={selected.includes(
                               UNSURE_ANSWER_ID
                             )}
+                            disabled={finishing}
                             onChange={() =>
                               void saveAnswer(
                                 question.id,
@@ -1371,7 +1170,7 @@ export default function PracticeExamRunner({
 
           <button
             type="button"
-            onClick={() => (activeAttempt ? enterExam(activeAttempt) : void startExam())}
+            onClick={() => void startExam()}
             disabled={starting}
             className="rounded-full bg-[#3f51e7] px-7 py-3.5 font-black text-white disabled:opacity-60"
           >

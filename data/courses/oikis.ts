@@ -46,7 +46,7 @@ export const oikisCourse = {
       title: "GuruPeli",
       description:
         "Etene Kyssäripankin omalla pelillisellä kurssipolulla.",
-      href: "/gurupath/oikis",
+      href: "/gurupath",
     },
   ],
 } satisfies Course;

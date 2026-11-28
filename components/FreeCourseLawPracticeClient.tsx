@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import { createExamClock, subscribeToExamClock } from "@/lib/examClock";
 import FreeCourseExamMaterials from "@/components/FreeCourseExamMaterials";
 import {
   freeCourseLaw2026Questions,
@@ -119,6 +121,7 @@ function formatAttemptDate(value: string) {
 export default function FreeCourseLawPracticeClient() {
   const supabase = useMemo(() => createClient(), []);
   const submissionInProgress = useRef(false);
+  const examClockRef = useRef<ReturnType<typeof createExamClock> | null>(null);
 
   const [answers, setAnswers] = useState<AnswerState>({});
   const [skipped, setSkipped] = useState<SkippedState>({});
@@ -171,6 +174,8 @@ export default function FreeCourseLawPracticeClient() {
     [],
   );
 
+  const finishExpiredExam = useEffectEvent(() => finalizeExam(true));
+
   useEffect(() => {
     let cancelled = false;
 
@@ -220,17 +225,8 @@ export default function FreeCourseLawPracticeClient() {
   }, [supabase]);
 
   useEffect(() => {
-    if (!started || submitted) {
-      return;
-    }
-
-    const interval = window.setInterval(() => {
-      setTimeLeft((current) => Math.max(0, current - 1));
-    }, 1000);
-
-    return () => {
-      window.clearInterval(interval);
-    };
+    if (!started || submitted || !examClockRef.current) return;
+    return subscribeToExamClock(examClockRef.current, setTimeLeft);
   }, [started, submitted]);
 
   useEffect(() => {
@@ -238,12 +234,11 @@ export default function FreeCourseLawPracticeClient() {
       return;
     }
 
-    void finalizeExam(true);
-    // finalizeExam käyttää viimeisintä statea. Tarkoituksella vain ajan loppu laukaisee tämän.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    void finishExpiredExam();
   }, [started, submitted, timeLeft]);
 
   function startExam() {
+    examClockRef.current = createExamClock(LAW_EXAM_DURATION_SECONDS);
     setAnswers({});
     setSkipped({});
     setStarted(true);
@@ -262,6 +257,7 @@ export default function FreeCourseLawPracticeClient() {
   }
 
   function resetExam() {
+    examClockRef.current = null;
     submissionInProgress.current = false;
     setAnswers({});
     setSkipped({});
@@ -334,7 +330,7 @@ export default function FreeCourseLawPracticeClient() {
     }));
   }
 
-  async function saveAttempt(finishedByTimer: boolean) {
+  async function saveAttempt(finishedByTimer: boolean, elapsedSeconds = LAW_EXAM_DURATION_SECONDS - timeLeft) {
     setSaveStatus("saving");
     setSaveError("");
 
@@ -357,7 +353,7 @@ export default function FreeCourseLawPracticeClient() {
       correct_count: result.correct,
       wrong_count: result.wrong,
       unanswered_count: result.unanswered,
-      time_used_seconds: LAW_EXAM_DURATION_SECONDS - timeLeft,
+      time_used_seconds: elapsedSeconds,
       finished_by_time: finishedByTimer,
       answers,
       number_answers: {},
@@ -397,11 +393,14 @@ export default function FreeCourseLawPracticeClient() {
     }
 
     submissionInProgress.current = true;
-    setFinishedByTime(finishedByTimer);
+    const remaining = examClockRef.current?.stop() ?? timeLeft;
+    const timedOut = finishedByTimer || remaining === 0;
+    setTimeLeft(remaining);
+    setFinishedByTime(timedOut);
     setSubmitted(true);
 
     try {
-      await saveAttempt(finishedByTimer);
+      await saveAttempt(timedOut, LAW_EXAM_DURATION_SECONDS - remaining);
     } finally {
       submissionInProgress.current = false;
 
@@ -418,6 +417,7 @@ export default function FreeCourseLawPracticeClient() {
   }
 
   function openSavedAttempt(attempt: SavedExamAttempt) {
+    examClockRef.current = null;
     submissionInProgress.current = false;
     setAnswers(attempt.answers ?? {});
     setSkipped(attempt.skipped ?? {});
@@ -864,12 +864,12 @@ export default function FreeCourseLawPracticeClient() {
               Tee oikeustieteen koe uudelleen
             </button>
 
-            <a
+            <Link
               href="/kurssi/ilmais-kurssi/harjoitukset"
               className="rounded-full border border-slate-300 px-5 py-3 font-bold text-slate-800 transition hover:border-violet-400 hover:text-violet-700"
             >
               Takaisin harjoituskokeisiin
-            </a>
+            </Link>
           </div>
         </section>
       )}

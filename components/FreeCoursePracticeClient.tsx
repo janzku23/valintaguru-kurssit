@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { createExamClock, subscribeToExamClock } from "@/lib/examClock";
 import FreeCourseExamMaterials from "@/components/FreeCourseExamMaterials";
 import {
   freeExam2026Questions,
@@ -163,6 +164,7 @@ function formatTime(totalSeconds: number) {
 export default function FreeCoursePracticeClient() {
   const supabase = useMemo(() => createClient(), []);
   const submissionInProgress = useRef(false);
+  const examClockRef = useRef<ReturnType<typeof createExamClock> | null>(null);
 
   const [answers, setAnswers] = useState<AnswerState>({});
   const [numberAnswers, setNumberAnswers] = useState<NumberAnswerState>({});
@@ -262,7 +264,7 @@ export default function FreeCoursePracticeClient() {
     };
   }, [supabase]);
 
-  async function saveAttempt(finishedByTimer: boolean) {
+  async function saveAttempt(finishedByTimer: boolean, elapsedSeconds = EXAM_DURATION_SECONDS - timeLeft) {
     setSaveStatus("saving");
     setSaveError("");
 
@@ -282,7 +284,7 @@ export default function FreeCoursePracticeClient() {
       correct_count: result.correct,
       wrong_count: result.wrong,
       unanswered_count: result.unanswered,
-      time_used_seconds: EXAM_DURATION_SECONDS - timeLeft,
+      time_used_seconds: elapsedSeconds,
       finished_by_time: finishedByTimer,
       answers,
       number_answers: numberAnswers,
@@ -316,10 +318,16 @@ export default function FreeCoursePracticeClient() {
     if (!started || submitted || submissionInProgress.current) return;
 
     submissionInProgress.current = true;
-    setFinishedByTime(finishedByTimer);
+    const remaining = examClockRef.current?.stop() ?? timeLeft;
+    const timedOut = finishedByTimer || remaining === 0;
+    setTimeLeft(remaining);
+    setFinishedByTime(timedOut);
     setSubmitted(true);
-    await saveAttempt(finishedByTimer);
-    submissionInProgress.current = false;
+    try {
+      await saveAttempt(timedOut, EXAM_DURATION_SECONDS - remaining);
+    } finally {
+      submissionInProgress.current = false;
+    }
 
     window.setTimeout(() => {
       document
@@ -329,6 +337,7 @@ export default function FreeCoursePracticeClient() {
   }
 
   function openSavedAttempt(attempt: SavedExamAttempt) {
+    examClockRef.current = null;
     setAnswers(attempt.answers ?? {});
     setNumberAnswers(attempt.number_answers ?? {});
     setSkipped(attempt.skipped ?? {});
@@ -350,18 +359,15 @@ export default function FreeCoursePracticeClient() {
   }
 
   useEffect(() => {
-    if (!started || submitted) return;
-
-    const timer = window.setInterval(() => {
-      setTimeLeft((current) => Math.max(0, current - 1));
-    }, 1000);
-
-    return () => window.clearInterval(timer);
+    if (!started || submitted || !examClockRef.current) return;
+    return subscribeToExamClock(examClockRef.current, setTimeLeft);
   }, [started, submitted]);
+
+  const finishExpiredExam = useEffectEvent(() => finishExam(true));
 
   useEffect(() => {
     if (!started || submitted || timeLeft > 0) return;
-    void finishExam(true);
+    void finishExpiredExam();
   }, [started, submitted, timeLeft]);
 
   function choose(question: FreeExamQuestion, optionId: string) {
@@ -394,6 +400,7 @@ export default function FreeCoursePracticeClient() {
   }
 
   function startExam() {
+    examClockRef.current = createExamClock(EXAM_DURATION_SECONDS);
     setAnswers({});
     setNumberAnswers({});
     setSkipped({});
@@ -414,6 +421,7 @@ export default function FreeCoursePracticeClient() {
   }
 
   function resetExam() {
+    examClockRef.current = null;
     setAnswers({});
     setNumberAnswers({});
     setSkipped({});
@@ -490,7 +498,7 @@ export default function FreeCoursePracticeClient() {
                   Omat suoritukset
                 </p>
                 <h3 className="mt-1 text-xl font-black text-slate-950">
-                  Aiemmat Valintakoe G 2026 -kokeet
+                  Aiemmat valintakoe G 2026 -kokeet
                 </h3>
               </div>
               {!historyLoading && history.length > 0 && (
@@ -904,7 +912,7 @@ export default function FreeCoursePracticeClient() {
 
             <p className="mt-4 text-sm leading-6 text-slate-600">
               Vertailu käyttää vuoden 2026 lopullisia pisterajoja niissä
-              hakukohteissa, joissa Valintakoe G:n yhteinen 70 pisteen osio oli
+              hakukohteissa, joissa valintakoe G:n yhteinen 70 pisteen osio oli
               vertailukelpoinen sellaisenaan. Tämä on pisterajavertailu, ei
               opiskelupaikkapäätös. Oikeustiede ei ole mukana, koska siihen
               käytettiin lisäksi oikeustieteen eriytyvää osiota.
@@ -914,7 +922,7 @@ export default function FreeCoursePracticeClient() {
               href="/valintakoe-g-pisterajat"
               className="mt-4 inline-flex font-black text-[#3f51e7] hover:underline"
             >
-              Katso kaikki Valintakoe G:n pisterajat 2026 →
+              Katso kaikki valintakoe G:n pisterajat 2026 →
             </a>
           </div>
 
@@ -924,7 +932,7 @@ export default function FreeCoursePracticeClient() {
               onClick={resetExam}
               className="rounded-full bg-[#3f51e7] px-5 py-3 font-bold text-white transition hover:bg-[#3142d6]"
             >
-              Tee Valintakoe G 2026 uudelleen
+              Tee valintakoe G 2026 uudelleen
             </button>
             <button
               type="button"

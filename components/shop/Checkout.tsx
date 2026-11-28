@@ -12,6 +12,11 @@ import {
   type Quote,
 } from "@/lib/shop/types";
 import { SHOP_SELLER } from "@/data/shop/seller";
+import {
+  checkoutAttempt,
+  completeCheckoutOrder,
+  rememberCheckoutOrder,
+} from "@/lib/shop/checkout-session";
 import { shopFetch, shopJson } from "./client-api";
 import { useCart } from "./cart";
 import PaymentMethods from "./PaymentMethods";
@@ -87,12 +92,10 @@ export default function Checkout({
     setBusy(true);
     setPaymentError("");
     try {
-      const storageKey = `vg-checkout:${fingerprint}:${String(form.get("email")).trim().toLowerCase()}`;
-      let key = sessionStorage.getItem(storageKey);
-      if (!key) {
-        key = crypto.randomUUID();
-        sessionStorage.setItem(storageKey, key);
-      }
+      const { storageKey, key } = checkoutAttempt(
+        fingerprint,
+        String(form.get("email")),
+      );
       const result = await post(
         "checkout",
         JSON.stringify({
@@ -109,6 +112,8 @@ export default function Checkout({
           key,
         }),
       );
+      rememberCheckoutOrder(storageKey, key, result.orderId);
+      if (result.completed === true) completeCheckoutOrder(result.orderId);
       try {
         localStorage.setItem("vg-last-order", result.orderId);
       } catch {

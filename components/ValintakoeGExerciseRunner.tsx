@@ -308,7 +308,9 @@ export default function ValintakoeGExerciseRunner({
   }, [apiUrl]);
 
   useEffect(() => {
-    void loadLobby();
+    let active = true;
+    void Promise.resolve().then(() => { if (active) return loadLobby(); });
+    return () => { active = false; };
   }, [loadLobby]);
 
   function enterExercise(
@@ -377,12 +379,13 @@ export default function ValintakoeGExerciseRunner({
   }, [answers]);
 
   useEffect(() => {
+    const visibility = questionVisibilityRef.current;
     if (
       mode !== "exercise" ||
       !activeAttempt
     ) {
       flushActiveQuestionTime();
-      questionVisibilityRef.current.clear();
+      visibility.clear();
       return;
     }
 
@@ -402,7 +405,7 @@ export default function ValintakoeGExerciseRunner({
 
           if (!id) return;
 
-          questionVisibilityRef.current.set(
+          visibility.set(
             id,
             entry.isIntersecting
               ? entry.intersectionRatio
@@ -450,7 +453,7 @@ export default function ValintakoeGExerciseRunner({
     return () => {
       flushActiveQuestionTime();
       observer.disconnect();
-      questionVisibilityRef.current.clear();
+      visibility.clear();
       document.removeEventListener(
         "visibilitychange",
         handleVisibility
@@ -1197,11 +1200,7 @@ export default function ValintakoeGExerciseRunner({
         <div className="mt-6 flex justify-start">
           <button
             type="button"
-            onClick={() =>
-              activeAttempt
-                ? enterExercise(activeAttempt)
-                : void startExercise()
-            }
+            onClick={() => void startExercise()}
             disabled={starting}
             className="rounded-full bg-blue-600 px-7 py-3.5 font-black text-white disabled:opacity-60"
           >

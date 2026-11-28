@@ -100,15 +100,19 @@ export function HomeAuthProvider({ children }: { children: ReactNode }) {
   }, [supabase]);
 
   useEffect(() => {
-    void loadUserAndCourses();
+    let timer = setTimeout(() => void loadUserAndCourses(), 0);
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(() => {
-      void loadUserAndCourses();
+      clearTimeout(timer);
+      timer = setTimeout(() => void loadUserAndCourses(), 0);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timer);
+      subscription.unsubscribe();
+    };
   }, [loadUserAndCourses, supabase]);
 
   const value = useMemo<HomeAuthContextValue>(

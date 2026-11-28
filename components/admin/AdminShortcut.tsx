@@ -1,11 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
-
-const ADMIN_EMAIL =
-  process.env.NEXT_PUBLIC_VALINTAGURU_ADMIN_EMAIL?.trim().toLowerCase() ||
-  "admin@valintaguru.fi";
+import { useAdminAccess } from "@/lib/useAdminAccess";
 
 export default function AdminShortcut({
   mobile = false,
@@ -14,32 +9,7 @@ export default function AdminShortcut({
   mobile?: boolean;
   onNavigate?: () => void;
 }) {
-  const supabase = useMemo(() => createClient(), []);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    let alive = true;
-
-    void supabase.auth.getUser().then(({ data }) => {
-      if (!alive) return;
-      setVisible(
-        data.user?.email?.trim().toLowerCase() === ADMIN_EMAIL,
-      );
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setVisible(
-        session?.user.email?.trim().toLowerCase() === ADMIN_EMAIL,
-      );
-    });
-
-    return () => {
-      alive = false;
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
+  const visible = useAdminAccess();
 
   if (!visible) return null;
 

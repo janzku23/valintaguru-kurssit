@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useSyncExternalStore } from "react";
+import { completeCheckoutOrder } from "@/lib/shop/checkout-session";
 const KEY = "valintaguru-shop-cart-v1";
 function snapshot() {
   try {
@@ -52,6 +53,7 @@ export function useCart() {
 }
 
 export function removePaidOrderItems(orderId: string, productIds: string[]) {
+  completeCheckoutOrder(orderId);
   try {
     if (localStorage.getItem("vg-last-order") !== orderId) return;
     const ids: unknown = JSON.parse(snapshot());

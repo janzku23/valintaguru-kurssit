@@ -44,7 +44,7 @@ export const COURSE_FEATURES: Record<
     flashcards: false,
     podcast: false,
     progress: false,
-    gurupeli: false,
+    gurupeli: true,
   },
 
   "oikis-teho": {
@@ -53,7 +53,7 @@ export const COURSE_FEATURES: Record<
     flashcards: false,
     podcast: true,
     progress: true,
-    gurupeli: false,
+    gurupeli: true,
   },
 
   "oikis-teho-etaope": {
@@ -62,7 +62,7 @@ export const COURSE_FEATURES: Record<
     flashcards: false,
     podcast: true,
     progress: true,
-    gurupeli: false,
+    gurupeli: true,
   },
 
   "valintakoe-g": {
@@ -71,7 +71,7 @@ export const COURSE_FEATURES: Record<
     flashcards: false,
     podcast: false,
     progress: true,
-    gurupeli: false,
+    gurupeli: true,
   },
 
   "valintakoe-g-etaope": {
@@ -80,7 +80,7 @@ export const COURSE_FEATURES: Record<
     flashcards: false,
     podcast: false,
     progress: true,
-    gurupeli: false,
+    gurupeli: true,
   },
 
   yo: {

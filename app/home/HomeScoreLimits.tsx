@@ -23,7 +23,7 @@ export default function HomeScoreLimits() {
                 </h2>
 
                 <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
-                  Pisterajat hallintotieteisiin, sosiaali- ja yhteiskuntatieteisiin, viestintätieteisiin sekä oikeustieteeseen. Samalta sivulta löydät myös tiiviin kuvauksen siitä, mikä Valintakoe G on.
+                  Pisterajat hallintotieteisiin, sosiaali- ja yhteiskuntatieteisiin, viestintätieteisiin sekä oikeustieteeseen. Samalta sivulta löydät myös tiiviin kuvauksen siitä, mikä valintakoe G on.
                 </p>
               </div>
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import logo from "../../assets/logo.png";
 // import frontLogo from "../../assets/frontlogo.png"; // Palauta alkuperäisen kortin kanssa.
@@ -5,6 +6,7 @@ import { Suspense } from "react";
 import BlackWeekHeroPrices from "./BlackWeekHeroPrices";
 import Etusivulogo from "../../assets/Etusivulogo.png";
 import HeroPrimaryAction from "./HeroPrimaryAction";
+import HomeHeroPanel from "./HomeHeroPanel";
 
 export default function HomeHero() {
   return (
@@ -95,7 +97,7 @@ export default function HomeHero() {
       </div>
     </div>
 
-    {/* BLACK WEEK: poista kampanjakortti ja palauta alla kommentoitu alkuperäinen osio. */}
+    <HomeHeroPanel>
     <aside aria-labelledby="black-week-title" className="relative mx-auto w-full max-w-xl overflow-hidden rounded-[2rem] border border-[#d9a944]/50 bg-[#0c0d11] text-white shadow-2xl shadow-amber-950/20">
       <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[#d9a944]/15 blur-3xl" />
       <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#3f51e7]/15 blur-3xl" />
@@ -120,12 +122,13 @@ export default function HomeHero() {
           </Suspense>
         </div>
         <p className="mt-3 text-center text-sm text-white/80">Kaikki kurssit −40 % koodilla <strong className="font-black tracking-wider text-[#f5cf78]">BLACKWEEK</strong></p>
-        <a href="/kauppa" className="mt-3 flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#f5d78d] to-[#e9b950] px-5 py-3 text-sm font-bold text-[#211808] transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f5cf78]">
+        <Link href="/kauppa" className="mt-3 flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#f5d78d] to-[#e9b950] px-5 py-3 text-sm font-bold text-[#211808] transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f5cf78]">
           Hyödynnä Black Week -etu <span aria-hidden="true">→</span>
-        </a>
+        </Link>
         <p className="mt-2 text-center text-xs leading-5 text-white/60">Syötä alennuskoodi kassalla. Voimassa 23.–29.11.</p>
       </div>
     </aside>
+    </HomeHeroPanel>
 
 {/* ALKUPERÄINEN KURSSIALUSTAKORTTI — palauta kampanjan jälkeen.
 <div className="relative mx-auto w-full max-w-xl px-1 sm:px-0">

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
@@ -41,12 +42,12 @@ export default async function CalendarAccessLayout({
             Kalenteri on käytössä vain, jos tilillä on aktiivinen maksullinen
             kurssioikeus tai erikseen myönnetty kalenterioikeus.
           </p>
-          <a
+          <Link
             href="/"
             className="mt-7 inline-flex rounded-full bg-[#3f51e7] px-5 py-3 text-sm font-black text-white"
           >
             Etusivulle
-          </a>
+          </Link>
         </section>
       </main>
     );

@@ -1,3 +1,5 @@
+import type { ValintakoeGCategoryId } from "./categories";
+
 export type ValintakoeGCourseId =
   | "valintakoe-g"
   | "valintakoe-g-etaope";
@@ -28,7 +30,7 @@ export type ValintakoeGQuestion = {
   prompt: string;
   options: ValintakoeGOption[];
   correctAnswerIds: string[];
-  categoryId: number;
+  categoryId: ValintakoeGCategoryId;
   questionType: ValintakoeGQuestionType;
   difficulty: ValintakoeGDifficulty;
   source?: ValintakoeGSource;

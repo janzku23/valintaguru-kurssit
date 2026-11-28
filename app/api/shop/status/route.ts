@@ -6,16 +6,21 @@ import {
   publicOrder,
   reconcilePayment,
   shopError,
+  validateShopRequest,
 } from "@/lib/shop/server";
 import type { Payment } from "@/lib/shop/types";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
-    await guardRequest(request, "status", 90);
+    validateShopRequest(request);
     const body = await bodyOf(request);
     if (typeof body.orderId !== "string")
       throw new Error("Tilausta ei löytynyt.");
     let order = await ownOrder(body.orderId);
+    // The database hash is trusted only after ownOrder verifies this browser.
+    await guardRequest(request, "status", 90, {
+      verifiedSessionHash: order.access_hash,
+    });
     if (body.refresh === true && order.status === "unpaid") {
       const { data, error } = await db()
         .from("shop_payments")

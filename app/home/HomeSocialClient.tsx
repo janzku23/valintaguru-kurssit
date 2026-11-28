@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Script from "next/script";
+import Image from "next/image";
 import Link from "next/link";
 import logo from "../../assets/logo.png";
 import kiitos from "../../assets/kiitos.png";
@@ -131,10 +132,12 @@ export default function HomeSocialClient() {
                                 : "brightness(0.67)",
                           }}
                         >
-                          <img
+                          <Image
                             src={post.image}
                             alt={post.alt}
-                            className="h-full w-full object-contain"
+                            fill
+                            sizes="(min-width: 640px) 240px, (min-width: 390px) 175px, 160px"
+                            className="object-contain"
                           />
                           {!isActive && (
                             <span className="absolute inset-0 bg-slate-950/10" />

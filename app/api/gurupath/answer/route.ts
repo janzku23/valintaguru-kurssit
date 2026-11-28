@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   // Never trust a question ID, source, XP, score, or correctAnswerIds from the browser.
   const authorized = await authorizeGuruNode(courseId, nodeId);
   if (!authorized) return jsonError("Tehtävään ei ole käyttöoikeutta.", 403);
-  const { question, node, index, levels, source, courseIds } = authorized;
+  const { question, node, index, levels, source, courseIds, storageCourseId } = authorized;
   const allowedIds = new Set(question.answers.map((answer) => answer.id));
   if (!selectedAnswerIds.every((id) => allowedIds.has(id))) {
     return jsonError("Tuntematon vastausvaihtoehto.", 400);
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     .from("guru_game_penalties")
     .select("created_at")
     .eq("user_id", user.id)
-    .eq("course_id", courseId)
+    .in("course_id", courseIds)
     .eq("node_id", nodeId)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
   if (!correct) {
     const { data: penalty, error: penaltyError } = await admin.rpc("apply_gurupath_wrong_answer", {
       p_user_id: user.id,
-      p_course_id: courseId,
+      p_course_id: storageCourseId,
       p_node_id: nodeId,
       p_penalty: GURU_WRONG_PENALTY,
       p_cooldown_seconds: GURU_WRONG_COOLDOWN_SECONDS,
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
     ? Math.min(node.points, 100) : 35;
   const { data: award, error: awardError } = await admin.rpc("award_gurupath_xp", {
     p_user_id: user.id,
-    p_course_id: courseId,
+    p_course_id: storageCourseId,
     p_source: source,
     p_source_id: `gurupeli:${question.id}`,
     p_xp: points,
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
   if (awarded) {
     const { error: attemptError } = await admin.from("student_progress_attempts").insert({
       user_id: user.id,
-      course_id: courseId,
+      course_id: storageCourseId,
       question_id: question.id,
       question: question.prompt,
       area: "GuruPeli",

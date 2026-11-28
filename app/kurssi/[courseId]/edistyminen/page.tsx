@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import CourseMaterialSidebar from "../../../../components/CourseMaterialSidebar";
 import ProgressView from "../../../../components/ProgressView";
-import { getCourseById, isCourseId } from "../../../../data/courses";
+import { getCourseById, getCourseTitleInSentence, isCourseId } from "../../../../data/courses";
 import { hasCourseAccess } from "../../../../lib/courseAccess";
 import { getPracticeExamsForCourse } from "@/data/practiceExams";
 import { getValintakoeGExercises, isValintakoeGCourseId } from "@/data/valintakoeGExercises";
@@ -51,7 +51,7 @@ export default async function CourseProgressPage({ params }: Props) {
           </p>
 
           <h1 className="mt-3 text-3xl font-extrabold">
-            Sinulla ei ole pääsyä kurssin {course.title} edistymiseen
+            Sinulla ei ole pääsyä kurssin {getCourseTitleInSentence(course)} edistymiseen
           </h1>
 
           <p className="mt-4 leading-8 text-slate-700">

@@ -2,10 +2,9 @@ import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { createClient as createServerClient } from "@/utils/supabase/server";
+import { ADMIN_EMAIL } from "@/lib/adminIdentity";
 
 export const dynamic = "force-dynamic";
-
-const ADMIN_EMAIL = "admin@valintaguru.fi";
 
 function getBearerToken(request: Request) {
   const authorization = request.headers.get("authorization");

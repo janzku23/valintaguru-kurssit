@@ -56,7 +56,7 @@ export const oikisTiivisCourse = {
       description:
         "Oikis Tiiviin oma pelillinen kurssipolku.",
       href:
-        "/gurupath/oikis-tiivis",
+        "/gurupath",
     },
   ],
 } satisfies Course;

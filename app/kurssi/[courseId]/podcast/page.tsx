@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import CourseMaterialSidebar from "@/components/CourseMaterialSidebar";
 import PodcastView from "@/components/PodcastView";
 import {
   getCourseById,
+  getCourseTitleInSentence,
   isCourseId,
 } from "@/data/courses";
 import { getPodcastContent } from "@/data/podcasts";
@@ -43,15 +45,15 @@ export default async function CoursePodcastPage({
 
           <h1 className="mt-3 text-3xl font-extrabold">
             Sinulla ei ole pääsyä kurssin{" "}
-            {course.title} podcast-sisältöön
+            {getCourseTitleInSentence(course)} podcast-sisältöön
           </h1>
 
-          <a
+          <Link
             href="/"
             className="mt-6 inline-flex rounded-full bg-blue-600 px-6 py-3 font-bold text-white"
           >
             Takaisin omiin kursseihin
-          </a>
+          </Link>
         </div>
       </main>
     );

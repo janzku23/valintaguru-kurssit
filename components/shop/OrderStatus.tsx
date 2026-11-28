@@ -4,19 +4,22 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { removePaidOrderItems } from "./cart";
 import { accessDuration, money, type PublicOrder } from "@/lib/shop/types";
+import { startOrderPolling } from "@/lib/shop/order-polling";
 export default function OrderStatus({ id }: { id: string }) {
   const [order, setOrder] = useState<PublicOrder | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const refresh = useCallback(
-    async (check = false) => {
+    async (check = false, signal?: AbortSignal) => {
       try {
         const r = await shopFetch("/api/shop/status", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ orderId: id, refresh: check }),
+          signal,
         });
         const data: PublicOrder = await shopJson(r);
+        if (signal?.aborted) return null;
         if (data.status !== "unpaid") {
           removePaidOrderItems(
             data.id,
@@ -25,18 +28,24 @@ export default function OrderStatus({ id }: { id: string }) {
         }
         setOrder(data);
         setError("");
+        return data;
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Tilaa ei saatu haettua.");
+        if (!signal?.aborted)
+          setError(e instanceof Error ? e.message : "Tilaa ei saatu haettua.");
+        return null;
       }
     },
     [id],
   );
   useEffect(() => {
-    const first = setTimeout(() => void refresh(), 0);
-    const timer = setInterval(() => void refresh(), 15000);
+    const controller = new AbortController();
+    const stop = startOrderPolling(
+      () => refresh(false, controller.signal),
+      () => document.visibilityState !== "hidden",
+    );
     return () => {
-      clearTimeout(first);
-      clearInterval(timer);
+      stop();
+      controller.abort();
     };
   }, [refresh]);
   async function retry() {

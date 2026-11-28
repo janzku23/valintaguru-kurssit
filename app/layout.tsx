@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
   title: {
     default:
-      "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
+      "ValintaGuru – valintakoe G ja oikeustieteen valmennuskurssit",
     template: "%s | ValintaGuru",
   },
 
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName,
     title:
-      "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
+      "ValintaGuru – valintakoe G ja oikeustieteen valmennuskurssit",
     description:
       "Valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon. Teoria, harjoitukset ja opiskelun seuranta yhdessä palvelussa.",
     images: [
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
+        alt: "ValintaGuru – valintakoe G ja oikeustieteen valmennuskurssit",
       },
     ],
   },
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title:
-      "ValintaGuru – Valintakoe G ja oikeustieteen valmennuskurssit",
+      "ValintaGuru – valintakoe G ja oikeustieteen valmennuskurssit",
     description:
       "Valmennuskurssit valintakoe G:hen ja oikeustieteen eriytyvään osioon.",
     images: ["/og-image.png"],

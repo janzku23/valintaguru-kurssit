@@ -1,10 +1,11 @@
 import AdminUsersTable from "@/components/admin/AdminUsersTable";
 import { getAdminUsersOverview } from "@/lib/adminData";
+import { isAdminEmail } from "@/lib/adminIdentity";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminProgressPage() {
-  const users = (await getAdminUsersOverview()).filter((user) => user.email !== "admin@valintaguru.fi");
+  const users = (await getAdminUsersOverview()).filter((user) => !isAdminEmail(user.email));
   const total = users.reduce((sum, user) => sum + user.attempts, 0);
   const correct = users.reduce((sum, user) => sum + user.correct, 0);
 

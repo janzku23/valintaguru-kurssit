@@ -486,17 +486,20 @@ function CachedAudioPlayer({
       null
     );
 
-  const [sourceUrl, setSourceUrl] =
-    useState(track.url);
+  const [cachedSource, setCachedSource] = useState<{
+    trackId: string;
+    sourceUrl: string;
+    objectUrl: string;
+  } | null>(null);
+  const sourceUrl =
+    cachedSource?.trackId === track.id && cachedSource.sourceUrl === track.url
+      ? cachedSource.objectUrl
+      : track.url;
 
   useEffect(() => {
     let cancelled = false;
     let objectUrl: string | null =
       null;
-
-    setSourceUrl(
-      track.url
-    );
 
     void (async () => {
       const cachedBlob =
@@ -533,9 +536,7 @@ function CachedAudioPlayer({
           cachedBlob
         );
 
-      setSourceUrl(
-        objectUrl
-      );
+      setCachedSource({ trackId: track.id, sourceUrl: track.url, objectUrl });
     })();
 
     return () => {

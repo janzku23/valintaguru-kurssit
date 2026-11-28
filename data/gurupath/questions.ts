@@ -24,9 +24,9 @@ import type {
  *
  * Kategoriat saavat olla täysin sekaisin yhdistetyllä polulla.
  *
- * Valinnainen Valintakoe G -kysymystyyppi (1–20):
+ * Valinnainen Valintakoe G -kysymystyyppi (1–14):
  * id: "oma-kysymys-id",
- * valintakoeGCategoryId: 3, // 3 = Tiivistävä parafraasi
+ * valintakoeGCategoryId: 3, // 3 = Merkityksen tai kehityssuunnan kääntäminen
  *
  * Ilman valintakoeGCategoryId:tä kategoriatekstiä ei näytetä.
  */
@@ -895,7 +895,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Komitea pyrki keskittämään kaiken päätöksenteon valtion ylimmälle tasolle." },
     ],
     correctAnswerIds: ["b"],
-    explanation: "Komitea tavoitteli tehokkuutta automatisoinnilla ja hajauttamisella. Hallinnollisesta yhdenmukaisuudesta ei kuitenkaan luovuttu.\n\nTehtäväkategoria: 1 – Suoran tiedon paikantaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus muodostuu aineistossa suoraan mainituista komitean tavoitteista.",
+    explanation: "Komitea tavoitteli tehokkuutta automatisoinnilla ja hajauttamisella. Hallinnollisesta yhdenmukaisuudesta ei kuitenkaan luovuttu.\n\nTehtäväkategoria: 1 – Suora tiedon paikantaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus muodostuu aineistossa suoraan mainituista komitean tavoitteista.",
     points: 2,
     reading: {
       seconds: 120,
@@ -987,7 +987,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Digitaalinen hallinto tekee hallinnollisista vastuusuhteista aina aikaisempaa selkeämpiä." },
     ],
     correctAnswerIds: ["a"],
-    explanation: "Aineiston mukaan teknologian hyödyntäminen ja algoritminen hallinta voivat vaikeuttaa hallinnollisten vastuusuhteiden ja valvontamekanismien tunnistamista. Aurora AI-kokeilu toi esiin näitä haasteita.\n\nTehtäväkategoria: 8  – Absolutisointi.\nMiksi tehtävä kuuluu tähän kategoriaan: Väärissä vaihtoehdoissa rajallinen havainto muutetaan poikkeuksettomaksi tai ehdottomaksi väitteeksi.",
+    explanation: "Aineiston mukaan teknologian hyödyntäminen ja algoritminen hallinta voivat vaikeuttaa hallinnollisten vastuusuhteiden ja valvontamekanismien tunnistamista. Aurora AI-kokeilu toi esiin näitä haasteita.\n\nTehtäväkategoria: 8 – Absolutisointi.\nMiksi tehtävä kuuluu tähän kategoriaan: Väärissä vaihtoehdoissa rajallinen havainto muutetaan poikkeuksettomaksi tai ehdottomaksi väitteeksi.",
     points: 2,
     reading: {
       seconds: 120,
@@ -1148,7 +1148,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Koska haastateltavat selittivät perheiden ongelmat ensisijaisesti yhteiskuntaluokalla ja taloudellisella eriarvoisuudella." },
     ],
     correctAnswerIds: ["c"],
-    explanation: "Huono-osaisuutta kuvattiin usein perheiden ominaisuuksien ja toiminnan kautta, jolloin taloudellisten resurssien ja yhteiskuntaluokan vaikutukset jäivät vähemmälle huomiolle.\n\nTehtäväkategoria: 2 – Parafraasin tunnistaminen..\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus ilmaisee aineistossa kuvatun tutkijoiden kritiikin eri sanoin säilyttäen sen alkuperäisen merkityksen.",
+    explanation: "Huono-osaisuutta kuvattiin usein perheiden ominaisuuksien ja toiminnan kautta, jolloin taloudellisten resurssien ja yhteiskuntaluokan vaikutukset jäivät vähemmälle huomiolle.\n\nTehtäväkategoria: 2 – Parafraasin tunnistaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus ilmaisee aineistossa kuvatun tutkijoiden kritiikin eri sanoin säilyttäen sen alkuperäisen merkityksen.",
     points: 2,
     reading: {
       seconds: 120,
@@ -1194,7 +1194,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Teoria korvaa yhteiskunnallisten rakenteiden tutkimuksen yksilöllisten arvojen tutkimuksella, koska moraalisten perustelujen oletetaan heijastavan pysyviä arvomaailmoja." },
     ],
     correctAnswerIds: ["c"],
-    explanation: "Oikeuttamisteoria korostaa toimijoiden kriittistä kykyä yleisenä mutta epätasaisesti jakautuvana ominaisuutena. Tutkimus kohdistuu tämän kyvyn käyttämiseen kiistatilanteissa.\n\nTehtäväkategoria: 12 –Varmuusasteen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Vaihtoehdoissa muutetaan sitä, kuinka varmana tai ehdottomana kriittisen kyvyn yleisyys ja jakautuminen esitetään.",
+    explanation: "Oikeuttamisteoria korostaa toimijoiden kriittistä kykyä yleisenä mutta epätasaisesti jakautuvana ominaisuutena. Tutkimus kohdistuu tämän kyvyn käyttämiseen kiistatilanteissa.\n\nTehtäväkategoria: 12 – Varmuusasteen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Vaihtoehdoissa muutetaan sitä, kuinka varmana tai ehdottomana kriittisen kyvyn yleisyys ja jakautuminen esitetään.",
     points: 2,
     reading: {
       seconds: 120,
@@ -1217,7 +1217,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Perustelu kuuluu inspiraation ja teollisuuden maailmoihin, sillä tutkimuksen uutuusarvo ja julkaisujen määrä ovat saman arvottamisperiaatteen kaksi ulottuvuutta." },
     ],
     correctAnswerIds: ["a"],
-    explanation: "Omaperäisyys liittyy inspiraation maailmaan ja kansainvälinen tunnustus maineen maailmaan. Argumentin painopiste on tutkimuksen luovuudessa.\n\nTehtäväkategoria: 5 – Oikea tieto väärässä kategoriassa..\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävässä oikeuttamisen maailmoihin kuuluvat perustelut on sijoitettava oikeisiin luokkiin.",
+    explanation: "Omaperäisyys liittyy inspiraation maailmaan ja kansainvälinen tunnustus maineen maailmaan. Argumentin painopiste on tutkimuksen luovuudessa.\n\nTehtäväkategoria: 5 – Oikea tieto väärässä kategoriassa.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävässä oikeuttamisen maailmoihin kuuluvat perustelut on sijoitettava oikeisiin luokkiin.",
     points: 2,
     reading: {
       seconds: 120,
@@ -1240,7 +1240,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Mittaukset voivat ratkaista tehokkuutta koskevan erimielisyyden, mutta ekologiseen arvoon vetoava vastustus perustuu eri oikeuttamisen maailmaan." },
     ],
     correctAnswerIds: ["d"],
-    explanation: "Mittaukset voivat ratkaista yhteiseen tehokkuuskriteeriin liittyvän kiistan, mutta eivät sellaisenaan kumoa ekologiseen arvoon perustuvaa vastustusta.\n\nTehtäväkategoria: 13 – Syy-, seuraus- tai ehtosuhteen muuttaminen..\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus tunnistaa, millä ehdoilla yhteinen mittapuu voi ratkaista kiistan ja milloin eri arvottamisperuste säilyttää erimielisyyden.",
+    explanation: "Mittaukset voivat ratkaista yhteiseen tehokkuuskriteeriin liittyvän kiistan, mutta eivät sellaisenaan kumoa ekologiseen arvoon perustuvaa vastustusta.\n\nTehtäväkategoria: 13 – Syy-, seuraus- tai ehtosuhteen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus tunnistaa, millä ehdoilla yhteinen mittapuu voi ratkaista kiistan ja milloin eri arvottamisperuste säilyttää erimielisyyden.",
     points: 2,
     reading: {
       seconds: 120,
@@ -1493,7 +1493,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Työmarkkina-aseman, sääntelyn ja kulttuuristen merkitysten suhteita tulee tarkastella historiallisesti muodostuneena kokonaisuutena ilman, että yksi taso oletetaan automaattisesti muiden selitykseksi." },
     ],
     correctAnswerIds: ["d"],
-    explanation: "Hallin artikulaatioteoriassa eri yhteiskunnalliset tasot kytkeytyvät toisiinsa, mutta niiden suhteita ei voida palauttaa yksiselitteisesti yhteen tekijään.\n\nTehtäväkategoria: 13 – Syy-, seuraus tai ehtosuhteen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävässä arvioidaan taloudellisten, poliittisten ja kulttuuristen tekijöiden keskinäisiä suhteita ilman, että yksi taso oletetaan automaattisesti muiden syyksi tai seuraukseksi.",
+    explanation: "Hallin artikulaatioteoriassa eri yhteiskunnalliset tasot kytkeytyvät toisiinsa, mutta niiden suhteita ei voida palauttaa yksiselitteisesti yhteen tekijään.\n\nTehtäväkategoria: 13 – Syy-, seuraus- tai ehtosuhteen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävässä arvioidaan taloudellisten, poliittisten ja kulttuuristen tekijöiden keskinäisiä suhteita ilman, että yksi taso oletetaan automaattisesti muiden syyksi tai seuraukseksi.",
     points: 2,
     reading: {
       seconds: 120,
@@ -1631,7 +1631,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Tutkimuksen tulisi perustua ensisijaisesti Hallin artikulaatioteoriaan, koska historiallisesti erityisten suhteiden analyysi tekee Robinsonin ja feministisen tutkimuksen näkökulmat tarpeettomiksi." },
     ],
     correctAnswerIds: ["a"],
-    explanation: "Artikkelin kirjoittajat kannattavat eri tutkimustraditioiden harkittua yhdistämistä. Historiallisen erityisyyden, rodullistavien hierarkioiden ja sosiaalisen uusintamisen tarkastelu voi täydentää toisiaan, kun käsitteelliset erot huomioidaan.\n\nTehtäväkategoria: 4 – Relaation suunnan vaihtaminen..\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus edellyttää kolmen teoreettisen lähestymistavan suhteuttamista samaan tutkimuskysymykseen niiden lähtökohtia sekoittamatta.",
+    explanation: "Artikkelin kirjoittajat kannattavat eri tutkimustraditioiden harkittua yhdistämistä. Historiallisen erityisyyden, rodullistavien hierarkioiden ja sosiaalisen uusintamisen tarkastelu voi täydentää toisiaan, kun käsitteelliset erot huomioidaan.\n\nTehtäväkategoria: 4 – Relaation suunnan vaihtaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus edellyttää kolmen teoreettisen lähestymistavan suhteuttamista samaan tutkimuskysymykseen niiden lähtökohtia sekoittamatta.",
     points: 2,
     reading: {
       seconds: 120,
@@ -1700,7 +1700,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Suomen tavoitteiden ja EU-politiikan yhteneväisyys osoittaa kansallista projisointia riippumatta siitä, oliko Suomi osallistunut tavoitteiden aktiiviseen edistämiseen." },
     ],
     correctAnswerIds: ["a"],
-    explanation: "Kollektiivinen vaikuttaminen voi edistää Suomen tavoitteita, mutta tavoitteiden toteutuminen ei sellaisenaan osoita Suomen itsenäisen vaikutuksen suuruutta.\n\nTehtäväkategoria: 7 – Kohteen, toimija tai lähteen vaihtaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävässä on erotettava tavoitteen toteutuminen siitä, kuka tai ketkä ovat vaikuttaneet lopputuloksen syntymiseen.",
+    explanation: "Kollektiivinen vaikuttaminen voi edistää Suomen tavoitteita, mutta tavoitteiden toteutuminen ei sellaisenaan osoita Suomen itsenäisen vaikutuksen suuruutta.\n\nTehtäväkategoria: 7 – Kohteen, toimijan tai lähteen vaihtaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävässä on erotettava tavoitteen toteutuminen siitä, kuka tai ketkä ovat vaikuttaneet lopputuloksen syntymiseen.",
     points: 2,
     reading: {
       seconds: 120,
@@ -1769,7 +1769,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Somalian vähäinen merkitys muille EU-maille osoittaa, ettei Suomi voisi edistää palautusyhteistyötä edes kahdenvälisillä toimilla." },
     ],
     correctAnswerIds: ["a"],
-    explanation: "Päätös osoittaa muuttoliike- ja ulkopolitiikan kytkemistä, mutta Heinikoski epäilee sen myönteistä vaikutusta takaisinottoyhteistyöhön.\n\nTehtäväkategoria: 13 – Syy-, seuraus tai ehtosuhteen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävässä on erotettava politiikkatoimen tarkoitus sen tosiasiallisista vaikutuksista ja arvioitava, mitä vaikutuksia aineisto todella perustelee.",
+    explanation: "Päätös osoittaa muuttoliike- ja ulkopolitiikan kytkemistä, mutta Heinikoski epäilee sen myönteistä vaikutusta takaisinottoyhteistyöhön.\n\nTehtäväkategoria: 13 – Syy-, seuraus- tai ehtosuhteen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävässä on erotettava politiikkatoimen tarkoitus sen tosiasiallisista vaikutuksista ja arvioitava, mitä vaikutuksia aineisto todella perustelee.",
     points: 2,
     reading: {
       seconds: 120,
@@ -1838,7 +1838,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Tutkimus, jossa verrataan Suomen tavoitteita EU:n hyväksymiin ratkaisuihin eri ajankohtina ja oletetaan kansallisen vaikutusvallan kasvaneen aina, kun yhteneväisyys lisääntyy." },
     ],
     correctAnswerIds: ["a"],
-    explanation: "Eri tilanteiden vertailu ja muiden toimijoiden näkökulmat auttaisivat arvioimaan Suomen oman toiminnan merkitystä suhteessa laajempaan poliittiseen kehitykseen.\n\nTehtäväkategoria: 13 – Syy. - seuraus tai ehtosuhteen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus edellyttää tutkimusasetelmaa, jolla voidaan arvioida, johtuuko tavoitteiden toteutuminen Suomen omasta vaikuttamisesta vai muista poliittisista tekijöistä.",
+    explanation: "Eri tilanteiden vertailu ja muiden toimijoiden näkökulmat auttaisivat arvioimaan Suomen oman toiminnan merkitystä suhteessa laajempaan poliittiseen kehitykseen.\n\nTehtäväkategoria: 13 – Syy-, seuraus- tai ehtosuhteen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus edellyttää tutkimusasetelmaa, jolla voidaan arvioida, johtuuko tavoitteiden toteutuminen Suomen omasta vaikuttamisesta vai muista poliittisista tekijöistä.",
     points: 2,
     reading: {
       seconds: 120,
@@ -1907,7 +1907,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Henkilö esittää kokemukselleen tiedollista merkitystä ja hakee sille tukea tutkimuksesta, vaikka kokemukseen perustuva väite voi jäädä asiantuntijoiden torjumaksi." },
     ],
     correctAnswerIds: ["d"],
-    explanation: "Kokemuksen esittäminen tiedollisesti merkityksellisenä ja tutkimukseen vetoaminen voivat kuulua samaan argumenttiin. Kokemuksen tunnustaminen on erillinen kysymys.\n\nTehtäväkategoria: 5 – Oikea tieto väärässä paikassa.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävä edellyttää kokemuksen, kokemustiedon ja institutionaalisesti tunnustetun tiedon roolien erottamista (oikea tieto väärässä luokassa).",
+    explanation: "Kokemuksen esittäminen tiedollisesti merkityksellisenä ja tutkimukseen vetoaminen voivat kuulua samaan argumenttiin. Kokemuksen tunnustaminen on erillinen kysymys.\n\nTehtäväkategoria: 5 – Oikea tieto väärässä kategoriassa.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävä edellyttää kokemuksen, kokemustiedon ja institutionaalisesti tunnustetun tiedon roolien erottamista (oikea tieto väärässä luokassa).",
     points: 2,
     reading: {
       seconds: 120,
@@ -2390,7 +2390,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Toinen vuosi edustaa absoluuttista irtikytkentää ja osoittaa siten, että teknologisiin innovaatioihin perustuva kestävyyssiirtymä on riittävä vaihtoehto kestävyysmurrokselle." },
     ],
     correctAnswerIds: ["b"],
-    explanation: "Ensimmäisenä vuonna kuormitus kasvaa taloutta hitaammin, toisena kuormitus vähenee talouden kasvaessa. Absoluuttinen irtikytkentä ei kuitenkaan vielä osoita, että kuormituksen taso olisi ekologisesti kestävä.\n\nTehtäväkategoria: 11– Loogisen merkityksen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävä edellyttää kahden irtikytkennän muodon soveltamista sekä niiden erottamista ekologisen kestävyyden saavuttamisesta.",
+    explanation: "Ensimmäisenä vuonna kuormitus kasvaa taloutta hitaammin, toisena kuormitus vähenee talouden kasvaessa. Absoluuttinen irtikytkentä ei kuitenkaan vielä osoita, että kuormituksen taso olisi ekologisesti kestävä.\n\nTehtäväkategoria: 11 – Loogisen merkityksen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Tehtävä edellyttää kahden irtikytkennän muodon soveltamista sekä niiden erottamista ekologisen kestävyyden saavuttamisesta.",
     points: 2,
     reading: {
       seconds: 120,
@@ -2574,7 +2574,7 @@ export const guruGameQuestions: GuruGameQuestion[] = [
       { id: "d", text: "Ihmisoikeuskasvatuksen ongelmat johtuvat ensisijaisesti siitä, että opettajat suhtautuvat kriittisesti kansainvälisten ihmisoikeussopimusten velvoittavuuteen." },
     ],
     correctAnswerIds: ["c"],
-    explanation: "Tietämättömyyden kulttuuri ilmenee juuri siinä, että ihmisoikeuksien merkitystä pidetään itsestään selvänä ilman riittävää tietoperustaa.\n\nTehtäväkategoria: 11– Loogisen merkityksen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus edellyttää virallisen arvostuksen, oikeudellisen aseman ja käytännön osaamisen välisen ristiriidan tunnistamista.",
+    explanation: "Tietämättömyyden kulttuuri ilmenee juuri siinä, että ihmisoikeuksien merkitystä pidetään itsestään selvänä ilman riittävää tietoperustaa.\n\nTehtäväkategoria: 11 – Loogisen merkityksen muuttaminen.\nMiksi tehtävä kuuluu tähän kategoriaan: Oikea vastaus edellyttää virallisen arvostuksen, oikeudellisen aseman ja käytännön osaamisen välisen ristiriidan tunnistamista.",
     points: 2,
     reading: {
       seconds: 120,

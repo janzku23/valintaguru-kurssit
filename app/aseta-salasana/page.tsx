@@ -228,11 +228,8 @@ export default function AsetaSalasanaPage() {
             setMode("setPassword");
           }
 
-          if (
-            event === "SIGNED_OUT" &&
-            mode !== "checking"
-          ) {
-            setMode("requestLink");
+          if (event === "SIGNED_OUT") {
+            setMode((currentMode) => currentMode === "checking" ? currentMode : "requestLink");
           }
         }
       );

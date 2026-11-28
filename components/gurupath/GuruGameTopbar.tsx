@@ -1,17 +1,22 @@
 "use client";
 
+import Link from "next/link";
+import Image from "next/image";
+
 export default function GuruGameTopbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-        <a
+        <Link
           href="/"
           className="flex min-w-0 items-center gap-3"
           aria-label="ValintaGuru etusivulle"
         >
-          <img
+          <Image
             src="/logo.png"
             alt=""
+            width={36}
+            height={36}
             className="h-9 w-9 shrink-0 object-contain"
           />
 
@@ -24,22 +29,22 @@ export default function GuruGameTopbar() {
               GuruPeli
             </div>
           </div>
-        </a>
+        </Link>
 
         <nav className="flex items-center gap-1 sm:gap-2">
-          <a
+          <Link
             href="/gurupath"
             className="rounded-full px-3 py-2 text-sm font-black text-slate-600 transition hover:bg-slate-100 hover:text-violet-700 sm:px-4"
           >
             Pelit
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/gurupath/ranking"
             className="rounded-full bg-slate-950 px-3 py-2 text-sm font-black text-white transition hover:bg-violet-700 sm:px-4"
           >
             Ranking
-          </a>
+          </Link>
         </nav>
       </div>
     </header>

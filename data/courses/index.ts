@@ -30,6 +30,10 @@ export const purchasableCourses:
     )
 );
 
+export function getCourseTitleInSentence(course: Course): string {
+  return course.title.replace(/^Valintakoe G\b/, "valintakoe G");
+}
+
 export function isCourseId(
   value: string
 ): value is import("./types").CourseId {

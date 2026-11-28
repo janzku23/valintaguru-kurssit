@@ -52,7 +52,7 @@ export const yoCourse = {
       description:
         "YO-kokeiden oma pelillinen kurssipolku.",
       href:
-        "/gurupath/yo",
+        "/gurupath",
     },
   ],
 } satisfies Course;

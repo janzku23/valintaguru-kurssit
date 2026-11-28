@@ -12,9 +12,13 @@
     "test:shop:sql": "node --test scripts/test-shop-sql.cjs",
     "test:admin": "node --test scripts/test-admin-dashboard.cjs",
     "test:blog": "node --test scripts/test-blog.cjs",
-    "test": "npm run test:shop && npm run test:shop:sql && npm run test:admin && npm run test:progress && npm run test:blog",
+    "test:announcements": "node --test scripts/test-announcements.cjs",
+    "test": "node --test --test-concurrency=4 scripts/test-*.cjs",
+    "test:regressions": "node --test scripts/test-auth-regressions.cjs scripts/test-shop-regressions.cjs scripts/test-practice-regressions.cjs scripts/test-ui-regressions.cjs",
     "check:shop": "node scripts/check-shop-environment.cjs",
-    "test:progress": "node --test scripts/test-progress.cjs"
+    "test:progress": "node --test scripts/test-progress.cjs",
+    "test:reading-categories": "node --test scripts/test-reading-categories.cjs",
+    "test:gurupath-timer": "node --test scripts/test-gurupath-timer.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

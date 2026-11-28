@@ -1,11 +1,12 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 import AdminUserPanel from "@/components/AdminUserPanel";
+import { useAdminAccess } from "@/lib/useAdminAccess";
 
 const feedbackEmail = "info@valintaguru.fi";
 
@@ -87,6 +88,7 @@ type Stats = {
 };
 
 export default function ProfilePage() {
+  const isAdmin = useAdminAccess();
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
@@ -351,7 +353,7 @@ export default function ProfilePage() {
     return course.course_id ?? course.course_slug ?? course.id ?? "";
   }
 
-  function getCourseTitleById(courseId: string) {
+  const getCourseTitleById = useCallback((courseId: string) => {
     const match = courses.find((course) => {
       return course.course_id === courseId || course.course_slug === courseId;
     });
@@ -363,7 +365,7 @@ export default function ProfilePage() {
       match?.course_id ??
       courseId
     );
-  }
+  }, [courses]);
 
   const stats: Stats = useMemo(() => {
     const correctAnswers = quizAttempts.filter((item) => item.is_correct).length;
@@ -501,7 +503,7 @@ export default function ProfilePage() {
         latestAt,
       };
     });
-  }, [courses, quizAttempts, flashcardProgress]);
+  }, [courses, quizAttempts, flashcardProgress, getCourseTitleById]);
 
   const latestActivity = useMemo(() => {
     const quizItems = quizAttempts.map((item) => ({
@@ -529,7 +531,7 @@ export default function ProfilePage() {
     return [...quizItems, ...flashcardItems]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 10);
-  }, [quizAttempts, flashcardProgress, courses]);
+  }, [quizAttempts, flashcardProgress, getCourseTitleById]);
 
   const displayName =
     profile?.full_name ||
@@ -537,9 +539,6 @@ export default function ProfilePage() {
     user?.user_metadata?.full_name ||
     user?.email ||
     "Opiskelija";
-
-    const isAdmin =
-  user?.email?.trim().toLowerCase() === "admin@valintaguru.fi";
 
   const joinedDate = user?.created_at
     ? new Date(user.created_at).toLocaleDateString("fi-FI")

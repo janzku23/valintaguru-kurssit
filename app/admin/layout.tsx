@@ -1,8 +1,10 @@
 import BrandLogo from "@/components/BrandLogo";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { requireAdminPage } from "@/lib/adminAccess";
 
 const nav = [
+  { href: "/admin/tiedotteet", label: "Tiedotteet", icon: "▤" },
   { href: "/admin/blogi", label: "Blogi", icon: "✎" },
   { href: "/admin/kauppa", label: "Verkkokauppa", icon: "€" },
   { href: "/admin", label: "Yleiskuva", icon: "⌂" },
@@ -22,13 +24,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <div className="mx-auto flex min-h-screen max-w-[1600px]">
         <aside className="hidden w-72 shrink-0 border-r border-slate-200 bg-slate-950 text-white lg:flex lg:flex-col">
           <div className="border-b border-white/10 px-6 py-7">
-            <a href="/" className="inline-flex shrink-0 items-center gap-2.5 text-xl font-black tracking-tight"><BrandLogo /><span>ValintaGuru</span></a>
+            <Link href="/" className="inline-flex shrink-0 items-center gap-2.5 text-xl font-black tracking-tight"><BrandLogo /><span>ValintaGuru</span></Link>
             <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-white/50">Admin Center</p>
           </div>
 
           <nav className="flex-1 space-y-1 p-4">
             {nav.map((item) => (
-              <a
+              <Link
                 key={item.href}
                 href={item.href}
                 className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-white/75 transition hover:bg-white/10 hover:text-white"
@@ -37,27 +39,27 @@ export default async function AdminLayout({ children }: { children: ReactNode })
                   {item.icon}
                 </span>
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
           <div className="border-t border-white/10 p-5">
             <p className="truncate text-sm font-bold">{user.email}</p>
-            <a href="/" className="mt-3 inline-flex text-sm font-bold text-indigo-300 hover:text-indigo-200">← Takaisin sivustolle</a>
+            <Link href="/" className="mt-3 inline-flex text-sm font-bold text-indigo-300 hover:text-indigo-200">← Takaisin sivustolle</Link>
           </div>
         </aside>
 
         <div className="min-w-0 flex-1">
           <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur lg:hidden">
             <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-              <a href="/admin" className="inline-flex shrink-0 items-center gap-2.5 font-black"><BrandLogo /><span>ValintaGuru Admin</span></a>
-              <a href="/" className="rounded-full border border-slate-200 px-3 py-2 text-xs font-black">Sivustolle</a>
+              <Link href="/admin" className="inline-flex shrink-0 items-center gap-2.5 font-black"><BrandLogo /><span>ValintaGuru Admin</span></Link>
+              <Link href="/" className="rounded-full border border-slate-200 px-3 py-2 text-xs font-black">Sivustolle</Link>
             </div>
             <div className="flex gap-2 overflow-x-auto border-t border-slate-100 px-3 py-2">
               {nav.map((item) => (
-                <a key={item.href} href={item.href} className="whitespace-nowrap rounded-full bg-slate-100 px-3 py-2 text-xs font-bold">
+                <Link key={item.href} href={item.href} className="whitespace-nowrap rounded-full bg-slate-100 px-3 py-2 text-xs font-bold">
                   {item.label}
-                </a>
+                </Link>
               ))}
             </div>
           </header>

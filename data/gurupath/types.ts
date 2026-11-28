@@ -1,4 +1,7 @@
 import type { CourseId } from "@/data/courses";
+import type { ValintakoeGCategoryId } from "@/data/valintakoeGExercises/categories";
+
+export type { ValintakoeGCategoryId } from "@/data/valintakoeGExercises/categories";
 
 export type GuruGameId = "oikis" | "valintakoe-g";
 export type GuruGameViewId = GuruGameId | "combined";
@@ -6,9 +9,6 @@ export type GuruPathNodeType = "challenge" | "vault";
 export type GuruQuestionCategory = "oikis" | "shared" | "valintakoe-g";
 export type GuruGameQuestionType = "multiple-choice" | "true-false" | "reading-comprehension";
 export type GuruGameAnswerMode = "multiple-choice" | "true-false" | "statement";
-
-/** Valintakoe G -harjoitusten 20 kysymyskategoriaa. */
-export type ValintakoeGCategoryId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
 
 export type GuruGameAnswer = {
   id: string;
@@ -25,7 +25,7 @@ export type GuruGameQuestion = {
   correctAnswerIds: string[];
   explanation: string;
   points?: number;
-  /** Valinnainen luetun ymmärtämisen kysymystyyppi (1–20). Näytetään vasta vastauksen jälkeen. */
+  /** Valinnainen luetun ymmärtämisen kysymystyyppi (1–14). Näytetään vasta vastauksen jälkeen. */
   valintakoeGCategoryId?: ValintakoeGCategoryId;
 
   /**

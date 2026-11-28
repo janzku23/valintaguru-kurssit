@@ -6,140 +6,111 @@ export type ValintakoeGReadingCategory = {
 };
 
 /**
- * Kategorioiden nimet tulevat kollegan speksistä sellaisinaan.
- * description/studentTip ovat käyttöliittymän tekniset oletustekstit,
- * koska lähdedokumentti ei anna kaikille 20 kategorialle valmista kuvaus- ja vinkkitekstiä.
- * Niitä voi myöhemmin muokata ilman että categoryId:t muuttuvat.
+ * Valintakoe G:n sovitut 14 luetun ymmärtämisen tehtäväkategoriaa.
+ * Kategorian id on pysyvä tunniste; päivitä myös muualla käytetyt vanhat categoryId:t.
  */
-export const VALINTAKOE_G_READING_CATEGORIES: ValintakoeGReadingCategory[] = [
+export const VALINTAKOE_G_READING_CATEGORIES = [
   {
     id: 1,
     name: "Suora tiedon paikantaminen",
-    description: "Tehtävä mittaa kykyä löytää aineistosta yksittäinen täsmällinen tieto ja yhdistää se kysyttyyn asiaan.",
-    studentTip: "Poimi kysymyksestä avainsanat ja varmista vastaus niiden ympärillä olevasta tekstikohdasta.",
+    description: "Tehtävässä etsitään aineistosta yksittäinen, täsmällisesti ilmaistu tieto.",
+    studentTip: "Poimi kysymyksen avainsanat ja varmista vastaus suoraan aineiston oikeasta kohdasta.",
   },
   {
     id: 2,
-    name: "Synonyymiparafraasi",
-    description: "Tehtävä mittaa kykyä tunnistaa sama merkitys silloin, kun asia ilmaistaan eri sanoin.",
-    studentTip: "Älä etsi vain samoja sanoja. Vertaa vaihtoehdon merkitystä aineiston merkitykseen.",
+    name: "Parafraasin tunnistaminen",
+    description: "Tehtävässä tunnistetaan aineiston kanssa samaa tarkoittava ilmaus, vaikka sanavalinnat tai tiivistystapa muuttuvat.",
+    studentTip: "Vertaa merkityksiä, älä pelkkiä sanoja. Tarkista, että väitteen rajaukset säilyvät.",
   },
   {
     id: 3,
-    name: "Tiivistävä parafraasi",
-    description: "Tehtävä mittaa kykyä tunnistaa pidemmän tekstikohdan oikein tiivistetty pääajatus.",
-    studentTip: "Tarkista, säilyvätkö tiivistelmässä tekstin keskeinen väite, rajaus ja suhteet.",
+    name: "Merkityksen tai kehityssuunnan kääntäminen",
+    description: "Tehtävässä väitteen merkitys, vastakkaisuus tai aineistossa kuvattu muutoksen suunta on käännetty.",
+    studentTip: "Tarkista erityisesti kiellot sekä se, lisääntyykö vai väheneekö jokin ja mihin suuntaan muutos tapahtuu.",
   },
   {
     id: 4,
-    name: "Yhden ratkaisevan sanan vaihtaminen",
-    description: "Tehtävässä muuten oikeaan väitteeseen on voitu vaihtaa yksi merkityksen ratkaisevasti muuttava sana tai käsite.",
-    studentTip: "Kun väite näyttää lähes sanatarkasti oikealta, tarkista nimet, käsitteet ja rajaavat sanat erityisen tarkasti.",
+    name: "Relaation suunnan vaihtaminen",
+    description: "Tehtävässä kahden asian välinen suhde esitetään päinvastaisena kuin aineistossa.",
+    studentTip: "Tarkista, kumpi asia liittyy kumpaan ja mikä vaikuttaa mihin; käsitteiden esiintyminen ei yksin riitä.",
   },
   {
     id: 5,
-    name: "Vastakohdaksi muuttaminen",
-    description: "Tehtävä mittaa kykyä huomata, jos aineiston merkitys on käännetty vastakkaiseksi.",
-    studentTip: "Kiinnitä huomiota kieltoihin ja sanoihin, jotka muuttavat väitteen suunnan päinvastaiseksi.",
+    name: "Oikea tieto väärässä kategoriassa",
+    description: "Aineistossa oikea tieto liitetään väärään ryhmään, käsitteeseen tai ilmiöön.",
+    studentTip: "Varmista tiedon lisäksi, mihin ryhmään tai käsitteeseen se aineistossa kuuluu.",
   },
   {
     id: 6,
-    name: "Relaation suunnan vaihtaminen",
-    description: "Tehtävissä pitää tunnistaa oikein kahden asian välinen suhde ja huomata, jos suhde on käännetty.",
-    studentTip: "Älä tarkista vain sitä, esiintyvätkö molemmat käsitteet tekstissä. Tarkista myös, kumpi vaikuttaa kumpaan tai mikä muuttuu miksi.",
+    name: "Ajankohdan muuttaminen",
+    description: "Aineiston tapahtuma, havainto tai tieto sijoitetaan väärään ajankohtaan tai vaiheeseen.",
+    studentTip: "Etsi aikamääreet ja tarkista, tapahtuiko asia ennen vai jälkeen mainitun vaiheen.",
   },
   {
     id: 7,
-    name: "Järjestyksen vaihtaminen merkityksen säilyessä",
-    description: "Tehtävä mittaa kykyä seurata, missä järjestyksessä aineiston asiat esitetään tai tapahtuvat.",
-    studentTip: "Tarkista järjestys vaihe vaiheelta, vaikka vaihtoehdossa käytettäisiin samoja tuttuja käsitteitä.",
+    name: "Kohteen, toimijan tai lähteen vaihtaminen",
+    description: "Väitteessä vaihdetaan se, ketä tieto koskee, kuka toimii tai kuka esittää näkemyksen.",
+    studentTip: "Tarkista erikseen väitteen kohde, toimija ja lähde; älä sekoita tutkijan tulkintaa lainattuun näkemykseen.",
   },
   {
     id: 8,
-    name: "Oikea tieto väärässä kategoriassa",
-    description: "Tehtävässä aineistosta löytyvä oikea tieto on saatettu yhdistää väärään käsitteeseen, ryhmään tai ilmiöön.",
-    studentTip: "Tarkista luvun tai ominaisuuden lisäksi aina, mihin käsitteeseen tai ryhmään se aineistossa kuuluu.",
+    name: "Absolutisointi",
+    description: "Aineiston rajallinen tai ehdollinen väite muutetaan liian ehdottomaksi.",
+    studentTip: "Varo sanoja aina, kaikki, vain, täysin ja ei koskaan. Tarkista, onko aineiston ilmaus lievempi.",
   },
   {
     id: 9,
-    name: "Oikea tieto väärässä ajankohdassa",
-    description: "Tehtävä mittaa kykyä sijoittaa aineistossa mainittu tieto oikeaan vaiheeseen tai ajankohtaan.",
-    studentTip: "Tarkista tapahtuiko asia ennen vai jälkeen kysymyksessä mainitun tapahtuman.",
+    name: "Numeron tai määrän muuttaminen",
+    description: "Aineistossa esitetty numero, lukumäärä tai määrää rajaava ilmaus muutetaan.",
+    studentTip: "Tarkista sekä luku että ilmaukset noin, yli, alle ja vähintään.",
   },
   {
     id: 10,
-    name: "Kehityssuunnan kääntäminen",
-    description: "Tehtävä mittaa kykyä tunnistaa muutoksen tai kehityksen oikea suunta.",
-    studentTip: "Kysy itseltäsi: mikä lisääntyy, vähenee, vie tilaa tai muuttuu — ja mihin suuntaan.",
+    name: "Suuruussuhteen muuttaminen",
+    description: "Aineistossa esitettyjen määrien, osuuksien tai ryhmien keskinäinen suuruusjärjestys muuttuu.",
+    studentTip: "Vertaile, mikä on suurempi, pienempi tai yleisempi ja kuinka suuri ero todella on.",
   },
   {
     id: 11,
-    name: "Kohdejoukon muuttaminen",
-    description: "Tehtävä mittaa kykyä huomata, jos aineistossa rajattu kohdejoukko on kysymyksessä laajennettu tai kavennettu.",
-    studentTip: "Tarkista aina, keitä väite koskee: kaikkia, osaa, tiettyä ryhmää vai poikkeusta.",
+    name: "Loogisen merkityksen muuttaminen",
+    description: "Väitteessä muutetaan aineiston loogista sisältöä esimerkiksi sekoittamalla ryhmän ulkopuolelle jääminen vastakkaiseen ääripäähän.",
+    studentTip: "Älä tee päätelmää, jota aineisto ei oikeuta: esimerkiksi 'ei vahvasti samaa mieltä' ei tarkoita 'täysin eri mieltä'.",
   },
   {
     id: 12,
-    name: "Absolutisointi",
-    description: "Tehtävä mittaa kykyä huomata liian ehdottomaksi muutettu väite.",
-    studentTip: "Kiinnitä huomiota sanoihin kuten aina, kaikki, vain, täysin, yksinomaan ja ei koskaan.",
+    name: "Varmuusasteen muuttaminen",
+    description: "Mahdollinen, todennäköinen tai ehdollinen väite esitetään aineistoa varmempana tai epävarmempana.",
+    studentTip: "Vertaa tarkasti ilmauksia voi, saattaa, todennäköisesti, yleensä ja varmasti.",
   },
   {
     id: 13,
-    name: "Numeron tai määrän muuttaminen",
-    description: "Tehtävä mittaa kykyä tarkistaa luvut, määrät ja niitä rajaavat ilmaukset täsmällisesti.",
-    studentTip: "Tarkista sekä numero että sitä rajaava sana, kuten noin, yli, alle tai täsmälleen.",
+    name: "Syy-, seuraus- tai ehtosuhteen muuttaminen",
+    description: "Tehtävässä sekoitetaan syy ja seuraus, yhteys ja kausaliteetti tai ehdon ja seurauksen välinen suhde.",
+    studentTip: "Selvitä, mikä on syy, seuraus ja ehto. Pelkkä yhteys ei osoita syytä, eikä ehtolausetta voi automaattisesti kääntää.",
   },
   {
     id: 14,
-    name: "Suuruussuhteen muuttaminen",
-    description: "Tehtävä mittaa kykyä vertailla määrien, osuuksien tai ryhmien keskinäisiä suhteita oikein.",
-    studentTip: "Varmista kumpi on suurempi, pienempi tai yleisempi ja kuinka suuri ero aineistossa todella on.",
+    name: "Rajauksen tai poikkeuksen muuttaminen",
+    description: "Aineiston soveltamisalaa rajaava ehto tai poikkeus poistetaan, lisätään tai muutetaan.",
+    studentTip: "Huomaa erityisesti ilmaukset paitsi, vain jos, lukuun ottamatta, tietyissä tilanteissa ja kuitenkin.",
   },
-  {
-    id: 15,
-    name: "Looginen komplementti",
-    description: "Tehtävä mittaa kykyä päätellä täsmällisesti, mitä jonkin ryhmän ulkopuolelle jäämisestä seuraa ja mitä siitä ei seuraa.",
-    studentTip: "Pidä ryhmän määritelmä samana: esimerkiksi 'ei luota vahvasti' ei tarkoita automaattisesti 'ei luota lainkaan'.",
-  },
-  {
-    id: 16,
-    name: "Varmuusasteen muuttaminen",
-    description: "Tehtävä mittaa kykyä erottaa mahdollinen, todennäköinen ja varma väite toisistaan.",
-    studentTip: "Vertaa modaalisia ilmauksia kuten voi, saattaa, todennäköisesti, yleensä ja varmasti.",
-  },
-  {
-    id: 17,
-    name: "Väittäjän tai lähteen vaihtaminen",
-    description: "Tehtävä mittaa kykyä tunnistaa, kuka esittää väitteen tai mihin lähteeseen tieto aineistossa perustuu.",
-    studentTip: "Tarkista aina, onko kyse kirjoittajan, tutkimuksen, haastatellun henkilön vai muun lähteen näkemyksestä.",
-  },
-  {
-    id: 18,
-    name: "Ehto–seuraus-suhteen muuttaminen",
-    description: "Tehtävä mittaa kykyä pitää ehdot ja niiden seuraukset oikeassa suhteessa.",
-    studentTip: "Tarkista, mikä on ehto ja mikä seuraus. Älä automaattisesti käännä ehtolausetta toisin päin.",
-  },
-  {
-    id: 19,
-    name: "Kausaalisuuden ja yhteyden sekoittaminen",
-    description: "Tehtävä mittaa kykyä erottaa havaittu yhteys varsinaisesta syy-seuraussuhteesta.",
-    studentTip: "Jos aineisto kertoo vain yhteydestä, älä päättele syytä ilman erillistä perustetta.",
-  },
-  {
-    id: 20,
-    name: "Rajauksen tai poikkeuksen huomaaminen",
-    description: "Tehtävä mittaa kykyä huomata aineiston rajaukset, ehdot ja poikkeukset, jotka muuttavat väitteen soveltamisalaa.",
-    studentTip: "Lue erityisen tarkasti sanat kuten vain jos, paitsi, lukuun ottamatta, yleensä, tietyissä tilanteissa ja kuitenkin.",
-  },
-];
+] as const satisfies readonly ValintakoeGReadingCategory[];
+
+export type ValintakoeGCategoryId =
+  (typeof VALINTAKOE_G_READING_CATEGORIES)[number]["id"];
 
 export const VALINTAKOE_G_MIN_SKILL_SAMPLE = 5;
 
-export function getValintakoeGReadingCategory(categoryId: number) {
+export function getValintakoeGReadingCategory(categoryId?: number | null) {
   return (
     VALINTAKOE_G_READING_CATEGORIES.find(
       (category) => category.id === categoryId
     ) ?? null
   );
+}
+
+export function isValintakoeGReadingCategoryId(
+  value: unknown
+): value is ValintakoeGCategoryId {
+  return typeof value === "number" && getValintakoeGReadingCategory(value) !== null;
 }

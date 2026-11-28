@@ -40,7 +40,7 @@ export const valintakoeGCourse = {
       id: "g-edistyminen",
       title: "Edistyminen",
       description:
-        "Seuraa Valintakoe G -harjoittelusi edistymistä.",
+        "Seuraa valintakoe G -harjoittelusi edistymistä.",
       href:
         "/kurssi/valintakoe-g/edistyminen",
     },
@@ -50,7 +50,7 @@ export const valintakoeGCourse = {
       description:
         "Valintakoe G:n oma pelillinen kurssipolku.",
       href:
-        "/gurupath/valintakoe-g",
+        "/gurupath",
     },
   ],
 } satisfies Course;

@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   getCourseById,
+  getCourseTitleInSentence,
   isCourseId,
 } from "../../../data/courses";
 import { hasCourseAccess } from "../../../lib/courseAccess";
@@ -42,7 +44,7 @@ export default async function CoursePage({
 
           <h1 className="mt-3 text-3xl font-extrabold">
             Sinulla ei ole pääsyä
-            kurssiin {course.title}
+            kurssiin {getCourseTitleInSentence(course)}
           </h1>
 
           <p className="mt-4 leading-8 text-slate-700">
@@ -51,12 +53,12 @@ export default async function CoursePage({
           </p>
 
           <div className="mt-6 flex flex-wrap gap-4">
-            <a
+            <Link
               href="/"
               className="rounded-full bg-blue-600 px-6 py-3 font-bold text-white"
             >
               Takaisin omiin kursseihin
-            </a>
+            </Link>
 
             <a
               href="https://valintaguru.fi"

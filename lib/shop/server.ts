@@ -36,6 +36,16 @@ export async function orderById(id: string) {
   if (error || !data) throw new Error("Tilausta ei löytynyt.");
   return data as Order;
 }
+export async function orderForCheckout(key: string, accessHash: string) {
+  const { data, error } = await db()
+    .from("shop_orders")
+    .select("*")
+    .eq("request_key", key)
+    .eq("access_hash", accessHash)
+    .maybeSingle();
+  if (error) throw new Error("Tilausta ei voitu tarkistaa.");
+  return data as Order | null;
+}
 export async function itemsForOrder(id: string) {
   const { data, error } = await db()
     .from("shop_order_items")
@@ -109,22 +119,36 @@ export async function assertEnvironment(order: Order) {
   if (order.mode !== config.mode || order.merchant_id !== config.merchant)
     throw new Error("Tilaus kuuluu eri maksuympäristöön.");
 }
-export async function guardRequest(
-  request: Request,
-  scope: string,
-  limit = 20,
-) {
+export function validateShopRequest(request: Request) {
   const config = shopRequestConfig();
   if (request.headers.get("origin") !== config.site)
     throw new Error("Virheellinen pyynnön alkuperä.");
   if (Number(request.headers.get("content-length") ?? 0) > 16384)
     throw new Error("Pyyntö on liian suuri.");
+  return config;
+}
+export async function guardRequest(
+  request: Request,
+  scope: string,
+  limit = 20,
+  options: { verifiedSessionHash?: string } = {},
+) {
+  const config = validateShopRequest(request);
+  if (
+    options.verifiedSessionHash !== undefined &&
+    !/^[a-f0-9]{64}$/.test(options.verifiedSessionHash)
+  )
+    throw new Error("Tilausta ei löytynyt.");
   const ip =
     request.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     "local";
   const key = createHmac("sha256", config.internalSecret)
-    .update(`${scope}:${ip}`)
+    .update(
+      options.verifiedSessionHash
+        ? `${scope}:session:${options.verifiedSessionHash}`
+        : `${scope}:${ip}`,
+    )
     .digest("hex");
   if (
     !(await rpc<boolean>("shop_rate", {

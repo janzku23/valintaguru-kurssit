@@ -26,13 +26,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ValintaGuru – Valintakoe G",
+        alt: "ValintaGuru – valintakoe G",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "valintakoe G | ValintaGuru",
+    title: "Valintakoe G | ValintaGuru",
     description:
       "Tietoa valintakoe G:stä ja kokeessa tarvittavista taidoista.",
     images: ["/og-image.png"],

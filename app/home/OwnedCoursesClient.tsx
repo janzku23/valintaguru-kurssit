@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import CourseAccessCard from "../../components/CourseAccessCard";
 import { courses } from "../../data/courses";
 import type { CourseId } from "../../data/courses";
@@ -29,7 +31,7 @@ export default function OwnedCoursesClient() {
             <div><h3 className="text-2xl font-extrabold">Kirjaudu nähdäksesi omat kurssisi</h3><p className="mt-3 leading-8 text-slate-700">Kirjaudu samalla sähköpostiosoitteella, jolla kurssi on hankittu.</p>
             <p className="mt-3 leading-8 text-slate-700">Kurssin ostosta toimitamme tunnukset automaattisesti annettuun sähköpostiin</p>
             <p className="mt-3 leading-8 text-slate-700">Saat Paytrail ostovahvistuksen välittömästi</p></div>
-            <a href="/kirjaudu" className="inline-flex w-full items-center justify-center rounded-full bg-[#3f51e7] px-6 py-3 text-center font-bold text-white sm:w-fit">Kirjaudu sisään</a>
+            <Link href="/kirjaudu" className="inline-flex w-full items-center justify-center rounded-full bg-[#3f51e7] px-6 py-3 text-center font-bold text-white sm:w-fit">Kirjaudu sisään</Link>
           </div>
         ) : ownedCourses.length > 0 ? (
           <>
@@ -51,7 +53,7 @@ export default function OwnedCoursesClient() {
               </div>
 
               <div className="mt-6 grid gap-5 lg:grid-cols-2">
-                <a
+                <Link
                   href="/kalenteri"
                   className="group block overflow-hidden rounded-[2rem] border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-[#fff8e8] shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
                 >
@@ -105,9 +107,9 @@ export default function OwnedCoursesClient() {
                       </div>
                     </div>
                   </div>
-                </a>
+                </Link>
 
-                <a
+                <Link
                   href="/gurupath"
                   className="group block overflow-hidden rounded-[2rem] border border-violet-200 bg-gradient-to-br from-violet-50 via-white to-indigo-50 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
                 >
@@ -163,7 +165,7 @@ export default function OwnedCoursesClient() {
                       </div>
                     </div>
                   </div>
-                </a>
+                </Link>
               </div>
             </div>
           </>

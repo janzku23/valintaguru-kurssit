@@ -7,7 +7,7 @@ export const valintakoeGPracticeExams: PracticeExam[] = [
     version: 1,
     courseId: "valintakoe-g",
     title: "Koe 1",
-    description: "60 minuutin ajastettu Valintakoe G -harjoituskoe. Oikein +1 p, väärin -1 p, En osaa sanoa 0 p.",
+    description: "60 minuutin ajastettu valintakoe G -harjoituskoe. Oikein +1 p, väärin -1 p, En osaa sanoa 0 p.",
     durationMinutes: 60,
     sections: [
       {

@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { ADMIN_EMAIL } from "@/lib/adminIdentity";
 import { getValintakoeGExercises } from "@/data/valintakoeGExercises";
-import { VALINTAKOE_G_READING_CATEGORIES } from "@/data/valintakoeGExercises/categories";
+import {
+  isValintakoeGReadingCategoryId,
+  VALINTAKOE_G_READING_CATEGORIES,
+} from "@/data/valintakoeGExercises/categories";
 import type {
   ValintakoeGDifficulty,
   ValintakoeGQuestionType,
 } from "@/data/valintakoeGExercises/types";
 
 export const dynamic = "force-dynamic";
-
-const ADMIN_EMAIL = "admin@valintaguru.fi";
 
 type MetadataRow = {
   question_id: string;
@@ -95,9 +97,9 @@ export async function GET() {
           exerciseTitle: exercise.title,
           questionId: question.id,
           prompt: question.prompt,
-          categoryId:
-            row?.category_id ??
-            question.categoryId,
+          categoryId: isValintakoeGReadingCategoryId(row?.category_id)
+            ? row.category_id
+            : question.categoryId,
           difficulty:
             row?.difficulty ??
             question.difficulty,
@@ -159,13 +161,9 @@ export async function PATCH(request: Request) {
     );
   }
 
-  if (
-    !Number.isInteger(categoryId) ||
-    categoryId < 1 ||
-    categoryId > 20
-  ) {
+  if (!isValintakoeGReadingCategoryId(categoryId)) {
     return NextResponse.json(
-      { error: "categoryId pitää olla 1–20." },
+      { error: "categoryId pitää olla 1–14." },
       { status: 400 }
     );
   }

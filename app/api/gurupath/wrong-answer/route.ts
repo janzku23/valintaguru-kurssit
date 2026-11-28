@@ -1,23 +1,25 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerUser } from "@/lib/supabase/server-user";
+import { createSupabaseAdmin } from "@/lib/supabase/server-admin";
 import { authorizeGuruNode, GURU_WRONG_COOLDOWN_SECONDS } from "@/lib/gurupath/serverGame";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const supabase = await createSupabaseServerUser();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Kirjautuminen vaaditaan." }, { status: 401 });
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: "Kirjautuminen vaaditaan." }, { status: 401 });
   const url = new URL(request.url);
   const courseId = url.searchParams.get("courseId") ?? "";
   const nodeId = url.searchParams.get("nodeId") ?? "";
-  if (!(await authorizeGuruNode(courseId, nodeId))) {
+  const authorized = await authorizeGuruNode(courseId, nodeId);
+  if (!authorized) {
     return NextResponse.json({ error: "Ei käyttöoikeutta." }, { status: 403 });
   }
-  const { data, error } = await supabase.from("guru_game_penalties")
+  const { data, error } = await createSupabaseAdmin().from("guru_game_penalties")
     .select("created_at")
     .eq("user_id", user.id)
-    .eq("course_id", courseId)
+    .in("course_id", authorized.courseIds)
     .eq("node_id", nodeId)
     .order("created_at", { ascending: false })
     .limit(1).maybeSingle();

@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { courses } from "@/data/courses";
 import { getAdminUserDetail } from "@/lib/adminData";
 import UserRightsEditor from "@/components/admin/UserRightsEditor";
+import { getActiveCourseIdsForEditor } from "@/lib/adminCourseRights";
 
 export const dynamic = "force-dynamic";
 
@@ -56,8 +58,7 @@ export default async function AdminStudentProgressPage({ params }: Params) {
 
   const progress = data.progress as ProgressRow[];
   const exams = data.exams as ExamRow[];
-  const rights = data.rights as Array<{ course_id?: string | null; course_slug?: string | null; status?: string | null }>;
-  const initialCourseIds = Array.from(new Set(rights.map((row) => row.course_id ?? row.course_slug).filter((id): id is string => Boolean(id))));
+  const initialCourseIds = getActiveCourseIdsForEditor(data.rights);
 
   const correct = progress.filter((row) => row.is_correct).length;
   const skipped = progress.filter((row) => row.answer_status === "skipped").length;
@@ -86,7 +87,7 @@ export default async function AdminStudentProgressPage({ params }: Params) {
     <div className="space-y-7">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <a href="/admin/edistyminen" className="text-sm font-black text-indigo-600">← Kaikki opiskelijat</a>
+          <Link href="/admin/edistyminen" className="text-sm font-black text-indigo-600">← Kaikki opiskelijat</Link>
           <h1 className="mt-3 text-3xl font-black">{data.user.name || data.user.email}</h1>
           <p className="mt-1 text-slate-500">{data.user.email}</p>
         </div>

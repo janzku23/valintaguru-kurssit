@@ -9,6 +9,8 @@ import {
 
 import type { GuruPublicQuestion, ValintakoeGCategoryId } from "@/data/gurupath/types";
 import { getGuruValintakoeGCategoryInfo } from "@/data/gurupath/valintakoeGCategoryNames";
+import { VALINTAKOE_G_READING_CATEGORIES } from "@/data/valintakoeGExercises/categories";
+import { subscribeToGuruReadingTimer } from "@/lib/gurupath/readingTimer";
 
 import type {
   CourseId,
@@ -85,7 +87,7 @@ function ValintakoeGCategoryFeedback({
   return (
     <aside className="mt-4 rounded-2xl border border-violet-200 bg-violet-50 p-4 text-left sm:p-5" aria-label="Valintakoe G:n kysymyskategoria ja opiskeluvinkki">
       <p className="text-[11px] font-black uppercase tracking-[0.12em] text-violet-700">
-        Valintakoe G · kysymyskategoria {categoryId}/20
+        Valintakoe G · kysymyskategoria {categoryId}/{VALINTAKOE_G_READING_CATEGORIES.length}
       </p>
       <p className="mt-1 text-base font-black leading-6 text-slate-900">
         {categoryInfo.name}
@@ -252,113 +254,14 @@ export default function GuruPathChallenge({
       phase !== "reading" ||
       returnToMapAfterCooldown
     ) {
-      setReadingReady(
-        true
-      );
       return;
     }
 
-    const deadlineKey =
-      `gurupeli:reading-deadline:${nodeId}`;
-
-    const consumedKey =
-      `gurupeli:reading-consumed:${nodeId}`;
-
-    const consumed =
-      window.sessionStorage.getItem(
-        consumedKey
-      ) === "1";
-
-    if (consumed) {
-      setReadingSeconds(
-        0
-      );
-      setPhase(
-        "answering"
-      );
-      setReadingReady(
-        true
-      );
-      return;
-    }
-
-    const storedDeadline =
-      Number(
-        window.sessionStorage.getItem(
-          deadlineKey
-        ) ?? "0"
-      );
-
-    const now =
-      Date.now();
-
-    const deadline =
-      storedDeadline > now
-        ? storedDeadline
-        : now +
-          question.reading
-            .seconds *
-            1000;
-
-    if (
-      storedDeadline <= now
-    ) {
-      window.sessionStorage.setItem(
-        deadlineKey,
-        String(deadline)
-      );
-    }
-
-    const syncTimer =
-      () => {
-        const remaining =
-          Math.max(
-            0,
-            Math.ceil(
-              (deadline -
-                Date.now()) /
-                1000
-            )
-          );
-
-        setReadingSeconds(
-          remaining
-        );
-
-        if (
-          remaining <= 0
-        ) {
-          window.sessionStorage.setItem(
-            consumedKey,
-            "1"
-          );
-
-          window.sessionStorage.removeItem(
-            deadlineKey
-          );
-
-          setPhase(
-            "answering"
-          );
-        }
-      };
-
-    syncTimer();
-    setReadingReady(
-      true
-    );
-
-    const timer =
-      window.setInterval(
-        syncTimer,
-        250
-      );
-
-    return () => {
-      window.clearInterval(
-        timer
-      );
-    };
+    return subscribeToGuruReadingTimer(nodeId, question.reading.seconds, (remaining) => {
+      setReadingSeconds(remaining);
+      setReadingReady(true);
+      if (remaining === 0) setPhase("answering");
+    });
   }, [
     nodeId,
     isReadingTask,

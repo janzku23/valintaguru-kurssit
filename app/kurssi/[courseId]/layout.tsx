@@ -1,3 +1,5 @@
+import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAvailableCourseModules } from "@/lib/courseNavigation";
@@ -5,6 +7,7 @@ import { hasCourseAccess } from "../../../lib/courseAccess";
 
 import {
   getCourseById,
+  getCourseTitleInSentence,
   isCourseId,
 } from "../../../data/courses";
 
@@ -45,7 +48,7 @@ export async function generateMetadata({
   return {
     title: {
       default: course.title,
-      template: `%s | ${course.title} | ValintaGuru`,
+      template: `%s | ${getCourseTitleInSentence(course)} | ValintaGuru`,
     },
 
     description: course.description,
@@ -113,10 +116,10 @@ export default async function CourseLayout({
     <div className="min-h-screen bg-[#f5f8ff]">
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <a href="/" className="flex shrink-0 items-center gap-2.5" aria-label="ValintaGurun etusivu">
-            <img src="/logo.png" alt="" className="h-10 w-10 rounded-full object-contain" />
+          <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="ValintaGurun etusivu">
+            <Image src="/logo.png" alt="" width={40} height={40} className="h-10 w-10 rounded-full object-contain" />
             <span className="hidden text-lg font-extrabold tracking-tight text-blue-800 sm:inline">ValintaGuru</span>
-          </a>
+          </Link>
 
           {allowed && (
             <nav aria-label="Kurssin navigaatio" className="hidden min-w-0 items-center gap-1 lg:flex">
@@ -128,7 +131,7 @@ export default async function CourseLayout({
           )}
 
           <div className="flex shrink-0 items-center gap-2">
-            <a href="/" className="rounded-full border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:border-blue-300 hover:text-blue-700 sm:px-4">Omat kurssit</a>
+            <Link href="/" className="rounded-full border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:border-blue-300 hover:text-blue-700 sm:px-4">Omat kurssit</Link>
             {allowed && (
               <details className="group relative lg:hidden">
                 <summary className="cursor-pointer list-none rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-blue-700 [&::-webkit-details-marker]:hidden" aria-label="Avaa kurssivalikko">Valikko <span aria-hidden="true">☰</span></summary>

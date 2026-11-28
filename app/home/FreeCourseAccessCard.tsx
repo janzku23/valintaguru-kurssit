@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
@@ -58,12 +60,12 @@ export default function FreeCourseAccessCard() {
               
             </div>
             <div className="flex flex-wrap gap-3">
-              <a
+              <Link
                 href="/kurssi/ilmais-kurssi"
                 className="inline-flex items-center justify-center rounded-full bg-[#3f51e7] px-6 py-3 text-sm font-black text-white shadow-lg shadow-indigo-600/15 transition hover:bg-[#3142d6]"
               >
                 Avaa ilmainen kurssi →
-              </a>
+              </Link>
             </div>
           </div>
         </article>

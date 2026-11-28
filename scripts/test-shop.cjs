@@ -948,6 +948,7 @@ test("checkout preserves explicit mixed-cart consents and rejects missing accept
       bodyOf: (request) => request.json(),
       shopSession: async () => "session",
       tokenHash: () => "hash",
+      orderForCheckout: async () => null,
       shopError: () => new Response(null, { status: 400 }),
       rpc: async (name, args) => {
         if (name === "shop_quote")
@@ -961,7 +962,7 @@ test("checkout preserves explicit mixed-cart consents and rejects missing accept
         orders.push(args);
         return a;
       },
-      orderById: async () => ({ id: a }),
+      orderById: async () => ({ id: a, status: "unpaid" }),
       createPayment: async () => "https://pay.paytrail.com/pay/" + b,
     },
   })("app/api/shop/checkout/route.ts");

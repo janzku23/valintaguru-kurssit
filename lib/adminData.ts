@@ -176,7 +176,7 @@ export async function getAdminUserDetail(userId: string) {
   const [rightsResult, progressResult, examsResult] = await Promise.all([
     admin
       .from("student_courses")
-      .select("user_id,email,course_id,course_slug,course_title,title,status,created_at")
+      .select("*")
       .or(`user_id.eq.${userId}${normalizedEmail ? `,email.eq.${normalizedEmail}` : ""}`),
     admin
       .from("student_progress_attempts")

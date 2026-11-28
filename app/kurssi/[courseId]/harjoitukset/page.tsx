@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import CourseMaterialSidebar from "@/components/CourseMaterialSidebar";
 import PracticeExercisesView from "@/components/PracticeExercisesView";
@@ -5,6 +6,7 @@ import ValintakoeGExercisesView from "@/components/ValintakoeGExercisesView";
 import QuizView from "@/components/QuizView";
 import {
   getCourseById,
+  getCourseTitleInSentence,
   isCourseId,
 } from "@/data/courses";
 import { getCourseContent } from "@/data/courseContent";
@@ -59,15 +61,15 @@ export default async function CourseTasksPage({
 
           <h1 className="mt-3 text-3xl font-extrabold">
             Sinulla ei ole pääsyä kurssin{" "}
-            {course.title} harjoituksiin
+            {getCourseTitleInSentence(course)} harjoituksiin
           </h1>
 
-          <a
+          <Link
             href="/"
             className="mt-6 inline-flex rounded-full bg-blue-600 px-6 py-3 font-bold text-white"
           >
             Takaisin omiin kursseihin
-          </a>
+          </Link>
         </div>
       </main>
     );

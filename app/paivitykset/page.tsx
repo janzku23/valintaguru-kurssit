@@ -100,6 +100,18 @@ const entries: SiteUpdate[] = [
          
     ],
   },
+               {
+    date: "2026-11-28",
+    title: "Sivuston päivityshistoria",
+    changes: [
+      "Tiedotus osuus lisätty etusivulle, josta näkee uusimmat päivitykset",
+      "Yleisiä parannuksia ja korjauksia",
+       "Kalenteria parannettu, jotta se näyttää paremmin eri laitteilla",
+        "gurupeli polku parannettu, jotta se on helpompi löytää",
+      
+         
+    ],
+  },
 ];
 
 const siteUpdates = [...entries].sort((a, b) =>

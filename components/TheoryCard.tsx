@@ -7,6 +7,11 @@ type Props = {
   section: TheorySection;
 };
 
+const imageFileNames = new Map([
+  ["Lihakset", "Lihakset.jpg"],
+  ["Keuhkotuuletus", "keuhkotuuletus.png"],
+]);
+
 function TheoryImage({
   fileName,
   title,
@@ -22,7 +27,7 @@ function TheoryImage({
     <figure className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
       <div className="flex min-h-[220px] items-center justify-center bg-white p-3 sm:p-5">
         <img
-          src={`/theory/biologia/${fileName}.png`}
+          src={`/theory/biologia/${imageFileNames.get(fileName) ?? `${fileName}.png`}`}
           alt={alt || title || fileName}
           loading="lazy"
           className="max-h-[680px] w-full object-contain"

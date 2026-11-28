@@ -16,7 +16,7 @@ export default async function GuruPathPage() {
       ? {
           href: "/gurupath/combined",
           eyebrow: "Kaksi kurssia · yksi peli",
-          title: "Oikis + Valintakoe G",
+          title: "Oikis + valintakoe G",
           description:
             "",
           badges: ["Oikis", "Yhteiset", "Valintakoe G"],
@@ -80,7 +80,7 @@ export default async function GuruPathPage() {
           <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-black">Ei aktiivisia GuruPelejä</h2>
             <p className="mt-2 leading-7 text-slate-600">
-              GuruPeli avautuu, kun käyttäjätililläsi on Oikis- tai Valintakoe G -kurssiperheen aktiivinen käyttöoikeus.
+              GuruPeli avautuu, kun käyttäjätililläsi on Oikis- tai valintakoe G -kurssiperheen aktiivinen käyttöoikeus.
             </p>
           </div>
         )}

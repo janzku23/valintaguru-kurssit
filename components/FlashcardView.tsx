@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
@@ -38,7 +38,7 @@ export default function FlashcardView({
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  async function loadFlashcardProgress() {
+  const loadFlashcardProgress = useCallback(async () => {
     setHasLoadedSavedState(false);
     setErrorMessage(null);
 
@@ -103,12 +103,12 @@ export default function FlashcardView({
     setIsFlipped(false);
     setIsRoundFinished(false);
     setHasLoadedSavedState(true);
-  }
+  }, [courseId, flashcards, supabase]);
 
   useEffect(() => {
-    void loadFlashcardProgress();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [courseId]);
+    const timer = setTimeout(() => void loadFlashcardProgress(), 0);
+    return () => clearTimeout(timer);
+  }, [loadFlashcardProgress]);
 
   const practiceFlashcards = useMemo(() => {
     return flashcards.filter((card) =>

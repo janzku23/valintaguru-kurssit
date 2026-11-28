@@ -2,10 +2,10 @@ import InquirySection from "@/components/inquiries/InquirySection";
 import MyInquiries from "@/components/inquiries/MyInquiries";
 import AdminInquiryPanel from "@/components/inquiries/AdminInquiryPanel";
 import { createClient } from "@/utils/supabase/server";
+import { ADMIN_EMAIL } from "@/lib/adminIdentity";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
-
-const ADMIN_EMAIL = "admin@valintaguru.fi";
 
 export default async function KysyPage() {
   const supabase = await createClient();
@@ -21,13 +21,13 @@ export default async function KysyPage() {
     <main className="min-h-screen bg-[#f5f8ff] text-slate-950">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 md:px-8">
-          <a
+          <Link
             href="/"
             className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
           >
             <span aria-hidden="true">←</span>
             Takaisin etusivulle
-          </a>
+          </Link>
 
           {user && (
             <span

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { ADMIN_EMAIL } from "@/lib/adminIdentity";
 
 export const runtime = "nodejs";
-const ADMIN_EMAIL = "admin@valintaguru.fi";
 
 function normalizeEmail(value: string) {
   return value.trim().toLowerCase();

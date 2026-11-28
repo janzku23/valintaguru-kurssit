@@ -1,3 +1,4 @@
+import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import type { Metadata } from "next";
 import {
@@ -11,7 +12,7 @@ const PAGE_URL =
 export const metadata: Metadata = {
   title: { absolute: "Valintakoe G pisterajat 2026 | ValintaGuru" },
   description:
-    "Katso Valintakoe G:n vuoden 2026 lopulliset pisterajat hallintotieteisiin, yhteiskunta- ja sosiaalitieteisiin, viestintätieteisiin sekä oikeustieteeseen.",
+    "Katso valintakoe G:n vuoden 2026 lopulliset pisterajat hallintotieteisiin, yhteiskunta- ja sosiaalitieteisiin, viestintätieteisiin sekä oikeustieteeseen.",
   alternates: {
     canonical: PAGE_URL,
   },
@@ -326,28 +327,28 @@ export default function ValintakoeGPisterajatPage() {
 
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 sm:gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <a
+          <Link
             href="/"
             className="inline-flex shrink-0 items-center gap-2 font-serif text-lg sm:gap-2.5 font-semibold tracking-tight text-slate-950 sm:text-2xl"
           >
             <BrandLogo />
             <span>ValintaGuru</span>
-          </a>
+          </Link>
 
           <div className="flex items-center gap-2">
-            <a
+            <Link
               href="/valintakoe-g"
               className="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-[#3f51e7] hover:text-[#3f51e7] sm:inline-flex"
             >
               Valintakoe G
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/#kurssit"
               className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#3f51e7] px-3 py-2 text-xs font-bold sm:px-4 sm:text-sm text-white transition hover:bg-[#3142d6]"
             >
               Valmennuskurssit
-            </a>
+            </Link>
           </div>
         </div>
       </header>
@@ -382,12 +383,12 @@ export default function ValintakoeGPisterajatPage() {
                 Katso pisterajat
               </a>
 
-              <a
+              <Link
                 href="/valintakoe-g"
                 className="inline-flex rounded-full border border-slate-300 bg-white px-6 py-3 font-bold text-slate-800 transition hover:border-[#3f51e7] hover:text-[#3f51e7]"
               >
-                Mikä on Valintakoe G?
-              </a>
+                Mikä on valintakoe G?
+              </Link>
             </div>
           </div>
         </div>
@@ -475,7 +476,7 @@ export default function ValintakoeGPisterajatPage() {
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <p className="font-bold uppercase tracking-[0.16em] text-indigo-100">
-                Harjoittele Valintakoe G:hen
+                Harjoittele valintakoe G:hen
               </p>
 
               <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">
@@ -483,16 +484,16 @@ export default function ValintakoeGPisterajatPage() {
               </h2>
 
               <p className="mt-4 max-w-3xl leading-8 text-indigo-100">
-                Tutustu ValintaGurun Valintakoe G -valmennuksiin ja harjoittele kokeessa tarvittavia taitoja tavoitteellisesti.
+                Tutustu ValintaGurun valintakoe G -valmennuksiin ja harjoittele kokeessa tarvittavia taitoja tavoitteellisesti.
               </p>
             </div>
 
-            <a
+            <Link
               href="/#kurssit"
               className="inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-3.5 font-bold text-[#3f51e7] transition hover:bg-indigo-50 sm:w-fit"
             >
               Tutustu valmennuksiin
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -501,12 +502,12 @@ export default function ValintakoeGPisterajatPage() {
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-7 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>© 2026 ValintaGuru Oy</p>
 
-          <a
+          <Link
             href="/"
             className="font-bold text-slate-700 transition hover:text-[#3f51e7]"
           >
             Takaisin etusivulle
-          </a>
+          </Link>
         </div>
       </footer>
     </main>

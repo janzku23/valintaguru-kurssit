@@ -11,7 +11,7 @@ const VIEW_COPY: Record<GuruGameViewId, { title: string; description: string }> 
     description: "Valintakoe G:n GuruPeli-tehtävät.",
   },
   combined: {
-    title: "Oikis + Valintakoe G · GuruPeli",
+    title: "Oikis + valintakoe G · GuruPeli",
     description: "Yksi yhteinen polku ilman päällekkäisiä kysymyksiä.",
   },
 };

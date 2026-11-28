@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { createClient } from "@/utils/supabase/server";
+import { ADMIN_EMAIL } from "@/lib/adminIdentity";
 
 export const dynamic = "force-dynamic";
-
-// Pidetään admin-tunniste vain palvelinpuolella.
-const ADMIN_EMAIL = "admin@valintaguru.fi";
 
 export async function GET(request: Request) {
   const userClient = await createClient();

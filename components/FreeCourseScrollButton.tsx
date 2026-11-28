@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   children: ReactNode;
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export default function FreeCourseScrollButton({ children, className = "" }: Props) {
+  const router = useRouter();
   function scrollToSignup() {
     const target = document.getElementById("ilmainen-kurssi");
 
@@ -19,7 +21,7 @@ export default function FreeCourseScrollButton({ children, className = "" }: Pro
       return;
     }
 
-    window.location.href = "/#ilmainen-kurssi";
+    router.push("/#ilmainen-kurssi");
   }
 
   return (

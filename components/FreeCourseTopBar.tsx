@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import BrandLogo from "@/components/BrandLogo";
 
 import { usePathname } from "next/navigation";
@@ -15,10 +17,10 @@ export default function FreeCourseTopBar() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 sm:gap-3 py-3 sm:px-6 lg:px-8">
-        <a href="/" className="inline-flex shrink-0 items-center gap-2 font-serif text-lg sm:gap-2.5 sm:text-xl font-semibold tracking-tight text-slate-950">
+        <Link href="/" className="inline-flex shrink-0 items-center gap-2 font-serif text-lg sm:gap-2.5 sm:text-xl font-semibold tracking-tight text-slate-950">
           <BrandLogo />
           <span>ValintaGuru</span>
-        </a>
+        </Link>
 
         <div className="hidden h-6 w-px bg-slate-200 sm:block" />
         <span className="hidden shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700 sm:inline-flex">
@@ -44,12 +46,12 @@ export default function FreeCourseTopBar() {
           })}
         </nav>
 
-        <a
+        <Link
           href="/profiili"
           className="ml-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-indigo-300 hover:text-[#3f51e7] lg:ml-2"
         >
           Oma profiili
-        </a>
+        </Link>
       </div>
 
       <nav className="flex gap-2 overflow-x-auto border-t border-slate-100 px-4 py-2 lg:hidden">
