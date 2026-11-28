@@ -156,7 +156,7 @@ test("selecting another weekday updates the visible selected date and highlights
   const week = findElement(tree, element => element.type?.name === "WeekGrid");
   week.props.onSelect(day("2026-11-26"));
   const html = renderToStaticMarkup(harness.render(props));
-  assert.match(html, /Valittuna torstai 26\.11\./);
+  assert.match(html, /Valittuna torstaina 26\.11\./);
   assert.equal((html.match(/data-selected="true"/g) ?? []).length, 1);
 });
 

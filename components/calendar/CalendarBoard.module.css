@@ -66,11 +66,12 @@
 .mobileSidebarToggle { display: none; }
 .calendarPanel { min-width: 0; border: 1px solid #e3e4e9; border-radius: 15px; background: #fff; box-shadow: 0 4px 18px #22243d03; overflow: hidden; }
 .toolbar { min-height: 88px; padding: 21px 23px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
-.period { display: flex; align-items: center; gap: 22px; min-width: 0; }
+.period { display: grid; grid-template-columns: minmax(0, 1fr) 112px; align-items: start; flex: 1; gap: 24px; min-width: 0; }
+.period > div:first-child { min-width: 0; }
 .period h2 { margin: 0; font-size: 17px; font-weight: 500; letter-spacing: -.4px; text-transform: none; line-height: 1.4; }
 .period p { margin: 4px 0 0; color: #626a7b; font-size: 10px; }
-.dateNavigation { display: flex; align-items: center; gap: 1px; flex-shrink: 0; }
-.dateNavigation button { height: 29px; min-width: 26px; display: grid; place-items: center; padding: 0 4px; border: 0; color: #626a7b; background: transparent; border-radius: 6px; }
+.dateNavigation { display: grid; grid-template-columns: 29px 54px 29px; align-items: center; width: 112px; margin-top: 5px; }
+.dateNavigation button { height: 29px; min-width: 0; width: 100%; display: grid; place-items: center; padding: 0 4px; border: 0; color: #50596b; background: transparent; border-radius: 6px; }
 .dateNavigation button:hover { background: #f3f2f8; color: #5752ad; }
 .dateNavigation .icon { width: 14px; height: 14px; }
 .dateNavigation .todayButton { padding: 0 8px; font-size: 10px; }
@@ -81,9 +82,9 @@
 .loading { min-height: 440px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #626a7b; font-size: 13px; gap: 13px; }
 .loading .icon { width: 29px; height: 29px; }
 .loading p { margin: 0; }
-.weekScroll { max-height: min(720px, calc(100svh - 280px)); min-height: 420px; overflow: auto; scrollbar-width: thin; scrollbar-color: #626a7b transparent; }
+.desktopWeek, .weekTimeline { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .weekHeading, .allDayRow, .weekBody { display: grid; grid-template-columns: 49px repeat(7, minmax(0, 1fr)); }
-.weekHeading { position: sticky; top: 0; z-index: 15; min-height: 76px; background: #fff; border-bottom: 1px solid var(--line); }
+.weekHeading { flex: 0 0 64px; min-height: 64px; background: #fff; border-bottom: 1px solid var(--line); }
 .timezone { display: grid; place-items: center; color: #626a7b; font-size: 8px; letter-spacing: .1em; }
 .weekHeading > button { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 7px; padding: 9px 0; border: 0; border-left: 1px solid #f0f0f3; background: transparent; }
 .weekHeading > button > span { font-size: 9px; text-transform: uppercase; letter-spacing: .09em; color: #626a7b; }
@@ -93,25 +94,34 @@
 .weekHeading > .todayHeading { background: #fbfaff; }
 .weekHeading > .todayHeading > strong { background: #6460bb; color: #fff; border-radius: 8px; }
 .weekHeading > .todayHeading > span { color: #8078ba; }
-.allDayRow { border-bottom: 1px solid var(--line); background: #fff; }
+.allDayRow { flex: 0 0 auto; border-bottom: 1px solid var(--line); background: #fff; }
 .allDayRow > span { padding: 12px 4px; color: #626a7b; font-size: 8px; text-align: right; }
 .allDayRow > div { min-height: 39px; padding: 6px 4px; border-left: 1px solid #f0f0f3; display: flex; flex-direction: column; gap: 3px; }
 .allDayEvent { position: relative; width: 100%; padding: 5px 6px; border: 0; border-left: 2px solid var(--event-accent); border-radius: 4px; background: var(--event-bg); color: var(--event-ink); font-size: 9px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.weekBody { position: relative; }
+.weekBody { position: relative; flex: 1; min-height: 0; }
+.hourLabels, .dayColumn { display: grid; grid-template-rows: repeat(var(--hour-count), minmax(0, 1fr)); }
 .hourLabels { background: #fff; }
-.hourLabels > span { display: block; padding: 7px 8px 0 0; text-align: right; color: #626a7b; font-size: 10px; font-variant-numeric: tabular-nums; }
+.hourLabels > span { display: block; padding: 3px 8px 0 0; text-align: right; color: #50596c; font-size: 10px; font-variant-numeric: tabular-nums; }
 .hourLabels small { color: #626a7b; font-size: 9px; }
 .dayColumn { position: relative; min-width: 0; border-left: 1px solid #f0f0f3; }
 .todayColumn { background: #fcfbff; }
-.hourSlot { display: block; width: 100%; border: 0; border-bottom: 1px solid #f0f0f3; background: linear-gradient(to bottom, transparent 29px, #f8f8fa 29px, #f8f8fa 30px, transparent 30px); }
+.hourSlot { display: block; width: 100%; min-height: 0; padding: 0; border: 0; border-bottom: 1px solid #eeeff3; background: linear-gradient(to bottom, transparent calc(50% - .5px), #f4f4f780 calc(50% - .5px), #f4f4f780 calc(50% + .5px), transparent calc(50% + .5px)); }
 .hourSlot:hover { background-color: #eeebf8; }
-.eventCard { position: absolute; z-index: 2; padding: 8px 9px 5px; border: 1px solid color-mix(in srgb, var(--event-accent) 14%, transparent); border-left: 3px solid var(--event-accent); border-radius: 5px; background: var(--event-bg); color: var(--event-ink); text-align: left; overflow: hidden; transition: filter .12s, box-shadow .12s; }
+.eventCard { position: absolute; z-index: 2; container-type: size; padding: 3px 6px; border: 1px solid color-mix(in srgb, var(--event-accent) 14%, transparent); border-left: 3px solid var(--event-accent); border-radius: 5px; background: var(--event-bg); color: var(--event-ink); text-align: left; overflow: hidden; transition: filter .12s, box-shadow .12s; }
+.eventCardContent { display: flex; flex-direction: column; justify-content: center; gap: 3px; height: 100%; min-width: 0; }
 .eventCard:hover, .eventCard:focus-visible { z-index: 4; filter: saturate(1.1); box-shadow: 0 3px 12px #29254812; }
-.eventTitle { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-width: 0; font-size: 11px; font-weight: 600; overflow: hidden; overflow-wrap: anywhere; line-height: 1.4; }
+.eventTitle { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-width: 0; font-size: 11px; font-weight: 600; overflow: hidden; overflow-wrap: anywhere; line-height: 1.25; }
 .eventTitle .icon { width: 10px; height: 10px; opacity: .75; }
-.eventTime { display: block; margin-top: 4px; font-size: 10px; opacity: .9; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.eventCategory { display: flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 8px; opacity: .65; }
+.eventTime { display: block; font-size: 10px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.eventCategory { display: flex; align-items: center; gap: 5px; font-size: 8px; }
 .eventCategory .icon { width: 10px; height: 10px; }
+@container (max-height: 60px) {
+  .eventCategory { display: none; }
+}
+@container (max-height: 40px) {
+  .eventTitle { -webkit-line-clamp: 1; }
+  .eventTime { display: none; }
+}
 .panelFooter { display: flex; align-items: center; gap: 6px; padding: 11px 19px; border-top: 1px solid var(--line); color: #626a7b; font-size: 9px; min-height: 36px; }
 .footerDot { width: 5px; height: 5px; border-radius: 50%; background: #9993ca; }
 .footerPrivacy { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; color: #626a7b; }
@@ -236,6 +246,17 @@
 .noteCompleted label { text-decoration: line-through; color: #626a7b; }
 .completedNotes > summary { cursor: pointer; padding: 9px 0; font-size: 11px; color: #626a7b; }
 
+/* The complete week shares the viewport; hours never sit inside a scroll area. */
+@media (min-width: 901px) {
+  .weekLayout { display: flex; flex-direction: column; height: max(680px, 100svh); }
+  .weekLayout .header { flex: 0 0 60px; height: 60px; }
+  .weekLayout .shell { display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%; padding-top: 20px; padding-bottom: 20px; }
+  .weekLayout .pageHeading { flex: 0 0 auto; margin-bottom: 18px; }
+  .weekLayout .workspace { flex: 1; min-height: 0; align-items: stretch; }
+  .weekLayout .sidebar { min-height: 0; overflow-y: auto; }
+  .weekLayout .calendarPanel { display: flex; flex-direction: column; min-height: 0; }
+  .weekLayout .toolbar { flex: 0 0 auto; min-height: 76px; padding-top: 15px; padding-bottom: 15px; }
+}
 @media (min-width: 1600px) {
   .shell { padding-left: 0; padding-right: 0; }
   .workspace { grid-template-columns: 225px minmax(0, 1fr); gap: 40px; }
@@ -305,11 +326,10 @@
   .primaryButton .icon { width: 14px; height: 14px; }
   .calendarPanel { border-radius: 12px; }
   .toolbar { align-items: stretch; flex-direction: column; gap: 17px; padding: 18px 16px 16px; min-height: auto; }
-  .period { justify-content: space-between; gap: 6px; }
+  .period { grid-template-columns: minmax(0, 1fr) 99px; gap: 6px; }
   .period h2 { font-size: 16px; letter-spacing: -.5px; }
   .period p { font-size: 9px; margin-top: 4px; }
-  .dateNavigation { gap: 0; }
-  .dateNavigation button { min-width: 23px; }
+  .dateNavigation { grid-template-columns: 25px 49px 25px; width: 99px; margin-top: 0; }
   .dateNavigation .todayButton { font-size: 9px; padding: 0 5px; }
   .viewTabs { width: 100%; }
   .viewTabs button { flex: 1; padding: 9px 7px; font-size: 10px; }

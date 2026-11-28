@@ -125,7 +125,7 @@ export default function CalendarBoard(props: CalendarBoardProps) {
   }
 
   return (
-    <main className={styles.root}>
+    <main className={`${styles.root} ${view === "week" ? styles.weekLayout : ""}`}>
       <header className={styles.header}>
         <Link href="/" className={styles.brand}><BrandLogo /><span>ValintaGuru</span></Link>
         <span className={styles.privateLabel}><Icon name="lock" />Vain sinulle</span>
@@ -212,25 +212,18 @@ function MiniCalendar({ month, selected, today, onMonth, onSelect }: { month: Da
 }
 
 function WeekGrid({ days, occurrences, categories, today, selected, onSelect, onCreate, onEdit }: { days: Date[]; occurrences: CalendarOccurrence[]; categories: Map<string, CalendarCategory>; today: Date; selected: Date; onSelect: (date: Date) => void; onCreate: (date: Date, hour: number) => void; onEdit: (event: CalendarEvent) => void }) {
-  const range = timelineHours(occurrences), rowHeight = 60;
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const weekKey = dateKey(days[0]);
-  const firstHour = Math.min(8, ...occurrences.filter(item => !item.event.all_day).map(item => Math.floor(dayMinute(item.start, item.day) / 60)));
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (firstHour - range.start) * rowHeight);
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [weekKey, firstHour, range.start]);
+  const range = timelineHours(occurrences);
+  const totalMinutes = (range.end - range.start) * 60;
   const allDay = occurrences.some(item => item.event.all_day);
-  return <div ref={scrollRef} className={styles.weekScroll}>
+  return <div className={styles.weekTimeline} style={{ "--hour-count": range.hours.length } as CSSProperties}>
     <div className={styles.weekHeading}><div className={styles.timezone}>AIKA</div>{days.map(day => <button type="button" key={dateKey(day)} onClick={() => onSelect(day)} aria-label={fullDate(day)} aria-pressed={dateKey(day) === dateKey(selected)} aria-current={dateKey(day) === dateKey(today) ? "date" : undefined} className={dateKey(day) === dateKey(today) ? styles.todayHeading : ""}><span>{day.toLocaleDateString("fi-FI", { weekday: "short" })}</span><strong>{day.getDate()}</strong></button>)}</div>
     {allDay && <div className={styles.allDayRow}><span>Koko päivä</span>{days.map(day => <div key={dateKey(day)}>{occurrences.filter(item => item.event.all_day && dateKey(item.day) === dateKey(day)).map(item => <button type="button" key={item.key} style={colorStyle(categories.get(item.event.category_id ?? ""))} className={styles.allDayEvent} onClick={() => onEdit(item.event)}>{item.event.title}</button>)}</div>)}</div>}
-    <div className={styles.weekBody} style={{ height: range.hours.length * rowHeight }}><div className={styles.hourLabels}>{range.hours.map(hour => <span key={hour} style={{ height: rowHeight }}>{pad(hour)}<small>:00</small></span>)}</div>{days.map(day => <div key={dateKey(day)} data-selected={dateKey(day) === dateKey(selected)} className={`${styles.dayColumn} ${dateKey(day) === dateKey(today) ? styles.todayColumn : ""} ${dateKey(day) === dateKey(selected) ? styles.selectedColumn : ""}`}>
-      {range.hours.map(hour => <button type="button" key={hour} tabIndex={-1} aria-label={`Lisää tapahtuma ${fullDate(day)} kello ${hour}`} className={styles.hourSlot} style={{ height: rowHeight }} onDoubleClick={() => onCreate(day, hour)} />)}
+    <div className={styles.weekBody}><div className={styles.hourLabels}>{range.hours.map(hour => <span key={hour}>{pad(hour)}<small>:00</small></span>)}</div>{days.map(day => <div key={dateKey(day)} data-selected={dateKey(day) === dateKey(selected)} className={`${styles.dayColumn} ${dateKey(day) === dateKey(today) ? styles.todayColumn : ""} ${dateKey(day) === dateKey(selected) ? styles.selectedColumn : ""}`}>
+      {range.hours.map(hour => <button type="button" key={hour} tabIndex={-1} aria-label={`Lisää tapahtuma ${fullDate(day)} kello ${hour}`} className={styles.hourSlot} onClick={() => onSelect(day)} onDoubleClick={() => onCreate(day, hour)} />)}
       {layoutDayEvents(occurrences.filter(item => dateKey(item.day) === dateKey(day))).map(item => {
-        const start = dayMinute(item.start, day), end = dayMinute(item.end, day), height = Math.max(25, (end - start) - 4);
-        return <button type="button" key={item.key} onClick={() => onEdit(item.event)} title={`${item.event.title} · ${occurrenceTime(item)}`} aria-label={`${item.event.title}, ${fullDate(day)}, ${occurrenceTime(item)}`} className={styles.eventCard} style={{ ...colorStyle(categories.get(item.event.category_id ?? "")), top: start - range.start * 60 + 2, height, left: `calc(${item.lane / item.lanes * 100}% + 4px)`, width: `calc(${100 / item.lanes}% - 8px)` }}><span className={styles.eventTitle}>{item.event.title}{item.event.importance !== "normal" && <Icon name="star" />}</span>{height >= 40 && <span className={styles.eventTime}>{item.lanes > 1 ? timeLabel(item.start) : occurrenceTime(item)}</span>}{height >= 65 && item.lanes === 1 && <span className={styles.eventCategory}>{categories.get(item.event.category_id ?? "")?.name}{item.event.recurrence !== "none" && <Icon name="repeat" />}</span>}</button>;
+        const start = dayMinute(item.start, day), end = dayMinute(item.end, day);
+        const top = (start - range.start * 60) / totalMinutes * 100;
+        return <button type="button" key={item.key} onClick={() => { onSelect(day); onEdit(item.event); }} title={`${item.event.title} · ${occurrenceTime(item)}`} aria-label={`${item.event.title}, ${fullDate(day)}, ${occurrenceTime(item)}`} className={styles.eventCard} style={{ ...colorStyle(categories.get(item.event.category_id ?? "")), top: `calc(${top}% + 1px)`, height: `max(18px, calc(${(end - start) / totalMinutes * 100}% - 3px))`, maxHeight: `calc(${100 - top}% - 1px)`, left: `calc(${item.lane / item.lanes * 100}% + 3px)`, width: `calc(${100 / item.lanes}% - 6px)` }}><span className={styles.eventCardContent}><span className={styles.eventTitle}>{item.event.title}{item.event.importance !== "normal" && <Icon name="star" />}</span><span className={styles.eventTime}>{item.lanes > 1 ? timeLabel(item.start) : occurrenceTime(item)}</span>{item.lanes === 1 && <span className={styles.eventCategory}>{categories.get(item.event.category_id ?? "")?.name}{item.event.recurrence !== "none" && <Icon name="repeat" />}</span>}</span></button>;
       })}
     </div>)}</div>
   </div>;
@@ -296,5 +289,5 @@ function NotesDialog({ notes, onClose, onAdd, onToggle, onDelete }: { notes: Cal
   }
   const active = notes.filter(note => !note.completed), completed = notes.filter(note => note.completed);
   const noteRow = (note: CalendarNote) => <div key={note.id} className={`${styles.noteRow} ${note.completed ? styles.noteCompleted : ""}`}><label><input type="checkbox" disabled={busy} checked={note.completed} onChange={() => void action(() => onToggle(note))} /><span>{note.text}</span></label><button type="button" disabled={busy} aria-label={`Poista muistiinpano: ${note.text}`} onClick={() => void action(() => onDelete(note))}><Icon name="trash" /></button></div>;
-  return <CalendarDialog title="Muistilista" onClose={onClose} busy={busy}><div className={styles.dialogBody}><p className={styles.notesIntro}>Pienet muistettavat asiat, ilman paikkaa aikataulussa.</p><form className={styles.noteForm} onSubmit={event => { event.preventDefault(); if (text.trim()) void action(async () => { await onAdd(text.trim()); setText(""); }); }}><input autoFocus required aria-label="Uusi muistiinpano" value={text} onChange={event => setText(event.target.value)} placeholder="Kirjoita muistiin…" /><button type="submit" disabled={busy || !text.trim()} aria-label="Lisää muistiinpano"><Icon name="plus" /></button></form>{error && <p role="alert" className={styles.formError}>{error}</p>}<div className={styles.noteList}>{active.map(noteRow)}{!notes.length && <p className={styles.quietText}>Ei vielä muistiinpanoja.</p>}</div>{completed.length > 0 && <details className={styles.completedNotes}><summary>Valmiit ({completed.length})</summary>{completed.map(noteRow)}</details>}</div><div className={styles.dialogFooter}><span /><button type="button" className={styles.secondaryButton} onClick={onClose} disabled={busy}>Valmis</button></div></CalendarDialog>;
+  return <CalendarDialog title="Muistilista" onClose={onClose} busy={busy}><div className={styles.dialogBody}><p className={styles.notesIntro}>Pienet muistettavat asiat, ilman paikkaa aikataulussa.</p><form className={styles.noteForm} onSubmit={event => { event.preventDefault(); if (text.trim()) void action(async () => { await onAdd(text.trim()); setText(""); }); }}><input autoFocus required disabled={busy} aria-label="Uusi muistiinpano" value={text} onChange={event => setText(event.target.value)} placeholder="Kirjoita muistiin…" /><button type="submit" disabled={busy || !text.trim()} aria-label="Lisää muistiinpano"><Icon name="plus" /></button></form>{error && <p role="alert" className={styles.formError}>{error}</p>}<div className={styles.noteList}>{active.map(noteRow)}{!notes.length && <p className={styles.quietText}>Ei vielä muistiinpanoja.</p>}</div>{completed.length > 0 && <details className={styles.completedNotes}><summary>Valmiit ({completed.length})</summary>{completed.map(noteRow)}</details>}</div><div className={styles.dialogFooter}><span /><button type="button" className={styles.secondaryButton} onClick={onClose} disabled={busy}>Valmis</button></div></CalendarDialog>;
 }
